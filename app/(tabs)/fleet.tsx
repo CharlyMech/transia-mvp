@@ -2,11 +2,11 @@ import AnimatedTabTransition from '@/components/AnimatedTabTransition';
 import { lightTheme } from '@/constants/theme';
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function HomeScreen() {
+export default function FleetScreen() {
 	return (
 		<AnimatedTabTransition>
 			<View style={styles.container}>
-				<Text style={styles.text}>Home screen</Text>
+				<Text style={styles.text}>Fleet screen</Text>
 			</View>
 		</AnimatedTabTransition>
 	);

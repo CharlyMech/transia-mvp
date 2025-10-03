@@ -1,53 +1,170 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
+import { MD3DarkTheme, MD3LightTheme } from "react-native-paper";
 
-import { Platform } from 'react-native';
+export const lightTheme = {
+	...MD3LightTheme,
+	colors: {
+		...MD3LightTheme.colors,
+		primary: "#57a773",
+		onPrimary: "#ffffff",
+		primaryContainer: "#b1f1c1",
+		onPrimaryContainer: "#11512e",
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+		secondary: "#4f6353",
+		onSecondary: "#ffffff",
+		secondaryContainer: "#d2e8d4",
+		onSecondaryContainer: "#384b3c",
 
-export const Colors = {
-  light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
-  },
-  dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-  },
+		tertiary: "#3a646f",
+		onTertiary: "#ffffff",
+		tertiaryContainer: "#beeaf6",
+		onTertiaryContainer: "#214c57",
+
+		error: "#ba1a1a",
+		onError: "#ffffff",
+		errorContainer: "#ffdad6",
+		onErrorContainer: "#93000a",
+
+		background: "#f0f0f0",
+		onBackground: "#181d18",
+
+		surface: "#ededed",
+		onSurface: "#181d18",
+
+		surfaceVariant: "#f6fbf3",
+		onSurfaceVariant: "#49454F",
+
+		outline: "#c1c1c1",
+
+		surfaceDisabled: "rgba(28,27,31,0.12)",
+		onSurfaceDisabled: "rgba(28,27,31,0.38)",
+
+		inverseSurface: "#2c322d",
+		inverseOnSurface: "#edf2eb",
+		inversePrimary: "#96d5a7",
+
+		shadow: "#000000",
+		backdrop: "rgba(0,0,0,0.4)",
+
+		elevation: {
+			level0: "transparent",
+			level1: "#F5F5F5",
+			level2: "#F0F0F0",
+			level3: "#EBEBEB",
+			level4: "#E8E8E8",
+			level5: "#E0E0E0",
+		},
+	},
+	roundness: 16,
 };
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
+export const darkTheme = {
+	...MD3DarkTheme,
+	colors: {
+		...MD3DarkTheme.colors,
+
+		primary: "#96d5a7",
+		onPrimary: "#00391c",
+		primaryContainer: "#11512e",
+		onPrimaryContainer: "#b1f1c1",
+
+		secondary: "#b6ccb9",
+		onSecondary: "#223527",
+		secondaryContainer: "#384b3c",
+		onSecondaryContainer: "#d2e8d4",
+
+		tertiary: "#a2cdda",
+		onTertiary: "#023640",
+		tertiaryContainer: "#214c57",
+		onTertiaryContainer: "#beeaf6",
+
+		error: "#ffb4ab",
+		onError: "#690005",
+		errorContainer: "#93000a",
+		onErrorContainer: "#ffdad6",
+
+		background: "#101510",
+		onBackground: "#dfe4dd",
+
+		surface: "#101510",
+		onSurface: "#dfe4dd",
+
+		surfaceVariant: "#101510",
+		onSurfaceVariant: "#c0c9bf",
+
+		outline: "#8b938a",
+
+		surfaceDisabled: "rgba(225,225,225,0.12)",
+		onSurfaceDisabled: "rgba(225,225,225,0.38)",
+
+		inverseSurface: "#dfe4dd",
+		inverseOnSurface: "#2c322d",
+		inversePrimary: "#2d6a44",
+
+		shadow: "#000000",
+		backdrop: "rgba(0,0,0,0.5)",
+
+		elevation: {
+			level0: "transparent",
+			level1: "rgba(77,182,172,0.05)",
+			level2: "rgba(77,182,172,0.08)",
+			level3: "rgba(77,182,172,0.11)",
+			level4: "rgba(77,182,172,0.12)",
+			level5: "rgba(77,182,172,0.14)",
+		},
+	},
+	roundness: 16,
+};
+
+// Espaciado consistente
+export const spacing = {
+	xs: 4,
+	sm: 8,
+	md: 16,
+	lg: 24,
+	xl: 32,
+	xxl: 48,
+};
+
+// Tamaños de fuente
+export const typography = {
+	displayLarge: 57,
+	displayMedium: 45,
+	displaySmall: 36,
+	headlineLarge: 32,
+	headlineMedium: 28,
+	headlineSmall: 24,
+	titleLarge: 22,
+	titleMedium: 16,
+	titleSmall: 14,
+	bodyLarge: 16,
+	bodyMedium: 14,
+	bodySmall: 12,
+	labelLarge: 14,
+	labelMedium: 12,
+	labelSmall: 11,
+};
+
+// Elevaciones (sombras)
+export const elevation = (theme: typeof lightTheme | typeof darkTheme) => ({
+	small: {
+		shadowColor: theme.colors.shadow,
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.1,
+		shadowRadius: 4,
+		elevation: 2,
+	},
+	medium: {
+		shadowColor: theme.colors.shadow,
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.15,
+		shadowRadius: 8,
+		elevation: 4,
+	},
+	large: {
+		shadowColor: theme.colors.shadow,
+		shadowOffset: { width: 0, height: 8 },
+		shadowOpacity: 0.2,
+		shadowRadius: 16,
+		elevation: 8,
+	},
 });
