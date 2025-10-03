@@ -1,62 +1,77 @@
-# Welcome to your Expo app 👋
+# 🚚 Transia MVP – Gestión de Flota de Vehículos
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicación móvil para la **gestión de flotas de transporte**.  
+Permite que conductores y administradores gestionen incidencias, asignaciones de vehículos, notificaciones de ITV/mantenimientos y control general de la flota en una única app.
 
-## Get started
+---
 
-1. Install dependencies
+## 🛠️ Stack Tecnológico
 
-   ```bash
-   npm install
-   ```
+Este proyecto está desarrollado con:
 
-2. Start the app
+-  **[Expo](https://expo.dev/)** + **React Native 19**
+-  **[Supabase](https://supabase.com/)** → como backend _serverless architecture_
+-  **TypeScript** para tipado estricto
+-  **React Navigation** para la navegación
+-  **React Native Paper (Material 3)** para UI
+-  **Zod** para validaciones de esquemas
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## 🚀 Cómo usar el proyecto
 
--  [development build](https://docs.expo.dev/develop/development-builds/introduction/)
--  [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
--  [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
--  [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### 1. Instalación
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+```bash
+npm install
+```
 
-## Get a fresh project
+### 2. Desarrollo (modo local)
 
-When you're ready, run:
+```bash
+npm start
+```
+
+### 3. Modo Test
+
+```bash
+npm run start:test
+```
+
+(Se puede abrir en Android/iOS/Web con los comandos correspondientes)
+
+### 4. Modo Producción
+
+```bash
+npm run start:prod
+```
+
+### 5. Resetear proyecto
 
 ```bash
 npm run reset-project
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## 👥 Contribución
 
-To learn more about developing your project with Expo, look at the following resources:
+Las contribuciones son bienvenidas 🎉
 
--  [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
--  [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+-  Puedes abrir un **Issue** para reportar errores o sugerir mejoras.
+-  Puedes enviar un **Pull Request** para colaborar directamente en el código.
 
-## Join the community
+Por favor, sigue las buenas prácticas de Git y explica claramente tus cambios en la descripción del PR.
 
-Join our community of developers creating universal apps.
-
--  [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
--  [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
 
 ## 📜 Licencia
 
-Este proyecto se distribuye bajo la licencia **GPL v3 - Uso No Comercial**.  
-Esto significa que:
+Este proyecto se distribuye bajo la licencia **GPL v3 - Uso No Comercial**.
 
 -  ✅ Puedes ver, usar y modificar el código.
 -  ✅ Puedes hacer **issues** y **pull requests** para mejorar el proyecto.
--  ❌ No puedes utilizar este código con fines comerciales.
+-  ❌ No puedes utilizar este código con fines **comerciales**.
 -  ❌ No puedes redistribuirlo como un producto de pago.
 
 Para un uso comercial del software, por favor **contacta conmigo** para discutir una licencia diferente.
