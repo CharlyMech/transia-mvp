@@ -1,0 +1,32 @@
+[
+	{
+		"id": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"name": "Carlos",
+		"surnames": "Pérez Alcaraz",
+		"personId": "12345678A",
+		"completeAddress": "Calle Principal, 123, Ibiza, 07800",
+		"phone": "+34123456789",
+		"email": "carlos.perez@transia.com",
+		"active": true
+	},
+	{
+		"id": "c9e99a91-2de5-4c90-8e52-d3f92d4c5f13",
+		"name": "Lucía",
+		"surnames": "Fernández López",
+		"personId": "87654321B",
+		"completeAddress": "Calle Secundaria, 456, Barcelona, 08001",
+		"phone": "+34987654321",
+		"email": "lucia.fernandez@transia.com",
+		"active": false
+	},
+	{
+		"id": "ee5a4b6a-43c4-4e1a-9d1c-12f03a47bbf5",
+		"name": "José",
+		"surnames": "García López",
+		"personId": "11223344C",
+		"completeAddress": "Calle Tercera, 789, Madrid, 28002",
+		"phone": "+34111122233",
+		"email": "jose.garcia@transia.com",
+		"active": true
+	}
+]

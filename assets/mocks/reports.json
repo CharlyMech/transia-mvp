@@ -1,0 +1,33 @@
+[
+	{
+		"id": "f6a9a2c1-17d9-48b0-802f-2d6a6f8a2b14",
+		"title": "Inspección de seguridad pendiente",
+		"description": "Se requiere una inspección de seguridad para el vehículo con matrícula 1234-ABC.",
+		"vehicleId": "11111111-1111-1111-1111-111111111111",
+		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"createdAt": "2025-09-29T09:15:00Z",
+		"checkedAt": "2025-09-29T09:15:00Z",
+		"read": true,
+		"active": true
+	},
+	{
+		"id": "9d6f21e2-85c3-4204-b4ad-7d8a2f4bcb99",
+		"title": "Mantenimiento completado",
+		"description": "Se requiere una inspección de seguridad para el vehículo con matrícula 1234-ABC.",
+		"vehicleId": "22222222-2222-2222-2222-222222222222",
+		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"createdAt": "2025-09-15T12:30:00Z",
+		"read": false,
+		"active": true
+	},
+	{
+		"id": "4b7a89a0-2266-47a1-8c44-32e1e94cdeff",
+		"title": "Nueva incidencia registrada",
+		"description": "Se requiere una inspección de seguridad para el vehículo con matrícula 1234-ABC.",
+		"vehicleId": "22222222-2222-2222-2222-222222222222",
+		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"createdAt": "2025-10-01T08:45:00Z",
+		"read": false,
+		"active": true
+	}
+]
