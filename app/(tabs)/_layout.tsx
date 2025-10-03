@@ -1,4 +1,4 @@
-import BottomNavBar from '@/components/BottomNavbar';
+import { BottomNavBar } from '@/components/BottomNavbar';
 import { lightTheme } from '@/constants/theme';
 import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';

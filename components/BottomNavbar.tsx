@@ -33,7 +33,7 @@ const ROUTES: RouteCfg[] = [
 //! Temporary reports number hard coded
 const reports: number = 4;
 
-export default function BottomNavBar({ state, navigation }: BottomTabBarProps) {
+export function BottomNavBar({ state, navigation }: BottomTabBarProps) {
 	const insets = useSafeAreaInsets();
 
 	const [tabsLayout, setTabsLayout] = useState<{ x: number; w: number }[]>(
@@ -143,6 +143,8 @@ const styles = StyleSheet.create({
 		bottom: 6,
 		left: 0,
 		backgroundColor: lightTheme.colors.primaryContainer,
+		height: 54,
+		width: 64,
 		borderRadius: 14,
 	},
 	tab: {
@@ -151,6 +153,7 @@ const styles = StyleSheet.create({
 	},
 	tabInner: {
 		height: 54,
+		width: 64,
 		borderRadius: 14,
 		alignItems: "center",
 		justifyContent: "center",
