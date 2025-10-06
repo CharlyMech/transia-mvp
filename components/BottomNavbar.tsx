@@ -1,4 +1,6 @@
 import { lightTheme } from "@/constants/theme";
+import type { Report } from "@/models/report";
+import { listReports } from "@/services/data/mock/reports";
 import { usePathname, useRouter } from "expo-router";
 import {
 	Home,
@@ -7,7 +9,7 @@ import {
 	SquareUserRound,
 	Truck,
 } from "lucide-react-native";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { LayoutChangeEvent, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
 	useAnimatedStyle,
@@ -30,9 +32,6 @@ const ROUTES: RouteCfg[] = [
 	{ key: "drivers", path: "/(tabs)/drivers", title: "Choferes", Icon: SquareUserRound },
 	{ key: "settings", path: "/(tabs)/settings", title: "Ajustes", Icon: SettingsIcon },
 ];
-
-//! Temporary reports number hard coded
-const reports: number = 4;
 
 export function BottomNavBar() {
 	const router = useRouter();
@@ -62,7 +61,17 @@ export function BottomNavBar() {
 		});
 	};
 
-	React.useEffect(() => {
+	const [reports, setReports] = useState<Report[]>([]);
+
+	useEffect(() => {
+		listReports()
+			.then(setReports)
+			.catch((err) => console.error("Error cargando drivers:", err));
+	}, []);
+
+	const unreadReports: number = reports.filter((report) => report.read === false).length;
+
+	useEffect(() => {
 		const info = tabsLayout[activeIndex];
 		if (info && (info.w > 0 || info.x > 0)) {
 			const duration = readyRef.current ? 180 : 0;
@@ -103,10 +112,10 @@ export function BottomNavBar() {
 						<View style={styles.tabInner}>
 							<View style={{ position: "relative" }}>
 								<IconComp size={22} color={color} />
-								{cfg.key === "reports" && reports > 0 && (
+								{cfg.key === "reports" && unreadReports > 0 && (
 									<View style={styles.badge}>
 										<Text style={styles.badgeText}>
-											{reports > 9 ? "9+" : reports}
+											{unreadReports > 9 ? "9+" : unreadReports}
 										</Text>
 									</View>
 								)}
