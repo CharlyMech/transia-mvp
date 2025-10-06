@@ -1,7 +1,6 @@
 import { lightTheme } from "@/constants/theme";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
-import { Pressable, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function DriversStack() {
@@ -10,11 +9,6 @@ export default function DriversStack() {
 			<Stack
 				screenOptions={{
 					headerShown: false,
-					// headerStyle: {
-					// 	backgroundColor: lightTheme.colors.surface,
-					// },
-					// headerTintColor: lightTheme.colors.onSurface,
-					// headerTitleAlign: "center",
 				}}
 			>
 				<Stack.Screen
@@ -22,16 +16,7 @@ export default function DriversStack() {
 					options={{ title: "Conductores" }}
 				/>
 				<Stack.Screen
-					name="[id]"
-					options={{
-						title: "Detalle de conductor",
-						headerLeft: ({ canGoBack, tintColor }) =>
-							canGoBack ? (
-								<Pressable onPress={() => history.back()}>
-									<MaterialCommunityIcons name="arrow-left" size={24} color={tintColor ?? "black"} />
-								</Pressable>
-							) : null,
-					}}
+					name="[id]/index"
 				/>
 			</Stack>
 		</SafeAreaView>
