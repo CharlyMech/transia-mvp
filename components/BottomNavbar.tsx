@@ -1,5 +1,5 @@
 import { lightTheme } from "@/constants/theme";
-import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { usePathname, useRouter } from "expo-router";
 import {
 	Home,
 	MessageSquareWarning,
@@ -18,22 +18,25 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type RouteCfg = {
 	key: string;
+	path: string;
 	title: string;
 	Icon: React.ComponentType<{ size?: number; color?: string }>;
 };
 
 const ROUTES: RouteCfg[] = [
-	{ key: "reports", title: "Reportes", Icon: MessageSquareWarning },
-	{ key: "fleet", title: "Flota", Icon: Truck },
-	{ key: "index", title: "Inicio", Icon: Home },
-	{ key: "drivers", title: "Choferes", Icon: SquareUserRound },
-	{ key: "settings", title: "Ajustes", Icon: SettingsIcon },
+	{ key: "reports", path: "/(tabs)/reports", title: "Reportes", Icon: MessageSquareWarning },
+	{ key: "fleet", path: "/(tabs)/fleet", title: "Flota", Icon: Truck },
+	{ key: "home", path: "/(tabs)", title: "Inicio", Icon: Home },
+	{ key: "drivers", path: "/(tabs)/drivers", title: "Choferes", Icon: SquareUserRound },
+	{ key: "settings", path: "/(tabs)/settings", title: "Ajustes", Icon: SettingsIcon },
 ];
 
 //! Temporary reports number hard coded
 const reports: number = 4;
 
-export function BottomNavBar({ state, navigation }: BottomTabBarProps) {
+export function BottomNavBar() {
+	const router = useRouter();
+	const pathname = usePathname();
 	const insets = useSafeAreaInsets();
 
 	const [tabsLayout, setTabsLayout] = useState<{ x: number; w: number }[]>(
@@ -43,6 +46,12 @@ export function BottomNavBar({ state, navigation }: BottomTabBarProps) {
 
 	const pillX = useSharedValue(0);
 	const pillW = useSharedValue(0);
+
+	// Determinar el índice activo basado en la ruta actual
+	const activeIndex = useMemo(() => {
+		const index = ROUTES.findIndex(route => pathname.includes(route.key));
+		return index !== -1 ? index : 2; // Default a "home"
+	}, [pathname]);
 
 	const onTabLayout = (index: number) => (e: LayoutChangeEvent) => {
 		const { x, width } = e.nativeEvent.layout;
@@ -54,8 +63,7 @@ export function BottomNavBar({ state, navigation }: BottomTabBarProps) {
 	};
 
 	React.useEffect(() => {
-		const idx = state.index;
-		const info = tabsLayout[idx];
+		const info = tabsLayout[activeIndex];
 		if (info && (info.w > 0 || info.x > 0)) {
 			const duration = readyRef.current ? 180 : 0;
 			pillX.value = withTiming(info.x + 8, { duration });
@@ -63,21 +71,22 @@ export function BottomNavBar({ state, navigation }: BottomTabBarProps) {
 			readyRef.current = true;
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [state.index, tabsLayout]);
+	}, [activeIndex, tabsLayout]);
 
 	const pillStyle = useAnimatedStyle(() => ({
 		transform: [{ translateX: pillX.value }],
 		width: pillW.value,
 	}));
 
-	const onPress = (routeKey: string, i: number) => () => {
-		navigation.navigate(state.routes[i].name);
+	const onPress = (path: string) => () => {
+		// Usar replace en lugar de push para mantener las pantallas cacheadas
+		router.replace(path as any);
 	};
 
 	const items = useMemo(
 		() =>
 			ROUTES.map((cfg, i) => {
-				const focused = state.index === i;
+				const focused = activeIndex === i;
 				const color = focused
 					? lightTheme.colors.onPrimaryContainer
 					: lightTheme.colors.onSurfaceVariant;
@@ -86,7 +95,7 @@ export function BottomNavBar({ state, navigation }: BottomTabBarProps) {
 				return (
 					<TouchableOpacity
 						key={cfg.key}
-						onPress={onPress(cfg.key, i)}
+						onPress={onPress(cfg.path)}
 						onLayout={onTabLayout(i)}
 						activeOpacity={0.8}
 						style={styles.tab}
@@ -110,7 +119,7 @@ export function BottomNavBar({ state, navigation }: BottomTabBarProps) {
 				);
 			}),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[state.index, tabsLayout]
+		[activeIndex, tabsLayout]
 	);
 
 	return (

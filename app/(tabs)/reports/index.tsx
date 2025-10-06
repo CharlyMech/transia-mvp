@@ -1,4 +1,3 @@
-import AnimatedTabTransition from '@/components/AnimatedTabTransition';
 import { lightTheme } from '@/constants/theme';
 import type { Report } from '@/models/report';
 import { listReports } from '@/services/data/mock/reports';
@@ -13,25 +12,23 @@ export default function ReportsScreen() {
 	}, []);
 
 	return (
-		<AnimatedTabTransition>
-			<View style={styles.container}>
-				<FlatList
-					data={reports}
-					keyExtractor={(item) => item.id}
-					renderItem={({ item }) => (
-						<View style={styles.card}>
-							<Text style={styles.title}>{item.title}</Text>
-							<Text style={styles.meta}>
-								{item.read ? "✅ Leído" : "🔴 Sin leer"}
-							</Text>
-							<Text style={styles.meta}>
-								{new Date(item.createdAt).toLocaleDateString()}
-							</Text>
-						</View>
-					)}
-				/>
-			</View>
-		</AnimatedTabTransition>
+		<View style={styles.container}>
+			<FlatList
+				data={reports}
+				keyExtractor={(item) => item.id}
+				renderItem={({ item }) => (
+					<View style={styles.card}>
+						<Text style={styles.title}>{item.title}</Text>
+						<Text style={styles.meta}>
+							{item.read ? "✅ Leído" : "🔴 Sin leer"}
+						</Text>
+						<Text style={styles.meta}>
+							{new Date(item.createdAt).toLocaleDateString()}
+						</Text>
+					</View>
+				)}
+			/>
+		</View>
 	);
 }
 

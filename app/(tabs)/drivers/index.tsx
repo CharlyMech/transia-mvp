@@ -1,4 +1,3 @@
-import AnimatedTabTransition from '@/components/AnimatedTabTransition';
 import { lightTheme } from '@/constants/theme';
 import type { Driver } from "@/models/driver";
 import { listDrivers } from '@/services/data/mock/drivers';
@@ -15,23 +14,21 @@ export default function DriversScreen() {
 	}, []);
 
 	return (
-		<AnimatedTabTransition>
-			<View style={styles.container}>
-				<FlatList
-					data={drivers}
-					keyExtractor={(item) => item.id}
-					renderItem={({ item }) => (
-						<View style={styles.card}>
-							<Text style={styles.name}>{item.name}</Text>
-							<Text style={styles.phone}>{item.phone ?? "Sin teléfono"}</Text>
-							<Text style={styles.status}>
-								{item.active ? "Activo" : "Inactivo"}
-							</Text>
-						</View>
-					)}
-				/>
-			</View>
-		</AnimatedTabTransition>
+		<View style={styles.container}>
+			<FlatList
+				data={drivers}
+				keyExtractor={(item) => item.id}
+				renderItem={({ item }) => (
+					<View style={styles.card}>
+						<Text style={styles.name}>{item.name}</Text>
+						<Text style={styles.phone}>{item.phone ?? "Sin teléfono"}</Text>
+						<Text style={styles.status}>
+							{item.active ? "Activo" : "Inactivo"}
+						</Text>
+					</View>
+				)}
+			/>
+		</View>
 	);
 }
 

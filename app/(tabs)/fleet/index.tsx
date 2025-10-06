@@ -1,4 +1,3 @@
-import AnimatedTabTransition from "@/components/AnimatedTabTransition";
 import { lightTheme } from "@/constants/theme";
 import type { Vehicle } from "@/models/vehicle"; // asegúrate que coincide con el schema real
 import { listFleet } from "@/services/data/mock/fleet";
@@ -13,26 +12,24 @@ export default function FleetScreen() {
 	}, []);
 
 	return (
-		<AnimatedTabTransition>
-			<View style={styles.container}>
-				<FlatList
-					data={vehicles}
-					keyExtractor={(item) => item.id}
-					renderItem={({ item }) => (
-						<View style={styles.card}>
-							<Text style={styles.title}>
-								{item.vehicleBrand} {item.vehicleModel} ({item.year})
-							</Text>
-							<Text style={styles.meta}>Tipo: {item.vehicleType}</Text>
-							<Text style={styles.meta}>Matrícula: {item.plateNumber}</Text>
-							<Text style={[styles.meta, { color: item.active ? "green" : "red" }]}>
-								{item.active ? "Activo" : "Inactivo"}
-							</Text>
-						</View>
-					)}
-				/>
-			</View>
-		</AnimatedTabTransition>
+		<View style={styles.container}>
+			<FlatList
+				data={vehicles}
+				keyExtractor={(item) => item.id}
+				renderItem={({ item }) => (
+					<View style={styles.card}>
+						<Text style={styles.title}>
+							{item.vehicleBrand} {item.vehicleModel} ({item.year})
+						</Text>
+						<Text style={styles.meta}>Tipo: {item.vehicleType}</Text>
+						<Text style={styles.meta}>Matrícula: {item.plateNumber}</Text>
+						<Text style={[styles.meta, { color: item.active ? "green" : "red" }]}>
+							{item.active ? "Activo" : "Inactivo"}
+						</Text>
+					</View>
+				)}
+			/>
+		</View>
 	);
 }
 

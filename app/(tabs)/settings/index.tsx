@@ -1,14 +1,11 @@
-import AnimatedTabTransition from '@/components/AnimatedTabTransition';
 import { lightTheme } from '@/constants/theme';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function SettingsScreen() {
 	return (
-		<AnimatedTabTransition>
-			<View style={styles.container}>
-				<Text style={styles.text}>Settings screen</Text>
-			</View>
-		</AnimatedTabTransition>
+		<View style={styles.container}>
+			<Text style={styles.text}>Settings screen</Text>
+		</View>
 	);
 }
 

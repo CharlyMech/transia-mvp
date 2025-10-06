@@ -9,18 +9,13 @@ export default function TabLayout() {
 			<StatusBar style="dark" backgroundColor={lightTheme.colors.surface} />
 			<Tabs
 				screenOptions={{
-					headerShown: true,
-					headerStyle: {
-						backgroundColor: lightTheme.colors.surface,
-					},
-					headerTintColor: lightTheme.colors.onSurface,
-					headerTitleAlign: 'center',
+					headerShown: false,
 				}}
-				tabBar={(props) => <BottomNavBar {...props} />}
+				tabBar={(props) => <BottomNavBar />}
 			>
 				<Tabs.Screen name="reports" options={{ title: "Reportes" }} />
 				<Tabs.Screen name="fleet" options={{ title: "Flota" }} />
-				<Tabs.Screen name="index" options={{ title: "Inicio" }} />
+				<Tabs.Screen name="home" options={{ title: "Inicio" }} />
 				<Tabs.Screen name="drivers" options={{ title: "Conductores" }} />
 				<Tabs.Screen name="settings" options={{ title: "Ajustes" }} />
 			</Tabs>
