@@ -27,7 +27,7 @@ export const lightTheme = {
 		background: "#f0f0f0",
 		onBackground: "#181d18",
 
-		surface: "#ededed",
+		surface: "#e0e0e0",
 		onSurface: "#181d18",
 
 		surfaceVariant: "#f6fbf3",
