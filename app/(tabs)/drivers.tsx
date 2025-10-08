@@ -45,8 +45,6 @@ export default function DriversScreen() {
 						onPress={() => router.push(`/drivers/${item.id}`)}
 						paddingX={spacing.md}
 						paddingY={spacing.sm}
-						border={true}
-						borderColor={lightTheme.colors.outline}
 						shadow='none'
 						backgroundColor={lightTheme.colors.surface}
 					>

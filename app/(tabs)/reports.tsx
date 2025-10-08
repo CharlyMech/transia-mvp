@@ -1,8 +1,13 @@
-import { lightTheme } from '@/constants/theme';
+import { Button } from '@/components/Button';
+import { Card } from '@/components/Card';
+import { lightTheme, spacing, typography } from '@/constants/theme';
 import type { Report } from '@/models/report';
 import { listReports } from '@/services/data/mock/reports';
+import { router } from 'expo-router';
+import { Plus } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ReportsScreen() {
 	const [reports, setReports] = useState<Report[]>([]);
@@ -12,23 +17,54 @@ export default function ReportsScreen() {
 	}, []);
 
 	return (
-		<View style={styles.container}>
-			<FlatList
-				data={reports}
-				keyExtractor={(item) => item.id}
-				renderItem={({ item }) => (
-					<View style={styles.card}>
-						<Text style={styles.title}>{item.title}</Text>
-						<Text style={styles.meta}>
-							{item.read ? "✅ Leído" : "🔴 Sin leer"}
-						</Text>
-						<Text style={styles.meta}>
-							{new Date(item.createdAt).toLocaleDateString()}
-						</Text>
-					</View>
-				)}
-			/>
-		</View>
+		<SafeAreaView style={styles.container} edges={['top']}>
+			<ScrollView
+				style={{ width: "100%" }}
+				contentContainerStyle={{ padding: spacing.sm, gap: spacing.sm }}
+				showsVerticalScrollIndicator={false}
+			>
+				<View style={{
+					width: "100%",
+					flexDirection: 'row',
+					alignItems: 'center',
+					justifyContent: 'flex-end',
+					marginBottom: spacing.sm
+				}}>
+					<Button
+						label="Nuevo"
+						icon={Plus}
+						onPress={() => router.push("/reports/new-report")}
+					/>
+				</View>
+
+				{reports.map((item) => (
+					<Card
+						key={item.id}
+						onPress={() => router.push(`/reports/${item.id}`)}
+						paddingX={spacing.md}
+						paddingY={spacing.sm}
+						shadow='none'
+						backgroundColor={lightTheme.colors.surface}
+					>
+						<View style={{ gap: spacing.xs }}>
+							<Text style={{ fontSize: typography.bodyLarge, fontWeight: "700" }}>
+								{item.title}
+							</Text>
+							<Text style={{ opacity: 0.7 }}>
+								{new Date(item.createdAt).toLocaleDateString()}
+							</Text>
+							<Text style={{
+								color: item.read ? "green" : "red",
+								fontWeight: "600",
+								fontSize: typography.bodyMedium
+							}}>
+								{item.read ? "Leído" : "Sin leer"}
+							</Text>
+						</View>
+					</Card>
+				))}
+			</ScrollView>
+		</SafeAreaView>
 	);
 }
 
@@ -36,23 +72,5 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: lightTheme.colors.background,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	card: {
-		backgroundColor: lightTheme.colors.surface,
-		borderRadius: 12,
-		padding: 16,
-		marginBottom: 12,
-	},
-	title: {
-		fontSize: 16,
-		fontWeight: "600",
-		color: lightTheme.colors.onSurface,
-	},
-	meta: {
-		fontSize: 12,
-		color: lightTheme.colors.onSurfaceVariant,
-		marginTop: 4,
 	},
 });
