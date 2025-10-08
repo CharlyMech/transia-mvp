@@ -24,10 +24,10 @@ export const lightTheme = {
 		errorContainer: "#ffdad6",
 		onErrorContainer: "#93000a",
 
-		background: "#f0f0f0",
+		background: "#e0e0e0",
 		onBackground: "#181d18",
 
-		surface: "#e0e0e0",
+		surface: "#f0f0f0",
 		onSurface: "#181d18",
 
 		surfaceVariant: "#f6fbf3",
@@ -81,11 +81,11 @@ export const darkTheme = {
 		errorContainer: "#93000a",
 		onErrorContainer: "#ffdad6",
 
-		background: "#101510",
-		onBackground: "#dfe4dd",
+		background: "#e0e0e0",
+		onBackground: "#181d18",
 
-		surface: "#101510",
-		onSurface: "#dfe4dd",
+		surface: "#f0f0f0",
+		onSurface: "#181d18",
 
 		surfaceVariant: "#101510",
 		onSurfaceVariant: "#c0c9bf",
