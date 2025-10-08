@@ -15,7 +15,7 @@ export default function TabLayout() {
 			>
 				<Tabs.Screen name="reports" options={{ title: "Reportes" }} />
 				<Tabs.Screen name="fleet" options={{ title: "Flota" }} />
-				<Tabs.Screen name="home" options={{ title: "Inicio" }} />
+				<Tabs.Screen name="index" options={{ title: "Inicio" }} />
 				<Tabs.Screen name="drivers" options={{ title: "Conductores" }} />
 				<Tabs.Screen name="settings" options={{ title: "Ajustes" }} />
 			</Tabs>
