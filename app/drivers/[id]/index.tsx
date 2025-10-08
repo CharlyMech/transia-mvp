@@ -4,33 +4,29 @@ import {
 	Animated,
 	Dimensions,
 	Image,
-	StatusBar,
 	StyleSheet,
 	View
 } from 'react-native';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const HEADER_HEIGHT = 300;
-const SCROLL_DISTANCE = 250; // Complete animation distance
+const SCROLL_DISTANCE = 250;
 
 export default function DriverProfileScreen() {
 	const scrollY = useRef(new Animated.Value(0)).current;
 
-	// Animation for header height - completely disappears
 	const headerHeight = scrollY.interpolate({
 		inputRange: [0, SCROLL_DISTANCE],
 		outputRange: [HEADER_HEIGHT, 0],
 		extrapolate: 'clamp',
 	});
 
-	// Animation for image scale - completely disappears
 	const imageScale = scrollY.interpolate({
 		inputRange: [0, SCROLL_DISTANCE * 0.7, SCROLL_DISTANCE],
 		outputRange: [1, 0.3, 0],
 		extrapolate: 'clamp',
 	});
 
-	// Animation for header opacity - completely disappears
 	const headerOpacity = scrollY.interpolate({
 		inputRange: [0, SCROLL_DISTANCE * 0.8, SCROLL_DISTANCE],
 		outputRange: [1, 0.3, 0],
@@ -39,13 +35,6 @@ export default function DriverProfileScreen() {
 
 	return (
 		<View style={styles.container}>
-			<StatusBar
-				barStyle="dark-content"
-				backgroundColor={lightTheme.colors.surface}
-				translucent={false}
-			/>
-
-			{/* Animated header */}
 			<Animated.View
 				style={[
 					styles.header,
@@ -56,7 +45,6 @@ export default function DriverProfileScreen() {
 					}
 				]}
 			>
-				{/* Driver image */}
 				<Animated.View
 					style={[
 						styles.imageContainer,
@@ -75,7 +63,6 @@ export default function DriverProfileScreen() {
 				</Animated.View>
 			</Animated.View>
 
-			{/* Scrollable content */}
 			<Animated.ScrollView
 				style={styles.scrollView}
 				contentContainerStyle={styles.scrollViewContent}
@@ -87,12 +74,9 @@ export default function DriverProfileScreen() {
 				scrollEventThrottle={16}
 				bounces={false}
 			>
-				{/* Spacer for header */}
 				<View style={styles.headerSpacer} />
 
-				{/* Main content */}
 				<View style={styles.content}>
-					{/* Content goes here */}
 					<View style={styles.contentPlaceholder}>
 						{/* Add your content here */}
 					</View>
@@ -100,7 +84,7 @@ export default function DriverProfileScreen() {
 			</Animated.ScrollView>
 		</View>
 	);
-};
+}
 
 const styles = StyleSheet.create({
 	container: {
@@ -115,7 +99,6 @@ const styles = StyleSheet.create({
 		zIndex: 1000,
 		justifyContent: 'center',
 		alignItems: 'center',
-		paddingTop: StatusBar.currentHeight || 44,
 	},
 	imageContainer: {
 		marginTop: 30,

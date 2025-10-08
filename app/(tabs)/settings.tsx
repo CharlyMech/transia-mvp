@@ -1,10 +1,10 @@
 import { lightTheme } from '@/constants/theme';
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function NewDriverScreen() {
+export default function SettingsScreen() {
 	return (
 		<View style={styles.container}>
-			<Text style={styles.text}>Nuevo conductor</Text>
+			<Text style={styles.text}>Settings screen</Text>
 		</View>
 	);
 }

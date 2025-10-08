@@ -6,7 +6,8 @@ import { listDrivers } from '@/services/data/mock/drivers';
 import { router } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DriversScreen() {
 	const [drivers, setDrivers] = useState<Driver[]>([]);
@@ -18,27 +19,29 @@ export default function DriversScreen() {
 	}, []);
 
 	return (
-		<View style={styles.container}>
-			<View style={{
-				width: "100%",
-				flexDirection: 'row',
-				alignItems: 'center',
-				justifyContent: 'flex-end',
-				padding: spacing.sm
-			}}>
-				<Button
-					label="Nuevo"
-					icon={Plus}
-					onPress={() => router.push("/drivers/new-driver")}
-				/>
-			</View>
-			<FlatList
-				contentContainerStyle={{ padding: spacing.sm, gap: spacing.sm }}
+		<SafeAreaView style={styles.container} edges={['top']}>
+			<ScrollView
 				style={{ width: "100%" }}
-				data={drivers}
-				keyExtractor={(item) => item.id}
-				renderItem={({ item }) => (
+				contentContainerStyle={{ padding: spacing.sm, gap: spacing.sm }}
+				showsVerticalScrollIndicator={false}
+			>
+				<View style={{
+					width: "100%",
+					flexDirection: 'row',
+					alignItems: 'center',
+					justifyContent: 'flex-end',
+					marginBottom: spacing.sm
+				}}>
+					<Button
+						label="Nuevo"
+						icon={Plus}
+						onPress={() => router.push("/drivers/new-driver")}
+					/>
+				</View>
+
+				{drivers.map((item) => (
 					<Card
+						key={item.id}
 						onPress={() => router.push(`/drivers/${item.id}`)}
 						paddingX={spacing.md}
 						paddingY={spacing.sm}
@@ -57,19 +60,15 @@ export default function DriversScreen() {
 							</Text>
 						</View>
 					</Card>
-				)}
-			/>
-
-		</View>
+				))}
+			</ScrollView>
+		</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		flexDirection: "column",
 		backgroundColor: lightTheme.colors.background,
-		justifyContent: 'center',
-		alignItems: 'center',
 	},
 });
