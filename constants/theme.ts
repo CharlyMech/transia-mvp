@@ -121,6 +121,7 @@ export const roundness = {
 	lg: 24,
 	xl: 32,
 	xxl: 48,
+	full: 10000,
 };
 
 // Spacing
@@ -131,6 +132,7 @@ export const spacing = {
 	lg: 24,
 	xl: 32,
 	xxl: 48,
+	xxxl: 56,
 };
 
 // Font sizes
