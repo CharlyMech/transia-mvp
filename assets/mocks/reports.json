@@ -13,7 +13,7 @@
 	{
 		"id": "9d6f21e2-85c3-4204-b4ad-7d8a2f4bcb99",
 		"title": "Mantenimiento completado",
-		"description": "Se requiere una inspección de seguridad para el vehículo con matrícula 1234-ABC.",
+		"description": "Se completó el mantenimiento programado del vehículo con matrícula 5678-XYZ.",
 		"vehicleId": "22222222-2222-2222-2222-222222222222",
 		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
 		"createdAt": "2025-09-15T12:30:00Z",
@@ -23,11 +23,64 @@
 	{
 		"id": "4b7a89a0-2266-47a1-8c44-32e1e94cdeff",
 		"title": "Nueva incidencia registrada",
-		"description": "Se requiere una inspección de seguridad para el vehículo con matrícula 1234-ABC.",
+		"description": "Se reportó un problema menor en el sistema de iluminación del vehículo 5678-XYZ.",
 		"vehicleId": "22222222-2222-2222-2222-222222222222",
 		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
 		"createdAt": "2025-10-01T08:45:00Z",
 		"read": false,
+		"active": true
+	},
+	{
+		"id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+		"title": "Cambio de aceite realizado",
+		"description": "Se realizó el cambio de aceite del motor del vehículo 2345-DEF según el programa de mantenimiento.",
+		"vehicleId": "44444444-4444-4444-4444-444444444444",
+		"driverId": "b8d2c3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e",
+		"createdAt": "2025-09-20T14:20:00Z",
+		"checkedAt": "2025-09-21T10:00:00Z",
+		"read": true,
+		"active": true
+	},
+	{
+		"id": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+		"title": "Fallo en sistema de frenos",
+		"description": "Conductor reporta ruidos anormales en el sistema de frenos del vehículo 3456-GHI. Requiere revisión urgente.",
+		"vehicleId": "55555555-5555-5555-5555-555555555555",
+		"driverId": "c7a1b2c3-d4e5-f6a7-b8c9-d0e1f2a3b4c5",
+		"createdAt": "2025-10-03T07:30:00Z",
+		"read": false,
+		"active": true
+	},
+	{
+		"id": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+		"title": "Revisión ITV superada",
+		"description": "El vehículo 4567-JKL ha superado la inspección técnica de vehículos sin observaciones.",
+		"vehicleId": "66666666-6666-6666-6666-666666666666",
+		"driverId": "ee5a4b6a-43c4-4e1a-9d1c-12f03a47bbf5",
+		"createdAt": "2025-09-18T11:45:00Z",
+		"checkedAt": "2025-09-18T16:30:00Z",
+		"read": true,
+		"active": true
+	},
+	{
+		"id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+		"title": "Neumáticos desgastados",
+		"description": "Los neumáticos traseros del vehículo 5678-MNO presentan desgaste considerable. Programar reemplazo.",
+		"vehicleId": "77777777-7777-7777-7777-777777777777",
+		"driverId": "e5a4b3c2-d1e0-f9a8-b7c6-d5e4f3a2b1c0",
+		"createdAt": "2025-10-02T16:10:00Z",
+		"read": false,
+		"active": true
+	},
+	{
+		"id": "5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
+		"title": "Limpieza profunda completada",
+		"description": "Se realizó limpieza y desinfección completa del interior del vehículo 6789-PQR.",
+		"vehicleId": "88888888-8888-8888-8888-888888888888",
+		"driverId": "f4c3b2a1-e0d9-c8b7-a6f5-e4d3c2b1a0f9",
+		"createdAt": "2025-09-25T13:00:00Z",
+		"checkedAt": "2025-09-25T15:30:00Z",
+		"read": true,
 		"active": true
 	}
 ]

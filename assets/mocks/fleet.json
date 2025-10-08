@@ -25,5 +25,158 @@
 		"vehicleType": "Van",
 		"plateNumber": "1111-BBB",
 		"active": false
+	},
+	{
+		"id": "44444444-4444-4444-4444-444444444444",
+		"vehicleBrand": "Volvo",
+		"vehicleModel": "FH16",
+		"year": 2023,
+		"vehicleType": "Truck",
+		"plateNumber": "2345-DEF",
+		"active": true
+	},
+	{
+		"id": "55555555-5555-5555-5555-555555555555",
+		"vehicleBrand": "MAN",
+		"vehicleModel": "TGX",
+		"year": 2021,
+		"vehicleType": "Truck",
+		"plateNumber": "3456-GHI",
+		"active": true
+	},
+	{
+		"id": "66666666-6666-6666-6666-666666666666",
+		"vehicleBrand": "Iveco",
+		"vehicleModel": "Stralis",
+		"year": 2022,
+		"vehicleType": "Truck",
+		"plateNumber": "4567-JKL",
+		"active": true
+	},
+	{
+		"id": "77777777-7777-7777-7777-777777777777",
+		"vehicleBrand": "Renault",
+		"vehicleModel": "Master",
+		"year": 2023,
+		"vehicleType": "Van",
+		"plateNumber": "5678-MNO",
+		"active": true
+	},
+	{
+		"id": "88888888-8888-8888-8888-888888888888",
+		"vehicleBrand": "Mercedes",
+		"vehicleModel": "Sprinter",
+		"year": 2022,
+		"vehicleType": "Van",
+		"plateNumber": "6789-PQR",
+		"active": false
+	},
+	{
+		"id": "99999999-9999-9999-9999-999999999999",
+		"vehicleBrand": "DAF",
+		"vehicleModel": "XF",
+		"year": 2023,
+		"vehicleType": "Truck",
+		"plateNumber": "7890-STU",
+		"active": true
+	},
+	{
+		"id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+		"vehicleBrand": "Scania",
+		"vehicleModel": "S500",
+		"year": 2021,
+		"vehicleType": "Truck",
+		"plateNumber": "8901-VWX",
+		"active": true
+	},
+	{
+		"id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+		"vehicleBrand": "Volkswagen",
+		"vehicleModel": "Crafter",
+		"year": 2022,
+		"vehicleType": "Van",
+		"plateNumber": "9012-YZA",
+		"active": true
+	},
+	{
+		"id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+		"vehicleBrand": "Mercedes",
+		"vehicleModel": "Arocs",
+		"year": 2023,
+		"vehicleType": "Truck",
+		"plateNumber": "0123-BCD",
+		"active": true
+	},
+	{
+		"id": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+		"vehicleBrand": "Volvo",
+		"vehicleModel": "FM",
+		"year": 2021,
+		"vehicleType": "Truck",
+		"plateNumber": "1234-EFG",
+		"active": false
+	},
+	{
+		"id": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+		"vehicleBrand": "Peugeot",
+		"vehicleModel": "Boxer",
+		"year": 2022,
+		"vehicleType": "Van",
+		"plateNumber": "2345-HIJ",
+		"active": true
+	},
+	{
+		"id": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+		"vehicleBrand": "MAN",
+		"vehicleModel": "TGL",
+		"year": 2023,
+		"vehicleType": "Truck",
+		"plateNumber": "3456-KLM",
+		"active": true
+	},
+	{
+		"id": "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1",
+		"vehicleBrand": "Iveco",
+		"vehicleModel": "Daily",
+		"year": 2022,
+		"vehicleType": "Van",
+		"plateNumber": "4567-NOP",
+		"active": true
+	},
+	{
+		"id": "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
+		"vehicleBrand": "DAF",
+		"vehicleModel": "CF",
+		"year": 2021,
+		"vehicleType": "Truck",
+		"plateNumber": "5678-QRS",
+		"active": true
+	},
+	{
+		"id": "c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3",
+		"vehicleBrand": "Scania",
+		"vehicleModel": "P320",
+		"year": 2023,
+		"vehicleType": "Truck",
+		"plateNumber": "6789-TUV",
+		"active": true
+	},
+	{
+		"id": "d4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4",
+		"vehicleBrand": "Citroën",
+		"vehicleModel": "Jumper",
+		"year": 2022,
+		"vehicleType": "Van",
+		"plateNumber": "7890-WXY",
+		"active": false
+	},
+	{
+		"id": "e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e5",
+		"vehicleBrand": "Renault",
+		"vehicleModel": "T High",
+		"year": 2023,
+		"vehicleType": "Truck",
+		"plateNumber": "8901-ZAB",
+		"active": true
 	}
 ]

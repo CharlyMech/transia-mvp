@@ -28,5 +28,175 @@
 		"phone": "+34111122233",
 		"email": "jose.garcia@transia.com",
 		"active": true
+	},
+	{
+		"id": "b8d2c3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e",
+		"name": "María",
+		"surnames": "Rodríguez Sánchez",
+		"personId": "22334455D",
+		"completeAddress": "Avenida del Mar, 45, Valencia, 46001",
+		"phone": "+34222333444",
+		"email": "maria.rodriguez@transia.com",
+		"active": true
+	},
+	{
+		"id": "c7a1b2c3-d4e5-f6a7-b8c9-d0e1f2a3b4c5",
+		"name": "Antonio",
+		"surnames": "Martínez Ruiz",
+		"personId": "33445566E",
+		"completeAddress": "Plaza Mayor, 12, Sevilla, 41001",
+		"phone": "+34333444555",
+		"email": "antonio.martinez@transia.com",
+		"active": true
+	},
+	{
+		"id": "d6b5c4a3-e2f1-a0b9-c8d7-e6f5a4b3c2d1",
+		"name": "Carmen",
+		"surnames": "González Moreno",
+		"personId": "44556677F",
+		"completeAddress": "Calle Nueva, 78, Málaga, 29001",
+		"phone": "+34444555666",
+		"email": "carmen.gonzalez@transia.com",
+		"active": false
+	},
+	{
+		"id": "e5a4b3c2-d1e0-f9a8-b7c6-d5e4f3a2b1c0",
+		"name": "Francisco",
+		"surnames": "Díaz Navarro",
+		"personId": "55667788G",
+		"completeAddress": "Paseo Central, 234, Zaragoza, 50001",
+		"phone": "+34555666777",
+		"email": "francisco.diaz@transia.com",
+		"active": true
+	},
+	{
+		"id": "f4c3b2a1-e0d9-c8b7-a6f5-e4d3c2b1a0f9",
+		"name": "Isabel",
+		"surnames": "Jiménez Torres",
+		"personId": "66778899H",
+		"completeAddress": "Ronda Norte, 56, Bilbao, 48001",
+		"phone": "+34666777888",
+		"email": "isabel.jimenez@transia.com",
+		"active": true
+	},
+	{
+		"id": "a9b8c7d6-e5f4-a3b2-c1d0-e9f8a7b6c5d4",
+		"name": "Manuel",
+		"surnames": "Ruiz Castro",
+		"personId": "77889900I",
+		"completeAddress": "Calle Larga, 101, Murcia, 30001",
+		"phone": "+34777888999",
+		"email": "manuel.ruiz@transia.com",
+		"active": true
+	},
+	{
+		"id": "b0c9d8e7-f6a5-b4c3-d2e1-f0a9b8c7d6e5",
+		"name": "Teresa",
+		"surnames": "Ramírez Gil",
+		"personId": "88990011J",
+		"completeAddress": "Avenida Libertad, 67, Palma, 07001",
+		"phone": "+34888999000",
+		"email": "teresa.ramirez@transia.com",
+		"active": false
+	},
+	{
+		"id": "c1d0e9f8-a7b6-c5d4-e3f2-a1b0c9d8e7f6",
+		"name": "Pedro",
+		"surnames": "Romero Vega",
+		"personId": "99001122K",
+		"completeAddress": "Calle Estrella, 89, Las Palmas, 35001",
+		"phone": "+34999000111",
+		"email": "pedro.romero@transia.com",
+		"active": true
+	},
+	{
+		"id": "d2e1f0a9-b8c7-d6e5-f4a3-b2c1d0e9f8a7",
+		"name": "Ana",
+		"surnames": "Serrano Ortiz",
+		"personId": "00112233L",
+		"completeAddress": "Plaza España, 23, Alicante, 03001",
+		"phone": "+34000111222",
+		"email": "ana.serrano@transia.com",
+		"active": true
+	},
+	{
+		"id": "e3f2a1b0-c9d8-e7f6-a5b4-c3d2e1f0a9b8",
+		"name": "Miguel",
+		"surnames": "Molina Prieto",
+		"personId": "11223355M",
+		"completeAddress": "Camino Real, 145, Córdoba, 14001",
+		"phone": "+34111222333",
+		"email": "miguel.molina@transia.com",
+		"active": true
+	},
+	{
+		"id": "f4a3b2c1-d0e9-f8a7-b6c5-d4e3f2a1b0c9",
+		"name": "Rosa",
+		"surnames": "Castro Blanco",
+		"personId": "22334466N",
+		"completeAddress": "Ronda Sur, 78, Valladolid, 47001",
+		"phone": "+34222333555",
+		"email": "rosa.castro@transia.com",
+		"active": false
+	},
+	{
+		"id": "a5b4c3d2-e1f0-a9b8-c7d6-e5f4a3b2c1d0",
+		"name": "Javier",
+		"surnames": "Iglesias Medina",
+		"personId": "33445577O",
+		"completeAddress": "Calle Olivo, 92, Vigo, 36201",
+		"phone": "+34333444666",
+		"email": "javier.iglesias@transia.com",
+		"active": true
+	},
+	{
+		"id": "b6c5d4e3-f2a1-b0c9-d8e7-f6a5b4c3d2e1",
+		"name": "Dolores",
+		"surnames": "Santos Herrera",
+		"personId": "44556688P",
+		"completeAddress": "Avenida Progreso, 34, Gijón, 33201",
+		"phone": "+34444555777",
+		"email": "dolores.santos@transia.com",
+		"active": true
+	},
+	{
+		"id": "c7d6e5f4-a3b2-c1d0-e9f8-a7b6c5d4e3f2",
+		"name": "Roberto",
+		"surnames": "Delgado Cortés",
+		"personId": "55667799Q",
+		"completeAddress": "Paseo Marítimo, 156, Santander, 39001",
+		"phone": "+34555666888",
+		"email": "roberto.delgado@transia.com",
+		"active": true
+	},
+	{
+		"id": "d8e7f6a5-b4c3-d2e1-f0a9-b8c7d6e5f4a3",
+		"name": "Pilar",
+		"surnames": "Vázquez Márquez",
+		"personId": "66778800R",
+		"completeAddress": "Calle Alameda, 67, Granada, 18001",
+		"phone": "+34666777999",
+		"email": "pilar.vazquez@transia.com",
+		"active": true
+	},
+	{
+		"id": "e9f8a7b6-c5d4-e3f2-a1b0-c9d8e7f6a5b4",
+		"name": "Andrés",
+		"surnames": "Carrasco Rojas",
+		"personId": "77889911S",
+		"completeAddress": "Plaza Victoria, 45, Oviedo, 33001",
+		"phone": "+34777888000",
+		"email": "andres.carrasco@transia.com",
+		"active": false
+	},
+	{
+		"id": "f0a9b8c7-d6e5-f4a3-b2c1-d0e9f8a7b6c5",
+		"name": "Cristina",
+		"surnames": "Núñez Fuentes",
+		"personId": "88990022T",
+		"completeAddress": "Ronda Este, 123, Pamplona, 31001",
+		"phone": "+34888999111",
+		"email": "cristina.nunez@transia.com",
+		"active": true
 	}
 ]
