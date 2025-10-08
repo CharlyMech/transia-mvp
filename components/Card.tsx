@@ -1,4 +1,4 @@
-import { lightTheme } from '@/constants/theme';
+import { lightTheme, roundness, spacing } from '@/constants/theme';
 import React from 'react';
 import {
 	GestureResponderEvent,
@@ -35,9 +35,9 @@ export function Card({
 	children,
 	onPress,
 	onLongPress,
-	paddingX = 16,
-	paddingY = 16,
-	rounded = lightTheme.roundness,
+	paddingX = spacing.md,
+	paddingY = spacing.md,
+	rounded = roundness.sm,
 	border = false,
 	borderWidth = 1,
 	borderColor = lightTheme.colors.outline,

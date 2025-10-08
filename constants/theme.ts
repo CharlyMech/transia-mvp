@@ -54,7 +54,6 @@ export const lightTheme = {
 			level5: "#E0E0E0",
 		},
 	},
-	roundness: 16,
 };
 
 export const darkTheme = {
@@ -112,10 +111,19 @@ export const darkTheme = {
 			level5: "rgba(77,182,172,0.14)",
 		},
 	},
-	roundness: 16,
 };
 
-// Espaciado consistente
+// Roundness
+export const roundness = {
+	xs: 4,
+	sm: 8,
+	md: 16,
+	lg: 24,
+	xl: 32,
+	xxl: 48,
+};
+
+// Spacing
 export const spacing = {
 	xs: 4,
 	sm: 8,
@@ -125,7 +133,7 @@ export const spacing = {
 	xxl: 48,
 };
 
-// Tamaños de fuente
+// Font sizes
 export const typography = {
 	displayLarge: 57,
 	displayMedium: 45,
