@@ -29,7 +29,7 @@ export const lightTheme = {
 		statusActiveContainer: "#DDEEE2",
 
 		statusInactive: "#49454F",
-		statusInactiveContainer: "#E7E0EC",
+		statusInactiveContainer: "#C0C0C0",
 
 		statusMaintenance: "#8C5000",
 		statusMaintenanceContainer: "#FFEAD1",
@@ -99,7 +99,7 @@ export const darkTheme = {
 		statusActiveContainer: "#DDEEE2",
 
 		statusInactive: "#49454F",
-		statusInactiveContainer: "#E7E0EC",
+		statusInactiveContainer: "#C0C0C0",
 
 		statusMaintenance: "#8C5000",
 		statusMaintenanceContainer: "#FFEAD1",
