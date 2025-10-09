@@ -24,6 +24,19 @@ export const lightTheme = {
 		errorContainer: "#ffdad6",
 		onErrorContainer: "#93000a",
 
+		// For status badge
+		statusActive: "#2E7D32",
+		statusActiveContainer: "#DDEEE2",
+
+		statusInactive: "#49454F",
+		statusInactiveContainer: "#E7E0EC",
+
+		statusMaintenance: "#8C5000",
+		statusMaintenanceContainer: "#FFEAD1",
+
+		statusBrokenDown: "#410E0B",
+		statusBrokenDownContainer: "#F9DEDC",
+
 		background: "#e0e0e0",
 		onBackground: "#181d18",
 
@@ -80,6 +93,19 @@ export const darkTheme = {
 		onError: "#690005",
 		errorContainer: "#93000a",
 		onErrorContainer: "#ffdad6",
+
+		// For status badge
+		statusActive: "#2E7D32",
+		statusActiveContainer: "#DDEEE2",
+
+		statusInactive: "#49454F",
+		statusInactiveContainer: "#E7E0EC",
+
+		statusMaintenance: "#8C5000",
+		statusMaintenanceContainer: "#FFEAD1",
+
+		statusBrokenDown: "#410E0B",
+		statusBrokenDownContainer: "#F9DEDC",
 
 		background: "#e0e0e0",
 		onBackground: "#181d18",
