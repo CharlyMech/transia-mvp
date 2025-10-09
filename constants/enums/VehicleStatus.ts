@@ -1,4 +1,4 @@
-export enum Status {
+export enum VehicleStatus {
 	ACTIVE = "Activo",
 	INACTIVE = "Inactivo",
 	MAINTENANCE = "En mantenimiento",

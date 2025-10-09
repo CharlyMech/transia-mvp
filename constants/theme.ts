@@ -31,11 +31,15 @@ export const lightTheme = {
 		statusInactive: "#49454F",
 		statusInactiveContainer: "#C0C0C0",
 
-		statusMaintenance: "#8C5000",
-		statusMaintenanceContainer: "#FFEAD1",
+		statusMaintenance: "#E65100",
+		statusMaintenanceContainer: "#FFF3E0",
+		statusHolidays: "#E65100",
+		statusHolidaysContainer: "#FFF3E0",
 
-		statusBrokenDown: "#410E0B",
-		statusBrokenDownContainer: "#F9DEDC",
+		statusBrokenDown: "#C62828",
+		statusBrokenDownContainer: "#FFEBEE",
+		statusSickLeave: "#C62828",
+		statusSickLeaveContainer: "#FFEBEE",
 
 		background: "#e0e0e0",
 		onBackground: "#181d18",

@@ -1,7 +1,10 @@
-import { Status } from "@/constants/enums/Status";
+import { DriverStatus } from "@/constants/enums/DriverStatus";
+import { VehicleStatus } from "@/constants/enums/VehicleStatus";
 import { lightTheme, roundness, typography } from "@/constants/theme";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+
+type Status = DriverStatus | VehicleStatus;
 
 export function StatusBadge({ status }: { status: Status }) {
 	let label = "";
@@ -9,26 +12,44 @@ export function StatusBadge({ status }: { status: Status }) {
 	let textColor = lightTheme.colors.onSurfaceVariant;
 
 	switch (status) {
-		case Status.ACTIVE:
-			label = Status.ACTIVE;
+		case DriverStatus.ACTIVE:
+		case VehicleStatus.ACTIVE:
+			label = "Activo";
 			containerColor = lightTheme.colors.statusActiveContainer;
 			textColor = lightTheme.colors.statusActive;
 			break;
-		case Status.INACTIVE:
-			label = Status.INACTIVE;
+
+		case DriverStatus.INACTIVE:
+		case VehicleStatus.INACTIVE:
+			label = "Inactivo";
 			containerColor = lightTheme.colors.statusInactiveContainer;
 			textColor = lightTheme.colors.statusInactive;
 			break;
-		case Status.MAINTENANCE:
-			label = Status.MAINTENANCE;
+
+		case VehicleStatus.MAINTENANCE:
+			label = "Mantenimiento";
 			containerColor = lightTheme.colors.statusMaintenanceContainer;
 			textColor = lightTheme.colors.statusMaintenance;
 			break;
-		case Status.BROKEN_DOWN:
-			label = Status.BROKEN_DOWN;
+
+		case VehicleStatus.BROKEN_DOWN:
+			label = "Averiado";
 			containerColor = lightTheme.colors.statusBrokenDownContainer;
 			textColor = lightTheme.colors.statusBrokenDown;
 			break;
+
+		case DriverStatus.SICK_LEAVE:
+			label = "Baja médica";
+			containerColor = lightTheme.colors.statusSickLeaveContainer;
+			textColor = lightTheme.colors.statusSickLeave;
+			break;
+
+		case DriverStatus.HOLIDAYS:
+			label = "Vacaciones";
+			containerColor = lightTheme.colors.statusHolidaysContainer;
+			textColor = lightTheme.colors.statusHolidays;
+			break;
+
 		default:
 			label = "Desconocido";
 	}
@@ -36,7 +57,7 @@ export function StatusBadge({ status }: { status: Status }) {
 	return (
 		<View style={styles.statusBadgeContainer}>
 			<View style={[styles.statusBadge, { backgroundColor: containerColor }]}>
-				<Text style={[styles.statusText, { color: textColor }]}>{label}</Text>
+				<Text style={[styles.statusText, { color: textColor }]}>● {label}</Text>
 			</View>
 		</View>
 	);
