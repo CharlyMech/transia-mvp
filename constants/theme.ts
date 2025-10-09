@@ -6,7 +6,7 @@ export const lightTheme = {
 		...MD3LightTheme.colors,
 		primary: "#57a773",
 		onPrimary: "#ffffff",
-		primaryContainer: "#b1f1c1",
+		primaryContainer: "#8FC49A",
 		onPrimaryContainer: "#11512e",
 
 		secondary: "#4f6353",
@@ -144,7 +144,7 @@ export const typography = {
 	headlineMedium: 28,
 	headlineSmall: 24,
 	titleLarge: 22,
-	titleMedium: 16,
+	titleMedium: 18,
 	titleSmall: 14,
 	bodyLarge: 16,
 	bodyMedium: 14,

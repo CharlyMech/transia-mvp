@@ -46,10 +46,10 @@ export function BottomNavBar() {
 	const pillX = useSharedValue(0);
 	const pillW = useSharedValue(0);
 
-	// Determinar el índice activo basado en la ruta actual
+	// Determine the active index based on the current route
 	const activeIndex = useMemo(() => {
 		const index = ROUTES.findIndex(route => pathname.includes(route.key));
-		return index !== -1 ? index : 2; // Default a "home"
+		return index !== -1 ? index : 2;
 	}, [pathname]);
 
 	const onTabLayout = (index: number) => (e: LayoutChangeEvent) => {
@@ -88,7 +88,7 @@ export function BottomNavBar() {
 	}));
 
 	const onPress = (path: string) => () => {
-		// Usar replace en lugar de push para mantener las pantallas cacheadas
+		// Use replace instead of push to keep the screens cached
 		router.replace(path as any);
 	};
 
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
 		top: 6,
 		bottom: 6,
 		left: 0,
-		backgroundColor: lightTheme.colors.primaryContainer,
+		backgroundColor: lightTheme.colors.secondaryContainer,
 		height: 54,
 		width: 64,
 		borderRadius: 14,
