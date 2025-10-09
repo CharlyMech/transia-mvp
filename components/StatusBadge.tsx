@@ -1,5 +1,5 @@
 import { Status } from "@/constants/enums/Status";
-import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
+import { lightTheme, roundness, typography } from "@/constants/theme";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		justifyContent: "flex-end",
 		alignItems: "center",
-		paddingHorizontal: spacing.md,
+		// paddingHorizontal: spacing.md,
 	},
 	statusBadge: {
 		width: 140,
