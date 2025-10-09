@@ -1,5 +1,6 @@
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
+import { DriverStatus } from '@/constants/enums/DriverStatus';
 import { lightTheme, spacing, typography } from '@/constants/theme';
 import type { Driver } from "@/models/driver";
 import { listDrivers } from '@/services/data/mock/drivers';
@@ -8,6 +9,36 @@ import { Plus } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+function getDriverStatusStyle(status: DriverStatus) {
+	switch (status) {
+		case DriverStatus.ACTIVE:
+			return {
+				label: "Activo",
+				color: lightTheme.colors.statusActive,
+			};
+		case DriverStatus.INACTIVE:
+			return {
+				label: "Inactivo",
+				color: lightTheme.colors.statusInactive,
+			};
+		case DriverStatus.SICK_LEAVE:
+			return {
+				label: "Baja médica",
+				color: lightTheme.colors.statusSickLeave,
+			};
+		case DriverStatus.HOLIDAYS:
+			return {
+				label: "Vacaciones",
+				color: lightTheme.colors.statusHolidays,
+			};
+		default:
+			return {
+				label: "Desconocido",
+				color: lightTheme.colors.onSurfaceVariant,
+			};
+	}
+}
 
 export default function DriversScreen() {
 	const [drivers, setDrivers] = useState<Driver[]>([]);
@@ -39,26 +70,36 @@ export default function DriversScreen() {
 					/>
 				</View>
 
-				{drivers.map((item) => (
-					<Card
-						key={item.id}
-						onPress={() => router.push(`/drivers/${item.id}`)}
-						paddingX={spacing.md}
-						paddingY={spacing.sm}
-						shadow='none'
-						backgroundColor={lightTheme.colors.surface}
-					>
-						<View style={{ gap: spacing.xs }}>
-							<Text style={{ fontSize: typography.bodyLarge, fontWeight: "700" }}>
-								{item.name} {item.surnames ? `(${item.surnames.split(" ")[0]})` : ""}
-							</Text>
-							<Text style={{ opacity: 0.7 }}>{item.phone}</Text>
-							<Text style={{ color: item.active ? "green" : "red", fontWeight: "600", fontSize: typography.bodyMedium }}>
-								{item.active ? "Activo" : "Inactivo"}
-							</Text>
-						</View>
-					</Card>
-				))}
+				{drivers.map((item) => {
+					const statusStyle = getDriverStatusStyle(item.status);
+
+					return (
+						<Card
+							key={item.id}
+							onPress={() => router.push(`/drivers/${item.id}`)}
+							paddingX={spacing.md}
+							paddingY={spacing.sm}
+							shadow='none'
+							backgroundColor={lightTheme.colors.surface}
+						>
+							<View style={{ gap: spacing.xs }}>
+								<Text style={{ fontSize: typography.bodyLarge, fontWeight: "700" }}>
+									{item.name} {item.surnames ? `(${item.surnames.split(" ")[0]})` : ""}
+								</Text>
+								<Text style={{ opacity: 0.7 }}>{item.phone}</Text>
+								<Text
+									style={{
+										color: statusStyle.color,
+										fontWeight: "600",
+										fontSize: typography.bodyMedium,
+									}}
+								>
+									{statusStyle.label}
+								</Text>
+							</View>
+						</Card>
+					);
+				})}
 			</ScrollView>
 		</SafeAreaView>
 	);

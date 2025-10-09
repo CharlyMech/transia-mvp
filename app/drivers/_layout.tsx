@@ -1,18 +1,31 @@
-import { lightTheme } from "@/constants/theme";
-import { router, Stack } from "expo-router";
-import { ArrowLeft } from "lucide-react-native";
+import { lightTheme, spacing } from "@/constants/theme";
+import { router, Stack, useSegments } from "expo-router";
+import { ArrowLeft, SquarePen } from "lucide-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 
 export default function DriversStack() {
+	const segments = useSegments();
+
+	// Detecta si estamos en la ruta new-driver
+	const isNewDriverRoute = segments[segments.length - 1] === 'new-driver';
+
 	return (
 		<View style={styles.container}>
-			{/* Botón flotante común para todas las subrutas */}
 			<Pressable
 				style={styles.backButton}
 				onPress={() => router.back()}
 			>
-				<ArrowLeft size={24} color={lightTheme.colors.onSurface} />
+				<ArrowLeft size={30} color={lightTheme.colors.onSurface} />
 			</Pressable>
+
+			{!isNewDriverRoute && (
+				<Pressable
+					style={styles.editButton}
+					onPress={() => console.log("Edit Driver")}
+				>
+					<SquarePen size={26} color={lightTheme.colors.onSurface} />
+				</Pressable>
+			)}
 
 			<Stack
 				screenOptions={{
@@ -24,15 +37,13 @@ export default function DriversStack() {
 				}}
 			>
 				<Stack.Screen
-					name="[id]/index"
-					// options={{ title: "Detalles del Conductor" }}
+					name="[id]"
 					options={{
 						headerShown: false,
 					}}
 				/>
 				<Stack.Screen
-					name="new-driver/index"
-					// options={{ title: "Nuevo Conductor" }}
+					name="new-driver"
 					options={{
 						headerShown: false,
 					}}
@@ -49,22 +60,22 @@ const styles = StyleSheet.create({
 	},
 	backButton: {
 		position: 'absolute',
-		top: 50,
-		left: 16,
+		top: spacing.xxl,
+		left: spacing.sm,
 		zIndex: 10000,
-		width: 40,
-		height: 40,
-		borderRadius: 20,
-		backgroundColor: 'white',
+		width: 48,
+		height: 48,
 		justifyContent: 'center',
 		alignItems: 'center',
-		shadowColor: '#000',
-		shadowOffset: {
-			width: 0,
-			height: 2,
-		},
-		shadowOpacity: 0.25,
-		shadowRadius: 3.84,
-		elevation: 5,
+	},
+	editButton: {
+		position: 'absolute',
+		top: spacing.xxl,
+		right: spacing.sm,
+		zIndex: 10000,
+		width: 48,
+		height: 48,
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 });

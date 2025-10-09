@@ -10,3 +10,8 @@ export async function listDrivers(): Promise<Driver[]> {
 	}
 	return parsed.data;
 }
+
+export async function getDriverById(id: string): Promise<Driver | null> {
+	const drivers = await listDrivers();
+	return drivers.find((driver) => driver.id === id) || null;
+}
