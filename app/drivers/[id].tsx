@@ -1,11 +1,12 @@
 import { Card } from '@/components/Card';
+import { IconPlaceholder } from '@/components/IconPlaceholder';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DriverStatus } from '@/constants/enums/DriverStatus';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import type { Driver } from '@/models/driver';
 import { getDriverById } from '@/services/data/mock/drivers';
 import { useLocalSearchParams } from 'expo-router';
-import { SquareUserRound } from 'lucide-react-native';
+import { UserRound } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
 	ActivityIndicator,
@@ -125,11 +126,7 @@ export default function DriverProfileScreen() {
 							style={styles.driverImage}
 						>
 							<View style={styles.iconContainer}>
-								<SquareUserRound
-									size={120}
-									color={lightTheme.colors.secondary}
-									strokeWidth={1.5}
-								/>
+								<IconPlaceholder icon={UserRound} rounded={roundness.sm} size={150} borderWidth={6} />
 							</View>
 						</Card>
 					)}
