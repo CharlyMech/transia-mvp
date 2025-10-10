@@ -10,3 +10,8 @@ export async function listReports(): Promise<Report[]> {
 	}
 	return parsed.data;
 }
+
+export async function getReportById(id: string): Promise<Report | null> {
+	const reports = await listReports();
+	return reports.find((report) => report.id === id) || null;
+}

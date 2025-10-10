@@ -1,30 +1,79 @@
-import { lightTheme } from "@/constants/theme";
-import { Stack } from "expo-router";
-import { StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { lightTheme, spacing } from "@/constants/theme";
+import { router, Stack, useSegments } from "expo-router";
+import { ArrowLeft, SquarePen } from "lucide-react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
-export default function ReportsLayout() {
+export default function ReportsStack() {
+	const segments = useSegments();
+	const isNewReportRoute = segments[segments.length - 1] === 'new-report';
+
 	return (
-		<SafeAreaView style={styles.safeArea} edges={["top"]}>
+		<View style={styles.container}>
+			<Pressable
+				style={styles.backButton}
+				onPress={() => router.back()}
+			>
+				<ArrowLeft size={30} color={lightTheme.colors.onSurface} />
+			</Pressable>
+
+			{!isNewReportRoute && (
+				<Pressable
+					style={styles.editButton}
+					onPress={() => console.log("Edit Report")}
+				>
+					<SquarePen size={26} color={lightTheme.colors.onSurface} />
+				</Pressable>
+			)}
+
 			<Stack
 				screenOptions={{
 					headerShown: false,
-					// headerStyle: {
-					// 	backgroundColor: lightTheme.colors.surface,
-					// },
-					// headerTintColor: lightTheme.colors.onSurface,
-					// headerTitleAlign: "center",
+					animation: 'none',
+					contentStyle: {
+						backgroundColor: lightTheme.colors.background,
+					},
 				}}
-			></Stack>
-		</SafeAreaView>);
+			>
+				<Stack.Screen
+					name="[id]"
+					options={{
+						headerShown: false,
+					}}
+				/>
+				<Stack.Screen
+					name="new-report"
+					options={{
+						headerShown: false,
+					}}
+				/>
+			</Stack>
+		</View>
+	);
 }
 
 const styles = StyleSheet.create({
-	safeArea: {
+	container: {
 		flex: 1,
 		backgroundColor: lightTheme.colors.background,
 	},
-	container: {
-		flex: 1,
+	backButton: {
+		position: 'absolute',
+		top: spacing.xxl,
+		left: spacing.sm,
+		zIndex: 10000,
+		width: 48,
+		height: 48,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	editButton: {
+		position: 'absolute',
+		top: spacing.xxl,
+		right: spacing.sm,
+		zIndex: 10000,
+		width: 48,
+		height: 48,
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 });
