@@ -5,8 +5,6 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 export default function DriversStack() {
 	const segments = useSegments();
-
-	// Detecta si estamos en la ruta new-driver
 	const isNewDriverRoute = segments[segments.length - 1] === 'new-driver';
 
 	return (
