@@ -6,7 +6,10 @@
 		"year": 2022,
 		"vehicleType": "Truck",
 		"plateNumber": "1234-ABC",
-		"active": true
+		"registrationDate": "2022-01-15T00:00:00.000Z",
+		"purchaseDate": "2021-12-10T00:00:00.000Z",
+		"imageUrl": "https://www.truck1.es/img/xxl/36075/Cabeza-tractora-Mercedes-Benz-Actros-1845-LS-4x2-BigSpace-Checa_36075_3030062623.jpg",
+		"status": "Activo"
 	},
 	{
 		"id": "22222222-2222-2222-2222-222222222222",
@@ -15,7 +18,9 @@
 		"year": 2022,
 		"vehicleType": "Truck",
 		"plateNumber": "5678-XYZ",
-		"active": true
+		"registrationDate": "2022-02-20T00:00:00.000Z",
+		"purchaseDate": "2022-01-05T00:00:00.000Z",
+		"status": "Activo"
 	},
 	{
 		"id": "33333333-3333-3333-3333-333333333333",
@@ -24,7 +29,9 @@
 		"year": 2022,
 		"vehicleType": "Van",
 		"plateNumber": "1111-BBB",
-		"active": false
+		"registrationDate": "2022-03-10T00:00:00.000Z",
+		"purchaseDate": "2022-02-15T00:00:00.000Z",
+		"status": "Inactivo"
 	},
 	{
 		"id": "44444444-4444-4444-4444-444444444444",
@@ -33,7 +40,9 @@
 		"year": 2023,
 		"vehicleType": "Truck",
 		"plateNumber": "2345-DEF",
-		"active": true
+		"registrationDate": "2023-01-20T00:00:00.000Z",
+		"purchaseDate": "2022-12-05T00:00:00.000Z",
+		"status": "Activo"
 	},
 	{
 		"id": "55555555-5555-5555-5555-555555555555",
@@ -42,7 +51,9 @@
 		"year": 2021,
 		"vehicleType": "Truck",
 		"plateNumber": "3456-GHI",
-		"active": true
+		"registrationDate": "2021-06-15T00:00:00.000Z",
+		"purchaseDate": "2021-05-10T00:00:00.000Z",
+		"status": "En mantenimiento"
 	},
 	{
 		"id": "66666666-6666-6666-6666-666666666666",
@@ -51,7 +62,9 @@
 		"year": 2022,
 		"vehicleType": "Truck",
 		"plateNumber": "4567-JKL",
-		"active": true
+		"registrationDate": "2022-04-25T00:00:00.000Z",
+		"purchaseDate": "2022-03-20T00:00:00.000Z",
+		"status": "Activo"
 	},
 	{
 		"id": "77777777-7777-7777-7777-777777777777",
@@ -60,7 +73,9 @@
 		"year": 2023,
 		"vehicleType": "Van",
 		"plateNumber": "5678-MNO",
-		"active": true
+		"registrationDate": "2023-02-10T00:00:00.000Z",
+		"purchaseDate": "2023-01-15T00:00:00.000Z",
+		"status": "Activo"
 	},
 	{
 		"id": "88888888-8888-8888-8888-888888888888",
@@ -69,7 +84,9 @@
 		"year": 2022,
 		"vehicleType": "Van",
 		"plateNumber": "6789-PQR",
-		"active": false
+		"registrationDate": "2022-05-30T00:00:00.000Z",
+		"purchaseDate": "2022-04-25T00:00:00.000Z",
+		"status": "Averiado"
 	},
 	{
 		"id": "99999999-9999-9999-9999-999999999999",
@@ -78,7 +95,9 @@
 		"year": 2023,
 		"vehicleType": "Truck",
 		"plateNumber": "7890-STU",
-		"active": true
+		"registrationDate": "2023-03-15T00:00:00.000Z",
+		"purchaseDate": "2023-02-10T00:00:00.000Z",
+		"status": "Activo"
 	},
 	{
 		"id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
@@ -87,7 +106,9 @@
 		"year": 2021,
 		"vehicleType": "Truck",
 		"plateNumber": "8901-VWX",
-		"active": true
+		"registrationDate": "2021-08-20T00:00:00.000Z",
+		"purchaseDate": "2021-07-15T00:00:00.000Z",
+		"status": "Activo"
 	},
 	{
 		"id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
@@ -96,7 +117,9 @@
 		"year": 2022,
 		"vehicleType": "Van",
 		"plateNumber": "9012-YZA",
-		"active": true
+		"registrationDate": "2022-06-10T00:00:00.000Z",
+		"purchaseDate": "2022-05-05T00:00:00.000Z",
+		"status": "Activo"
 	},
 	{
 		"id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
@@ -105,7 +128,9 @@
 		"year": 2023,
 		"vehicleType": "Truck",
 		"plateNumber": "0123-BCD",
-		"active": true
+		"registrationDate": "2023-04-05T00:00:00.000Z",
+		"purchaseDate": "2023-03-01T00:00:00.000Z",
+		"status": "Activo"
 	},
 	{
 		"id": "dddddddd-dddd-dddd-dddd-dddddddddddd",
@@ -114,7 +139,9 @@
 		"year": 2021,
 		"vehicleType": "Truck",
 		"plateNumber": "1234-EFG",
-		"active": false
+		"registrationDate": "2021-09-15T00:00:00.000Z",
+		"purchaseDate": "2021-08-10T00:00:00.000Z",
+		"status": "Inactivo"
 	},
 	{
 		"id": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
@@ -123,7 +150,9 @@
 		"year": 2022,
 		"vehicleType": "Van",
 		"plateNumber": "2345-HIJ",
-		"active": true
+		"registrationDate": "2022-07-20T00:00:00.000Z",
+		"purchaseDate": "2022-06-15T00:00:00.000Z",
+		"status": "En mantenimiento"
 	},
 	{
 		"id": "ffffffff-ffff-ffff-ffff-ffffffffffff",
@@ -132,7 +161,9 @@
 		"year": 2023,
 		"vehicleType": "Truck",
 		"plateNumber": "3456-KLM",
-		"active": true
+		"registrationDate": "2023-05-10T00:00:00.000Z",
+		"purchaseDate": "2023-04-05T00:00:00.000Z",
+		"status": "Activo"
 	},
 	{
 		"id": "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1",
@@ -141,7 +172,9 @@
 		"year": 2022,
 		"vehicleType": "Van",
 		"plateNumber": "4567-NOP",
-		"active": true
+		"registrationDate": "2022-08-15T00:00:00.000Z",
+		"purchaseDate": "2022-07-10T00:00:00.000Z",
+		"status": "Activo"
 	},
 	{
 		"id": "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
@@ -150,7 +183,9 @@
 		"year": 2021,
 		"vehicleType": "Truck",
 		"plateNumber": "5678-QRS",
-		"active": true
+		"registrationDate": "2021-10-20T00:00:00.000Z",
+		"purchaseDate": "2021-09-15T00:00:00.000Z",
+		"status": "Averiado"
 	},
 	{
 		"id": "c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3",
@@ -159,7 +194,9 @@
 		"year": 2023,
 		"vehicleType": "Truck",
 		"plateNumber": "6789-TUV",
-		"active": true
+		"registrationDate": "2023-06-15T00:00:00.000Z",
+		"purchaseDate": "2023-05-10T00:00:00.000Z",
+		"status": "Activo"
 	},
 	{
 		"id": "d4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4",
@@ -168,7 +205,9 @@
 		"year": 2022,
 		"vehicleType": "Van",
 		"plateNumber": "7890-WXY",
-		"active": false
+		"registrationDate": "2022-09-10T00:00:00.000Z",
+		"purchaseDate": "2022-08-05T00:00:00.000Z",
+		"status": "Inactivo"
 	},
 	{
 		"id": "e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e5",
@@ -177,6 +216,8 @@
 		"year": 2023,
 		"vehicleType": "Truck",
 		"plateNumber": "8901-ZAB",
-		"active": true
+		"registrationDate": "2023-07-20T00:00:00.000Z",
+		"purchaseDate": "2023-06-15T00:00:00.000Z",
+		"status": "Activo"
 	}
 ]

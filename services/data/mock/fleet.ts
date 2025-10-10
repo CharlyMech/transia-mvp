@@ -10,3 +10,8 @@ export async function listFleet(): Promise<Vehicle[]> {
 	}
 	return parsed.data;
 }
+
+export async function getVehicleById(id: string): Promise<Vehicle | null> {
+	const fleet = await listFleet();
+	return fleet.find((vehicle) => vehicle.id === id) || null;
+}
