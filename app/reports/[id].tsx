@@ -12,6 +12,7 @@ import {
 	ScrollView,
 	StyleSheet,
 	Text,
+	TouchableOpacity,
 	View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,6 +23,11 @@ export default function ReportDetailScreen() {
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const [report, setReport] = useState<Report | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [read, setRead] = useState(false);
+
+	const toggleReadStatus = () => {
+		setRead(!read);
+	};
 
 	useEffect(() => {
 		if (id) {
@@ -54,13 +60,35 @@ export default function ReportDetailScreen() {
 		<SafeAreaView style={styles.container} edges={['top']}>
 			{/* Manually added header bg offset */}
 			<View style={{ width: '100%', height: 30, backgroundColor: lightTheme.colors.background }} />
+
 			<ScrollView
 				style={styles.scrollView}
 				contentContainerStyle={styles.scrollViewContent}
 				showsVerticalScrollIndicator={false}
 			>
+				<View style={styles.solvedStatusContainer}>
+					<TouchableOpacity
+						style={styles.checkboxRow}
+						onPress={toggleReadStatus}
+						activeOpacity={0.7}
+					>
+						{/* TODO -> Change from read to solved -> auto read on report detail access */}
+						<Text style={styles.checkboxLabel}>
+							Solventada
+						</Text>
+						<View style={[
+							styles.checkbox,
+							read && styles.checkboxChecked
+						]}>
+							{read && (
+								<Text style={styles.checkmark}>✓</Text>
+							)}
+						</View>
+					</TouchableOpacity>
+				</View>
 				<View style={styles.content}>
 					<Text style={styles.cardTitle}>Información de la incicencia</Text>
+					{/* TODO -> Change IDs for vehicle plate and driver name */}
 					<Card
 						paddingX={spacing.md}
 						paddingY={spacing.md}
@@ -77,10 +105,17 @@ export default function ReportDetailScreen() {
 							/>
 							<View style={styles.separator} />
 							<InfoRow
-								label="Estado"
+								label="Vehículo"
 								labelFlex={2}
 								valueFlex={3}
-								value={report.active ? 'Activa' : 'Inactiva'}
+								value={report.vehicleId}
+							/>
+							<View style={styles.separator} />
+							<InfoRow
+								label="Conductor"
+								labelFlex={2}
+								valueFlex={3}
+								value={report.driverId}
 							/>
 						</View>
 					</Card>
@@ -101,32 +136,6 @@ export default function ReportDetailScreen() {
 							</Card>
 						</>
 					)}
-
-					<Text style={styles.cardTitle}>Información relacionada</Text>
-					{/* TODO -> Change IDs for vehicle plate and driver name */}
-					<Card
-						paddingX={spacing.md}
-						paddingY={spacing.md}
-						rounded={roundness.md}
-						shadow='none'
-						backgroundColor={lightTheme.colors.surface}
-					>
-						<View style={styles.cardContent}>
-							<InfoRow
-								label="Vehículo"
-								labelFlex={1}
-								valueFlex={3}
-								value={report.vehicleId}
-							/>
-							<View style={styles.separator} />
-							<InfoRow
-								label="Conductor"
-								labelFlex={1}
-								valueFlex={3}
-								value={report.driverId}
-							/>
-						</View>
-					</Card>
 
 					{/* Carousel de imágenes */}
 					{report.images && report.images.length > 0 && (
@@ -190,13 +199,48 @@ const styles = StyleSheet.create({
 	},
 	scrollViewContent: {
 		flexGrow: 1,
-		paddingTop: spacing.xxl,
 	},
 	content: {
 		flex: 1,
 		paddingHorizontal: spacing.md,
 		paddingBottom: spacing.xl,
 		gap: spacing.md,
+	},
+	solvedStatusContainer: {
+		width: '100%',
+		paddingHorizontal: spacing.md,
+		paddingVertical: spacing.md,
+		justifyContent: 'center',
+		alignItems: 'flex-end',
+	},
+	checkboxRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: spacing.sm,
+	},
+	checkbox: {
+		width: 24,
+		height: 24,
+		borderRadius: roundness.xs,
+		borderWidth: 2,
+		borderColor: lightTheme.colors.primary,
+		backgroundColor: 'transparent',
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	checkboxChecked: {
+		backgroundColor: lightTheme.colors.primary,
+		borderColor: lightTheme.colors.primary,
+	},
+	checkmark: {
+		color: '#fff',
+		fontSize: 16,
+		fontWeight: 'bold',
+	},
+	checkboxLabel: {
+		fontSize: typography.bodyLarge,
+		color: lightTheme.colors.onSurface,
+		fontWeight: '500',
 	},
 	headerSection: {
 		paddingVertical: spacing.md,
