@@ -1,4 +1,4 @@
-import { lightTheme } from '@/constants/theme';
+import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import type { Report } from '@/models/report';
 import { Check, Eye, Trash2, X } from 'lucide-react-native';
 import React, { useEffect } from 'react';
@@ -13,7 +13,6 @@ import {
 import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
-	withSpring,
 	withTiming,
 } from 'react-native-reanimated';
 
@@ -37,18 +36,15 @@ export function ReportActionsModal({
 	onDelete,
 }: ReportActionsModalProps) {
 	const opacity = useSharedValue(0);
-	const translateY = useSharedValue(20);
+	const translateY = useSharedValue(300);
 
 	useEffect(() => {
 		if (visible) {
-			opacity.value = withTiming(1, { duration: 150 });
-			translateY.value = withSpring(0, {
-				damping: 20,
-				stiffness: 300,
-			});
+			opacity.value = withTiming(1, { duration: 200 });
+			translateY.value = withTiming(0, { duration: 200 });
 		} else {
-			opacity.value = withTiming(0, { duration: 100 });
-			translateY.value = withTiming(20, { duration: 100 });
+			opacity.value = withTiming(0, { duration: 150 });
+			translateY.value = withTiming(300, { duration: 150 });
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [visible]);
@@ -59,7 +55,6 @@ export function ReportActionsModal({
 
 	const animatedModalStyle = useAnimatedStyle(() => ({
 		transform: [{ translateY: translateY.value }],
-		opacity: opacity.value,
 	}));
 
 	if (!report) return null;
@@ -147,22 +142,22 @@ const styles = StyleSheet.create({
 	},
 	modal: {
 		backgroundColor: lightTheme.colors.surface,
-		borderRadius: 24,
-		padding: 24,
+		borderRadius: roundness.md,
+		padding: spacing.md,
 		shadowColor: lightTheme.colors.shadow,
 		shadowOffset: { width: 0, height: 8 },
 		shadowOpacity: 0.3,
-		shadowRadius: 16,
+		shadowRadius: roundness.md,
 		elevation: 8,
 	},
 	header: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		alignItems: 'center',
-		marginBottom: 16,
+		marginBottom: spacing.md,
 	},
 	title: {
-		fontSize: 22,
+		fontSize: typography.titleLarge,
 		fontWeight: '700',
 		color: lightTheme.colors.onSurface,
 	},
@@ -171,18 +166,18 @@ const styles = StyleSheet.create({
 	},
 	reportInfo: {
 		backgroundColor: lightTheme.colors.surfaceVariant,
-		padding: 16,
-		borderRadius: 12,
-		marginBottom: 20,
+		padding: spacing.md,
+		borderRadius: roundness.md,
+		marginBottom: spacing.md,
 	},
 	reportTitle: {
-		fontSize: 16,
+		fontSize: typography.titleMedium,
 		fontWeight: '600',
 		color: lightTheme.colors.onSurface,
-		marginBottom: 8,
+		marginBottom: spacing.md,
 	},
 	reportDate: {
-		fontSize: 13,
+		fontSize: typography.bodyMedium,
 		color: lightTheme.colors.onSurfaceVariant,
 	},
 	actions: {
@@ -191,13 +186,13 @@ const styles = StyleSheet.create({
 	actionButton: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		padding: 16,
-		borderRadius: 12,
+		padding: spacing.md,
+		borderRadius: roundness.md,
 		backgroundColor: lightTheme.colors.surfaceVariant,
-		gap: 12,
+		gap: spacing.md,
 	},
 	actionText: {
-		fontSize: 16,
+		fontSize: typography.bodyLarge,
 		fontWeight: '600',
 		color: lightTheme.colors.onSurface,
 	},
