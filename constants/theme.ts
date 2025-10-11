@@ -24,6 +24,11 @@ export const lightTheme = {
 		errorContainer: "#ffdad6",
 		onErrorContainer: "#93000a",
 
+		warning: "#ff9800",
+		onWarning: "#4d2c00",
+		warningContainer: "#ff6f00",
+		onWarningContainer: "#fff3e0",
+
 		// For status badge
 		statusActive: "#2E7D32",
 		statusActiveContainer: "#DDEEE2",
@@ -97,6 +102,11 @@ export const darkTheme = {
 		onError: "#690005",
 		errorContainer: "#93000a",
 		onErrorContainer: "#ffdad6",
+
+		warning: "#ff9800",
+		onWarning: "#4d2c00",
+		warningContainer: "#ff6f00",
+		onWarningContainer: "#fff3e0",
 
 		// For status badge
 		statusActive: "#2E7D32",

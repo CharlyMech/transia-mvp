@@ -1,7 +1,7 @@
 import { lightTheme } from '@/constants/theme';
 import type { Report } from '@/models/report';
 import { Check, Eye, Trash2, X } from 'lucide-react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
 	Modal,
 	Pressable,
@@ -10,6 +10,12 @@ import {
 	TouchableOpacity,
 	View,
 } from 'react-native';
+import Animated, {
+	useAnimatedStyle,
+	useSharedValue,
+	withSpring,
+	withTiming,
+} from 'react-native-reanimated';
 
 interface ReportActionsModalProps {
 	visible: boolean;
@@ -17,6 +23,7 @@ interface ReportActionsModalProps {
 	onClose: () => void;
 	onViewReport: (reportId: string) => void;
 	onMarkAsRead: (reportId: string) => void;
+	onMarkAsUnread: (reportId: string) => void;
 	onDelete: (reportId: string) => void;
 }
 
@@ -26,8 +33,35 @@ export function ReportActionsModal({
 	onClose,
 	onViewReport,
 	onMarkAsRead,
+	onMarkAsUnread,
 	onDelete,
 }: ReportActionsModalProps) {
+	const opacity = useSharedValue(0);
+	const translateY = useSharedValue(20);
+
+	useEffect(() => {
+		if (visible) {
+			opacity.value = withTiming(1, { duration: 150 });
+			translateY.value = withSpring(0, {
+				damping: 20,
+				stiffness: 300,
+			});
+		} else {
+			opacity.value = withTiming(0, { duration: 100 });
+			translateY.value = withTiming(20, { duration: 100 });
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [visible]);
+
+	const animatedBackdropStyle = useAnimatedStyle(() => ({
+		opacity: opacity.value,
+	}));
+
+	const animatedModalStyle = useAnimatedStyle(() => ({
+		transform: [{ translateY: translateY.value }],
+		opacity: opacity.value,
+	}));
+
 	if (!report) return null;
 
 	const handleAction = (action: () => void) => {
@@ -39,14 +73,15 @@ export function ReportActionsModal({
 		<Modal
 			visible={visible}
 			transparent
-			animationType="fade"
+			animationType="none"
 			onRequestClose={onClose}
+			statusBarTranslucent
 		>
-			<Pressable style={styles.backdrop} onPress={onClose}>
-				<View style={styles.modalContainer}>
+			<Animated.View style={[styles.backdrop, animatedBackdropStyle]}>
+				<Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+				<Animated.View style={[styles.modalContainer, animatedModalStyle]}>
 					<Pressable onPress={(e) => e.stopPropagation()}>
 						<View style={styles.modal}>
-							{/* Header */}
 							<View style={styles.header}>
 								<Text style={styles.title}>Acciones</Text>
 								<TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -54,21 +89,6 @@ export function ReportActionsModal({
 								</TouchableOpacity>
 							</View>
 
-							{/* Report Info */}
-							<View style={styles.reportInfo}>
-								<Text style={styles.reportTitle} numberOfLines={2}>
-									{report.title}
-								</Text>
-								<Text style={styles.reportDate}>
-									{new Date(report.createdAt).toLocaleDateString('es-ES', {
-										day: 'numeric',
-										month: 'long',
-										year: 'numeric',
-									})}
-								</Text>
-							</View>
-
-							{/* Actions */}
 							<View style={styles.actions}>
 								<TouchableOpacity
 									style={styles.actionButton}
@@ -78,7 +98,15 @@ export function ReportActionsModal({
 									<Text style={styles.actionText}>Ver reporte</Text>
 								</TouchableOpacity>
 
-								{!report.read && (
+								{report.read ?
+									<TouchableOpacity
+										style={styles.actionButton}
+										onPress={() => handleAction(() => onMarkAsUnread(report.id))}
+									>
+										<Check size={22} color={lightTheme.colors.tertiary} />
+										<Text style={styles.actionText}>Marcar como no leído</Text>
+									</TouchableOpacity>
+									:
 									<TouchableOpacity
 										style={styles.actionButton}
 										onPress={() => handleAction(() => onMarkAsRead(report.id))}
@@ -86,7 +114,7 @@ export function ReportActionsModal({
 										<Check size={22} color={lightTheme.colors.tertiary} />
 										<Text style={styles.actionText}>Marcar como leído</Text>
 									</TouchableOpacity>
-								)}
+								}
 
 								<TouchableOpacity
 									style={[styles.actionButton, styles.dangerAction]}
@@ -100,8 +128,8 @@ export function ReportActionsModal({
 							</View>
 						</View>
 					</Pressable>
-				</View>
-			</Pressable>
+				</Animated.View>
+			</Animated.View>
 		</Modal>
 	);
 }
