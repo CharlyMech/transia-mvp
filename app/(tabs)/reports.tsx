@@ -1,110 +1,103 @@
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
-import { ConfirmationModal } from '@/components/modals/ConfirmationModal';
-import { ReportActionsModal } from '@/components/modals/ReportActionModal';
+// import { ConfirmationModal } from '@/components/modals/ConfirmationModal';
+// import { ReportActionsModal } from '@/components/modals/ReportActionModal';
+import { SkeletonList } from '@/components/skeletons';
+
 import { lightTheme, spacing, typography } from '@/constants/theme';
-import { useReportActions } from '@/hooks/useReportAction';
-import type { Report } from '@/models/report';
-import { listReports } from '@/services/data/mock/reports';
+// import { useReportActions } from '@/hooks/useReportAction';
+import { useReportsStore } from '@/stores/useReportsStore';
+
 import { router } from 'expo-router';
 import { Plus } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ReportsScreen() {
-	const [reports, setReports] = useState<Report[]>([]);
-	const {
-		selectedReport,
-		modalVisible,
-		confirmationVisible,
-		navigateToReport,
-		openActionsModal,
-		closeModal,
-		markAsRead,
-		markAsUnread,
-		requestDeleteReport,
-		confirmDelete,
-		cancelDelete,
-	} = useReportActions();
+	const reports = useReportsStore((state) => state.reports);
+	const loading = useReportsStore((state) => state.loading);
 
-	useEffect(() => {
-		listReports().then(setReports).catch(console.error);
-	}, []);
+	// TODO -> Implement previous actions with zustand stores
+	// const deleteReport = useReportsStore((state) => state.deleteReport);
+	// const markAsRead = useReportsStore((state) => state.markAsRead);
+	// const markAsUnread = useReportsStore((state) => state.markAsUnread);
 
-	const handleDelete = async () => {
-		const deletedId = await confirmDelete();
-		if (deletedId) {
-			const updatedReports = reports.filter(report => report.id !== deletedId);
-			setReports(updatedReports);
-		}
-	};
+	// const {
+	// 	selectedReport,
+	// 	modalVisible,
+	// 	confirmationVisible,
+	// 	navigateToReport,
+	// 	openActionsModal,
+	// 	closeModal,
+	// 	requestDeleteReport,
+	// 	confirmDelete,
+	// 	cancelDelete,
+	// } = useReportActions();
 
-	const handleMarkAsRead = async (reportId: string) => {
-		await markAsRead(reportId);
-		setReports(reports.map(report =>
-			report.id === reportId ? { ...report, read: true } : report
-		));
-	};
+	// const handleDelete = async () => {
+	// 	const deletedId = await confirmDelete();
+	// 	if (deletedId) {
+	// 		deleteReport(deletedId);
+	// 	}
+	// };
 
-	const handleMarkAsUnread = async (reportId: string) => {
-		await markAsUnread(reportId);
-		setReports(reports.map(report =>
-			report.id === reportId ? { ...report, read: false } : report
-		));
-	};
+	// const handleMarkAsRead = async (reportId: string) => {
+	// 	markAsRead(reportId);
+	// };
+
+	// const handleMarkAsUnread = async (reportId: string) => {
+	// 	markAsUnread(reportId);
+	// };
 
 	return (
 		<SafeAreaView style={styles.container} edges={['top']}>
-			<ScrollView
-				style={{ width: "100%" }}
-				contentContainerStyle={{ padding: spacing.sm, gap: spacing.sm }}
-				showsVerticalScrollIndicator={false}
-			>
-				<View style={{
-					width: "100%",
-					flexDirection: 'row',
-					alignItems: 'center',
-					justifyContent: 'flex-end',
-					marginBottom: spacing.sm
-				}}>
-					<Button
-						label="Nuevo"
-						icon={Plus}
-						onPress={() => router.push("/reports/new-report")}
-					/>
-				</View>
+			<View style={styles.headerContainer}>
+				<Button
+					label="Nuevo"
+					icon={Plus}
+					onPress={() => router.push("/reports/new-report")}
+				/>
+			</View>
 
-				{reports.map((item) => (
-					<Card
-						key={item.id}
-						onPress={() => router.push(`/reports/${item.id}`)}
-						onLongPress={() => openActionsModal(item)}
-						paddingX={spacing.md}
-						paddingY={spacing.sm}
-						shadow='none'
-						backgroundColor={lightTheme.colors.surface}
-					>
-						<View style={{ gap: spacing.xs }}>
-							<Text style={{ fontSize: typography.bodyLarge, fontWeight: "700" }}>
-								{item.title}
-							</Text>
-							<Text style={{ opacity: 0.7 }}>
-								{new Date(item.createdAt).toLocaleDateString()}
-							</Text>
-							<Text style={{
-								color: item.read ? "green" : "red",
-								fontWeight: "600",
-								fontSize: typography.bodyMedium
-							}}>
-								{item.read ? "Leído" : "Sin leer"}
-							</Text>
-						</View>
-					</Card>
-				))}
-			</ScrollView>
+			{loading ? (
+				<SkeletonList count={8} cardHeight={100} />
+			) : (
+				<ScrollView
+					style={{ width: "100%" }}
+					contentContainerStyle={{ padding: spacing.sm, gap: spacing.sm }}
+					showsVerticalScrollIndicator={false}
+				>
+					{reports.map((item) => (
+						<Card
+							key={item.id}
+							onPress={() => router.push(`/reports/${item.id}`)}
+							paddingX={spacing.md}
+							paddingY={spacing.sm}
+							shadow='none'
+							backgroundColor={lightTheme.colors.surface}
+							style={{ height: 100 }}
+						>
+							<View style={{ gap: spacing.xs }}>
+								<Text style={{ fontSize: typography.bodyLarge, fontWeight: "700" }}>
+									{item.title}
+								</Text>
+								<Text style={{ opacity: 0.7 }}>
+									{new Date(item.createdAt).toLocaleDateString()}
+								</Text>
+								<Text style={{
+									color: item.read ? "green" : "red",
+									fontWeight: "600",
+									fontSize: typography.bodyMedium
+								}}>
+									{item.read ? "Leído" : "Sin leer"}
+								</Text>
+							</View>
+						</Card>
+					))}
+				</ScrollView>
+			)}
 
-			<ReportActionsModal
+			{/* <ReportActionsModal
 				visible={modalVisible}
 				report={selectedReport}
 				onClose={closeModal}
@@ -123,7 +116,7 @@ export default function ReportsScreen() {
 				variant="danger"
 				onConfirm={handleDelete}
 				onCancel={cancelDelete}
-			/>
+			/> */}
 		</SafeAreaView>
 	);
 }
@@ -131,6 +124,16 @@ export default function ReportsScreen() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		backgroundColor: lightTheme.colors.background,
+	},
+	headerContainer: {
+		width: "100%",
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'flex-end',
+		paddingHorizontal: spacing.sm,
+		paddingTop: spacing.sm,
+		paddingBottom: spacing.xs,
 		backgroundColor: lightTheme.colors.background,
 	},
 });
