@@ -24,10 +24,10 @@ export const lightTheme = {
 		errorContainer: "#ffdad6",
 		onErrorContainer: "#93000a",
 
-		warning: "#ff9800",
+		warning: "#ffb74d",
 		onWarning: "#4d2c00",
-		warningContainer: "#ff6f00",
-		onWarningContainer: "#fff3e0",
+		warningContainer: "#ffe0b2",
+		onWarningContainer: "#663c00",
 
 		// For status badge
 		statusActive: "#2E7D32",
@@ -98,15 +98,15 @@ export const darkTheme = {
 		tertiaryContainer: "#214c57",
 		onTertiaryContainer: "#beeaf6",
 
-		error: "#ffb4ab",
-		onError: "#690005",
-		errorContainer: "#93000a",
-		onErrorContainer: "#ffdad6",
+		error: "#ba1a1a",
+		onError: "#ffffff",
+		errorContainer: "#ffdad6",
+		onErrorContainer: "#93000a",
 
-		warning: "#ff9800",
+		warning: "#ffb74d",
 		onWarning: "#4d2c00",
-		warningContainer: "#ff6f00",
-		onWarningContainer: "#fff3e0",
+		warningContainer: "#ffe0b2",
+		onWarningContainer: "#663c00",
 
 		// For status badge
 		statusActive: "#2E7D32",
@@ -115,11 +115,15 @@ export const darkTheme = {
 		statusInactive: "#49454F",
 		statusInactiveContainer: "#C0C0C0",
 
-		statusMaintenance: "#8C5000",
-		statusMaintenanceContainer: "#FFEAD1",
+		statusMaintenance: "#E65100",
+		statusMaintenanceContainer: "#FFF3E0",
+		statusHolidays: "#E65100",
+		statusHolidaysContainer: "#FFF3E0",
 
-		statusBrokenDown: "#410E0B",
-		statusBrokenDownContainer: "#F9DEDC",
+		statusBrokenDown: "#C62828",
+		statusBrokenDownContainer: "#FFEBEE",
+		statusSickLeave: "#C62828",
+		statusSickLeaveContainer: "#FFEBEE",
 
 		background: "#e0e0e0",
 		onBackground: "#181d18",
