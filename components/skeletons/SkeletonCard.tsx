@@ -4,9 +4,17 @@ import { Animated, StyleSheet, View } from 'react-native';
 
 interface SkeletonCardProps {
 	height?: number;
+	backgroundColor?: string;
+	shimmerColor?: string;
+	borderRadius?: number;
 }
 
-export function SkeletonCard({ height = 80 }: SkeletonCardProps) {
+export function SkeletonCard({
+	height = 80,
+	backgroundColor = lightTheme.colors.surface,
+	shimmerColor = `${lightTheme.colors.shadow}30`,
+	borderRadius = roundness.sm,
+}: SkeletonCardProps) {
 	const pulseAnim = useRef(new Animated.Value(0)).current;
 
 	useEffect(() => {
@@ -35,20 +43,22 @@ export function SkeletonCard({ height = 80 }: SkeletonCardProps) {
 	});
 
 	return (
-		<View style={[styles.card, { height }]}>
+		<View style={[styles.card, { height, backgroundColor, borderRadius }]}>
 			<Animated.View
 				style={[
 					styles.shimmer,
-					{ opacity },
+					{
+						opacity,
+						backgroundColor: shimmerColor,
+					},
 				]}
 			/>
 		</View>
 	);
 }
+
 const styles = StyleSheet.create({
 	card: {
-		backgroundColor: lightTheme.colors.surface,
-		borderRadius: roundness.sm,
 		overflow: 'hidden',
 		position: 'relative',
 	},
@@ -58,6 +68,5 @@ const styles = StyleSheet.create({
 		left: 0,
 		right: 0,
 		bottom: 0,
-		backgroundColor: `${lightTheme.colors.shadow}30`,
 	},
 });

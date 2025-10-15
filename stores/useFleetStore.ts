@@ -3,18 +3,25 @@ import { fleet as fleetService } from "@/services/data";
 import { create } from "zustand";
 
 interface FleetState {
+	// Global
 	vehicles: Vehicle[];
 	loading: boolean;
 	error: string | null;
 	initialized: boolean;
+
+	// Current vehicle
+	currentVehicle: Vehicle | null;
+	loadingVehicle: boolean;
+	vehicleError: string | null;
 }
 
 interface FleetActions {
 	fetchFleet: () => Promise<void>;
+	fetchVehicleById: (id: string) => Promise<void>;
 	addVehicle: (vehicle: Vehicle) => void;
 	updateVehicle: (id: string, updates: Partial<Vehicle>) => void;
 	deleteVehicle: (id: string) => void;
-	getVehicleById: (id: string) => Vehicle | undefined;
+	clearCurrentVehicle: () => void;
 }
 
 type FleetStore = FleetState & FleetActions;
@@ -23,10 +30,16 @@ type FleetStore = FleetState & FleetActions;
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const useFleetStore = create<FleetStore>((set, get) => ({
+	// Global
 	vehicles: [],
 	loading: false,
 	error: null,
 	initialized: false,
+
+	// Current vehicle
+	currentVehicle: null,
+	loadingVehicle: false,
+	vehicleError: null,
 
 	fetchFleet: async () => {
 		set({ loading: true, error: null });
@@ -46,6 +59,42 @@ export const useFleetStore = create<FleetStore>((set, get) => ({
 		}
 	},
 
+	fetchVehicleById: async (id: string) => {
+		set({ loadingVehicle: true, vehicleError: null, currentVehicle: null });
+		try {
+			// Add 1.5 second delay to see skeleton
+			await delay(1500);
+
+			// First search in local store
+			let vehicle = get().vehicles.find((v) => v.id === id);
+
+			// If not found, search in service
+			if (!vehicle) {
+				const fetchedVehicle = await fleetService.getVehicleById(id);
+				if (fetchedVehicle) {
+					vehicle = fetchedVehicle;
+				}
+			}
+
+			if (!vehicle) {
+				throw new Error("Vehículo no encontrado");
+			}
+
+			set({ currentVehicle: vehicle, loadingVehicle: false });
+		} catch (error) {
+			console.error("Error fetching vehicle:", error);
+			set({
+				vehicleError:
+					error instanceof Error ? error.message : "Error desconocido",
+				loadingVehicle: false,
+			});
+		}
+	},
+
+	clearCurrentVehicle: () => {
+		set({ currentVehicle: null, loadingVehicle: false, vehicleError: null });
+	},
+
 	addVehicle: (vehicle) => {
 		set((state) => ({
 			vehicles: [...state.vehicles, vehicle],
@@ -57,6 +106,10 @@ export const useFleetStore = create<FleetStore>((set, get) => ({
 			vehicles: state.vehicles.map((vehicle) =>
 				vehicle.id === id ? { ...vehicle, ...updates } : vehicle
 			),
+			currentVehicle:
+				state.currentVehicle?.id === id
+					? { ...state.currentVehicle, ...updates }
+					: state.currentVehicle,
 		}));
 	},
 
@@ -64,9 +117,5 @@ export const useFleetStore = create<FleetStore>((set, get) => ({
 		set((state) => ({
 			vehicles: state.vehicles.filter((vehicle) => vehicle.id !== id),
 		}));
-	},
-
-	getVehicleById: (id) => {
-		return get().vehicles.find((vehicle) => vehicle.id === id);
 	},
 }));

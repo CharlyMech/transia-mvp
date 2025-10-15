@@ -1,15 +1,14 @@
 import { Card } from '@/components/Card';
 import { IconPlaceholder } from '@/components/IconPlaceholder';
+import { SkeletonHeaderDetail } from '@/components/skeletons';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DriverStatus } from '@/constants/enums/DriverStatus';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
-import type { Driver } from '@/models/driver';
-import { getDriverById } from '@/services/data/mock/drivers';
+import { useDriversStore } from '@/stores/useDriversStore';
 import { useLocalSearchParams } from 'expo-router';
 import { UserRound } from 'lucide-react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
-	ActivityIndicator,
 	Animated,
 	Dimensions,
 	StatusBar,
@@ -25,18 +24,24 @@ const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 44;
 
 export default function DriverProfileScreen() {
 	const { id } = useLocalSearchParams<{ id: string }>();
-	const [driver, setDriver] = useState<Driver | null>(null);
-	const [loading, setLoading] = useState(true);
 	const scrollY = useRef(new Animated.Value(0)).current;
 
+	const currentDriver = useDriversStore((state) => state.currentDriver);
+	const loadingDriver = useDriversStore((state) => state.loadingDriver);
+	const driverError = useDriversStore((state) => state.driverError);
+	const fetchDriverById = useDriversStore((state) => state.fetchDriverById);
+	const clearCurrentDriver = useDriversStore((state) => state.clearCurrentDriver);
+
+	// Fetch driver
 	useEffect(() => {
 		if (id) {
-			getDriverById(id)
-				.then(setDriver)
-				.catch(console.error)
-				.finally(() => setLoading(false));
+			fetchDriverById(id as string);
 		}
-	}, [id]);
+		// Clean up
+		return () => {
+			clearCurrentDriver();
+		};
+	}, [id, fetchDriverById, clearCurrentDriver]);
 
 	const headerHeight = scrollY.interpolate({
 		inputRange: [0, SCROLL_DISTANCE],
@@ -68,18 +73,22 @@ export default function DriverProfileScreen() {
 		extrapolate: 'clamp',
 	});
 
-	if (loading) {
+	if (loadingDriver) {
+		return <SkeletonHeaderDetail />;
+	}
+
+	if (driverError) {
 		return (
-			<View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-				<ActivityIndicator size="large" color={lightTheme.colors.primary} />
+			<View style={[styles.container, styles.centered]}>
+				<Text style={styles.errorText}>Error: {driverError}</Text>
 			</View>
 		);
 	}
 
-	if (!driver) {
+	if (!currentDriver) {
 		return (
-			<View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-				<Text style={{ color: lightTheme.colors.onBackground }}>
+			<View style={[styles.container, styles.centered]}>
+				<Text style={styles.errorText}>
 					Conductor no encontrado
 				</Text>
 			</View>
@@ -111,9 +120,9 @@ export default function DriverProfileScreen() {
 						}
 					]}
 				>
-					{driver.imageUrl ? (
+					{currentDriver.imageUrl ? (
 						<Animated.Image
-							source={{ uri: driver.imageUrl }}
+							source={{ uri: currentDriver.imageUrl }}
 							style={[styles.driverImage, { opacity: headerOpacity }]}
 						/>
 					) : (
@@ -158,12 +167,12 @@ export default function DriverProfileScreen() {
 
 				<Animated.View style={[styles.content, { paddingTop: contentPaddingTop }]}>
 					<View style={styles.statusBadgeContainer}>
-						<StatusBadge status={driver.status ?? DriverStatus.INACTIVE} />
+						<StatusBadge status={currentDriver.status ?? DriverStatus.INACTIVE} />
 					</View>
 
 					<View>
 						<Text style={styles.name}>
-							{driver.name} {driver.surnames || ''}
+							{currentDriver.name} {currentDriver.surnames || ''}
 						</Text>
 					</View>
 
@@ -176,11 +185,11 @@ export default function DriverProfileScreen() {
 						backgroundColor={lightTheme.colors.surface}
 					>
 						<View style={styles.cardContent}>
-							{driver.phone && <InfoRow label="Teléfono" labelFlex={2} valueFlex={3} value={driver.phone} />}
+							{currentDriver.phone && <InfoRow label="Teléfono" labelFlex={2} valueFlex={3} value={currentDriver.phone} />}
 							<View style={styles.separator} />
-							{driver.email && <InfoRow label="Email" labelFlex={2} valueFlex={3} value={driver.email} />}
+							{currentDriver.email && <InfoRow label="Email" labelFlex={2} valueFlex={3} value={currentDriver.email} />}
 							<View style={styles.separator} />
-							{driver.completeAddress && <InfoRow label="Dirección" labelFlex={2} valueFlex={3} value={driver.completeAddress} />}
+							{currentDriver.completeAddress && <InfoRow label="Dirección" labelFlex={2} valueFlex={3} value={currentDriver.completeAddress} />}
 						</View>
 					</Card>
 
@@ -193,29 +202,29 @@ export default function DriverProfileScreen() {
 						backgroundColor={lightTheme.colors.surface}
 					>
 						<View style={styles.cardContent}>
-							{driver.licenseNumber && (
-								<InfoRow label="Licencia" labelFlex={2} valueFlex={3} value={driver.licenseNumber} />
+							{currentDriver.licenseNumber && (
+								<InfoRow label="Licencia" labelFlex={2} valueFlex={3} value={currentDriver.licenseNumber} />
 							)}
 							<View style={styles.separator} />
 							<InfoRow
 								label="Fecha de nacimiento"
 								labelFlex={2}
 								valueFlex={3}
-								value={new Date(driver.birthDate).toLocaleDateString()}
+								value={new Date(currentDriver.birthDate).toLocaleDateString()}
 							/>
 							<View style={styles.separator} />
 							<InfoRow
 								label="Fecha de registro"
 								labelFlex={2}
 								valueFlex={3}
-								value={new Date(driver.registrationDate).toLocaleDateString()}
+								value={new Date(currentDriver.registrationDate).toLocaleDateString()}
 							/>
 							<View style={styles.separator} />
 							<InfoRow
 								label="DNI/NIE"
 								labelFlex={2}
 								valueFlex={3}
-								value={driver.personId}
+								value={currentDriver.personId}
 							/>
 						</View>
 					</Card>
@@ -249,6 +258,10 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: lightTheme.colors.background,
+	},
+	centered: {
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	header: {
 		position: 'absolute',
@@ -290,7 +303,7 @@ const styles = StyleSheet.create({
 	},
 	scrollViewContent: {
 		flexGrow: 1,
-		minHeight: SCREEN_HEIGHT - STATUS_BAR_HEIGHT + SCROLL_DISTANCE + 30, // Manually fix offset
+		minHeight: SCREEN_HEIGHT - STATUS_BAR_HEIGHT + SCROLL_DISTANCE + 30,
 	},
 	headerSpacer: {
 		backgroundColor: 'transparent',
@@ -346,5 +359,9 @@ const styles = StyleSheet.create({
 		fontWeight: '500',
 		color: lightTheme.colors.onSurface,
 		textAlign: 'right',
+	},
+	errorText: {
+		fontSize: typography.bodyLarge,
+		color: lightTheme.colors.error,
 	},
 });

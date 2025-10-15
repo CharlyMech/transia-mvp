@@ -3,18 +3,25 @@ import { drivers as driversService } from "@/services/data";
 import { create } from "zustand";
 
 interface DriversState {
+	// Global
 	drivers: Driver[];
 	loading: boolean;
 	error: string | null;
 	initialized: boolean;
+
+	// Current driver
+	currentDriver: Driver | null;
+	loadingDriver: boolean;
+	driverError: string | null;
 }
 
 interface DriversActions {
 	fetchDrivers: () => Promise<void>;
+	fetchDriverById: (id: string) => Promise<void>;
 	addDriver: (driver: Driver) => void;
 	updateDriver: (id: string, updates: Partial<Driver>) => void;
 	deleteDriver: (id: string) => void;
-	getDriverById: (id: string) => Driver | undefined;
+	clearCurrentDriver: () => void;
 }
 
 type DriversStore = DriversState & DriversActions;
@@ -23,10 +30,16 @@ type DriversStore = DriversState & DriversActions;
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const useDriversStore = create<DriversStore>((set, get) => ({
+	// Global
 	drivers: [],
 	loading: true,
 	error: null,
 	initialized: false,
+
+	// Current driver
+	currentDriver: null,
+	loadingDriver: false,
+	driverError: null,
 
 	fetchDrivers: async () => {
 		set({ loading: true, error: null });
@@ -46,6 +59,42 @@ export const useDriversStore = create<DriversStore>((set, get) => ({
 		}
 	},
 
+	fetchDriverById: async (id: string) => {
+		set({ loadingDriver: true, driverError: null, currentDriver: null });
+		try {
+			// Add 1.5 second delay to see skeleton
+			await delay(1500);
+
+			// First search in local store
+			let driver = get().drivers.find((d) => d.id === id);
+
+			// If not found, search in service
+			if (!driver) {
+				const fetchedDriver = await driversService.getDriverById(id);
+				if (fetchedDriver) {
+					driver = fetchedDriver;
+				}
+			}
+
+			if (!driver) {
+				throw new Error("Conductor no encontrado");
+			}
+
+			set({ currentDriver: driver, loadingDriver: false });
+		} catch (error) {
+			console.error("Error fetching driver:", error);
+			set({
+				driverError:
+					error instanceof Error ? error.message : "Error desconocido",
+				loadingDriver: false,
+			});
+		}
+	},
+
+	clearCurrentDriver: () => {
+		set({ currentDriver: null, loadingDriver: false, driverError: null });
+	},
+
 	addDriver: (driver) => {
 		set((state) => ({
 			drivers: [...state.drivers, driver],
@@ -57,6 +106,10 @@ export const useDriversStore = create<DriversStore>((set, get) => ({
 			drivers: state.drivers.map((driver) =>
 				driver.id === id ? { ...driver, ...updates } : driver
 			),
+			currentDriver:
+				state.currentDriver?.id === id
+					? { ...state.currentDriver, ...updates }
+					: state.currentDriver,
 		}));
 	},
 
@@ -64,9 +117,5 @@ export const useDriversStore = create<DriversStore>((set, get) => ({
 		set((state) => ({
 			drivers: state.drivers.filter((driver) => driver.id !== id),
 		}));
-	},
-
-	getDriverById: (id) => {
-		return get().drivers.find((driver) => driver.id === id);
 	},
 }));

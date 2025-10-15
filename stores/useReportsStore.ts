@@ -3,20 +3,27 @@ import { reports as reportsService } from "@/services/data";
 import { create } from "zustand";
 
 interface ReportsState {
+	// Global
 	reports: Report[];
 	loading: boolean;
 	error: string | null;
 	initialized: boolean;
+
+	// Current report
+	currentReport: Report | null;
+	loadingReport: boolean;
+	reportError: string | null;
 }
 
 interface ReportsActions {
 	fetchReports: () => Promise<void>;
+	fetchReportById: (id: string) => Promise<void>;
 	addReport: (report: Report) => void;
 	updateReport: (id: string, updates: Partial<Report>) => void;
 	deleteReport: (id: string) => void;
 	markAsRead: (id: string) => void;
 	markAsUnread: (id: string) => void;
-	getReportById: (id: string) => Report | undefined;
+	clearCurrentReport: () => void;
 }
 
 type ReportsStore = ReportsState & ReportsActions;
@@ -25,10 +32,16 @@ type ReportsStore = ReportsState & ReportsActions;
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const useReportsStore = create<ReportsStore>((set, get) => ({
+	// Global
 	reports: [],
 	loading: true,
 	error: null,
 	initialized: false,
+
+	// Current report
+	currentReport: null,
+	loadingReport: false,
+	reportError: null,
 
 	fetchReports: async () => {
 		set({ loading: true, error: null });
@@ -48,6 +61,42 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
 		}
 	},
 
+	fetchReportById: async (id: string) => {
+		set({ loadingReport: true, reportError: null, currentReport: null });
+		try {
+			// Add 1.5 second delay to see skeleton
+			await delay(1500);
+
+			// First search in local store
+			let report = get().reports.find((r) => r.id === id);
+
+			// If not found, search in service
+			if (!report) {
+				const fetchedReport = await reportsService.getReportById(id);
+				if (fetchedReport) {
+					report = fetchedReport;
+				}
+			}
+
+			if (!report) {
+				throw new Error("Reporte no encontrado");
+			}
+
+			set({ currentReport: report, loadingReport: false });
+		} catch (error) {
+			console.error("Error fetching report:", error);
+			set({
+				reportError:
+					error instanceof Error ? error.message : "Error desconocido",
+				loadingReport: false,
+			});
+		}
+	},
+
+	clearCurrentReport: () => {
+		set({ currentReport: null, loadingReport: false, reportError: null });
+	},
+
 	addReport: (report) => {
 		set((state) => ({
 			reports: [...state.reports, report],
@@ -59,6 +108,10 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
 			reports: state.reports.map((report) =>
 				report.id === id ? { ...report, ...updates } : report
 			),
+			currentReport:
+				state.currentReport?.id === id
+					? { ...state.currentReport, ...updates }
+					: state.currentReport,
 		}));
 	},
 
@@ -74,9 +127,5 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
 
 	markAsUnread: (id) => {
 		get().updateReport(id, { read: false });
-	},
-
-	getReportById: (id) => {
-		return get().reports.find((report) => report.id === id);
 	},
 }));

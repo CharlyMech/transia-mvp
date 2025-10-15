@@ -13,3 +13,26 @@ export async function listDrivers(): Promise<Driver[]> {
 	}
 	return parsed.data;
 }
+
+export async function getDriverById(id: string): Promise<Driver | null> {
+	const { data, error } = await supabase
+		.from("drivers")
+		.select("*")
+		.eq("id", id)
+		.single();
+
+	if (error) {
+		if (error.code === "PGRST116") {
+			// No rows returned
+			return null;
+		}
+		throw error;
+	}
+
+	const parsed = DriverSchema.safeParse(data);
+	if (!parsed.success) {
+		console.error(parsed.error);
+		throw new Error("Driver inválido desde Supabase");
+	}
+	return parsed.data;
+}

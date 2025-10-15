@@ -1,12 +1,11 @@
 import { Card } from '@/components/Card';
 import { Carousel } from '@/components/Carousel';
+import { SkeletonDetail } from '@/components/skeletons';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
-import type { Report } from '@/models/report';
-import { getReportById } from '@/services/data/mock/reports';
+import { useReportsStore } from '@/stores/useReportsStore';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-	ActivityIndicator,
 	Dimensions,
 	Image,
 	ScrollView,
@@ -21,44 +20,61 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function ReportDetailScreen() {
 	const { id } = useLocalSearchParams<{ id: string }>();
-	const [report, setReport] = useState<Report | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [read, setRead] = useState(false);
 
-	const toggleReadStatus = () => {
-		setRead(!read);
-	};
+	const currentReport = useReportsStore((state) => state.currentReport);
+	const loadingReport = useReportsStore((state) => state.loadingReport);
+	const reportError = useReportsStore((state) => state.reportError);
+	const fetchReportById = useReportsStore((state) => state.fetchReportById);
+	const clearCurrentReport = useReportsStore((state) => state.clearCurrentReport);
+
+	const [read, setRead] = useState(false);
 
 	useEffect(() => {
 		if (id) {
-			getReportById(id)
-				.then(setReport)
-				.catch(console.error)
-				.finally(() => setLoading(false));
+			fetchReportById(id as string);
 		}
-	}, [id]);
+		// Clean up
+		return () => {
+			clearCurrentReport();
+		};
+	}, [id, fetchReportById, clearCurrentReport]);
 
-	if (loading) {
+	useEffect(() => {
+		if (currentReport) {
+			setRead(currentReport.read);
+		}
+	}, [currentReport]);
+
+	const toggleReadStatus = () => {
+		setRead(!read);
+		// TODO: Update report in store
+	};
+
+
+	if (loadingReport) {
+		return <SkeletonDetail />;
+	}
+
+	if (reportError) {
 		return (
-			<View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-				<ActivityIndicator size="large" color={lightTheme.colors.primary} />
-			</View>
+			<SafeAreaView style={[styles.container, styles.centered]}>
+				<Text style={styles.errorText}>Error: {reportError}</Text>
+			</SafeAreaView>
 		);
 	}
 
-	if (!report) {
+	if (!currentReport) {
 		return (
-			<View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-				<Text style={{ color: lightTheme.colors.onBackground }}>
+			<SafeAreaView style={[styles.container, styles.centered]}>
+				<Text style={styles.errorText}>
 					Reporte no encontrado
 				</Text>
-			</View>
+			</SafeAreaView>
 		);
 	}
 
 	return (
 		<SafeAreaView style={styles.container} edges={['top']}>
-			{/* Manually added header bg offset */}
 			<View style={{ width: '100%', height: 30, backgroundColor: lightTheme.colors.background }} />
 
 			<ScrollView
@@ -72,7 +88,6 @@ export default function ReportDetailScreen() {
 						onPress={toggleReadStatus}
 						activeOpacity={0.7}
 					>
-						{/* TODO -> Change from read to solved -> auto read on report detail access */}
 						<Text style={styles.checkboxLabel}>
 							Solventada
 						</Text>
@@ -88,7 +103,6 @@ export default function ReportDetailScreen() {
 				</View>
 				<View style={styles.content}>
 					<Text style={styles.cardTitle}>Información de la incicencia</Text>
-					{/* TODO -> Change IDs for vehicle plate and driver name */}
 					<Card
 						paddingX={spacing.md}
 						paddingY={spacing.md}
@@ -101,26 +115,26 @@ export default function ReportDetailScreen() {
 								label="Fecha de creación"
 								labelFlex={2}
 								valueFlex={3}
-								value={new Date(report.createdAt).toLocaleString()}
+								value={new Date(currentReport.createdAt).toLocaleString()}
 							/>
 							<View style={styles.separator} />
 							<InfoRow
 								label="Vehículo"
 								labelFlex={2}
 								valueFlex={3}
-								value={report.vehicleId}
+								value={currentReport.vehicleId}
 							/>
 							<View style={styles.separator} />
 							<InfoRow
 								label="Conductor"
 								labelFlex={2}
 								valueFlex={3}
-								value={report.driverId}
+								value={currentReport.driverId}
 							/>
 						</View>
 					</Card>
 
-					{report.description && (
+					{currentReport.description && (
 						<>
 							<Text style={styles.cardTitle}>Descripción</Text>
 							<Card
@@ -131,18 +145,17 @@ export default function ReportDetailScreen() {
 								backgroundColor={lightTheme.colors.surface}
 							>
 								<Text style={styles.descriptionText}>
-									{report.description}
+									{currentReport.description}
 								</Text>
 							</Card>
 						</>
 					)}
 
-					{/* Carousel de imágenes */}
-					{report.images && report.images.length > 0 && (
+					{currentReport.images && currentReport.images.length > 0 && (
 						<>
 							<Text style={styles.cardTitle}>Imágenes</Text>
 							<Carousel
-								data={report.images}
+								data={currentReport.images}
 								renderItem={(imageUri, index) => (
 									<Image
 										source={{ uri: imageUri }}
@@ -162,11 +175,6 @@ export default function ReportDetailScreen() {
 							/>
 						</>
 					)}
-
-					{/* TODO: Secciones adicionales */}
-					{/* - Botón para marcar como leído/no leído */}
-					{/* - Imágenes adjuntas */}
-					{/* - Historial de cambios */}
 				</View>
 			</ScrollView>
 		</SafeAreaView>
@@ -194,6 +202,10 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: lightTheme.colors.background,
 	},
+	centered: {
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
 	scrollView: {
 		flex: 1,
 	},
@@ -208,8 +220,7 @@ const styles = StyleSheet.create({
 	},
 	solvedStatusContainer: {
 		width: '100%',
-		paddingHorizontal: spacing.md,
-		paddingVertical: spacing.md,
+		padding: spacing.md,
 		justifyContent: 'center',
 		alignItems: 'flex-end',
 	},
@@ -241,26 +252,6 @@ const styles = StyleSheet.create({
 		fontSize: typography.bodyLarge,
 		color: lightTheme.colors.onSurface,
 		fontWeight: '500',
-	},
-	headerSection: {
-		paddingVertical: spacing.md,
-		gap: spacing.sm,
-	},
-	title: {
-		fontSize: typography.headlineLarge,
-		fontWeight: '700',
-		color: lightTheme.colors.onBackground,
-	},
-	statusBadge: {
-		alignSelf: 'flex-start',
-		paddingHorizontal: spacing.md,
-		paddingVertical: spacing.xs,
-		borderRadius: roundness.full,
-		backgroundColor: lightTheme.colors.surfaceVariant,
-	},
-	statusText: {
-		fontSize: typography.bodyMedium,
-		fontWeight: '600',
 	},
 	cardTitle: {
 		fontSize: typography.titleMedium,
@@ -297,32 +288,12 @@ const styles = StyleSheet.create({
 		lineHeight: 24,
 		color: lightTheme.colors.onSurface,
 	},
-	carouselContainer: {
-		marginTop: spacing.xs,
-	},
-	imageContainer: {
-		width: '100%',
-		height: '100%',
-		borderRadius: roundness.md,
-		overflow: 'hidden',
-		backgroundColor: lightTheme.colors.surfaceVariant,
-	},
 	carouselImage: {
 		width: '100%',
 		height: '100%',
 	},
-	imageCounter: {
-		position: 'absolute',
-		top: spacing.sm,
-		right: spacing.sm,
-		backgroundColor: 'rgba(0, 0, 0, 0.6)',
-		paddingHorizontal: spacing.sm,
-		paddingVertical: spacing.xs,
-		borderRadius: roundness.sm,
-	},
-	imageCounterText: {
-		color: '#fff',
-		fontSize: typography.bodySmall,
-		fontWeight: '600',
+	errorText: {
+		fontSize: typography.bodyLarge,
+		color: lightTheme.colors.error,
 	},
 });

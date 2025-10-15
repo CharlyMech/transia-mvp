@@ -1,16 +1,15 @@
 import { Card } from '@/components/Card';
 import { IconPlaceholder } from '@/components/IconPlaceholder';
+import { SkeletonHeaderDetail } from '@/components/skeletons';
 import { StatusBadge } from '@/components/StatusBadge';
 import { VehicleStatus } from '@/constants/enums/VehicleStatus';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
-import { Vehicle } from '@/models/vehicle';
-import { getVehicleById } from '@/services/data/mock/fleet';
+import { useFleetStore } from '@/stores/useFleetStore';
 import { formatISODate } from '@/utils/dateUtils';
 import { useLocalSearchParams } from 'expo-router';
 import { ExternalLink, Truck } from 'lucide-react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
-	ActivityIndicator,
 	Animated,
 	Dimensions,
 	Pressable,
@@ -27,18 +26,24 @@ const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 44;
 
 export default function VehicleDetailScreen() {
 	const { id } = useLocalSearchParams<{ id: string }>();
-	const [vehicle, setVehicle] = useState<Vehicle | null>(null);
-	const [loading, setLoading] = useState(true);
 	const scrollY = useRef(new Animated.Value(0)).current;
 
+	const currentVehicle = useFleetStore((state) => state.currentVehicle);
+	const loadingVehicle = useFleetStore((state) => state.loadingVehicle);
+	const vehicleError = useFleetStore((state) => state.vehicleError);
+	const fetchVehicleById = useFleetStore((state) => state.fetchVehicleById);
+	const clearCurrentVehicle = useFleetStore((state) => state.clearCurrentVehicle);
+
+	// Fetch driver
 	useEffect(() => {
 		if (id) {
-			getVehicleById(id)
-				.then(setVehicle)
-				.catch(console.error)
-				.finally(() => setLoading(false));
+			fetchVehicleById(id as string);
 		}
-	}, [id]);
+		// Clean up
+		return () => {
+			clearCurrentVehicle();
+		};
+	}, [id, fetchVehicleById, clearCurrentVehicle]);
 
 	const headerHeight = scrollY.interpolate({
 		inputRange: [0, SCROLL_DISTANCE],
@@ -70,19 +75,23 @@ export default function VehicleDetailScreen() {
 		extrapolate: 'clamp',
 	});
 
-	if (loading) {
+	if (loadingVehicle) {
+		return <SkeletonHeaderDetail />;
+	}
+
+	if (vehicleError) {
 		return (
-			<View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-				<ActivityIndicator size="large" color={lightTheme.colors.primary} />
+			<View style={[styles.container, styles.centered]}>
+				<Text style={styles.errorText}>Error: {vehicleError}</Text>
 			</View>
 		);
 	}
 
-	if (!vehicle) {
+	if (!currentVehicle) {
 		return (
-			<View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-				<Text style={{ color: lightTheme.colors.onBackground }}>
-					Vehículo no encontrado
+			<View style={[styles.container, styles.centered]}>
+				<Text style={styles.errorText}>
+					Conductor no encontrado
 				</Text>
 			</View>
 		);
@@ -113,9 +122,9 @@ export default function VehicleDetailScreen() {
 						}
 					]}
 				>
-					{vehicle.imageUrl ? (
+					{currentVehicle.imageUrl ? (
 						<Animated.Image
-							source={{ uri: vehicle.imageUrl }}
+							source={{ uri: currentVehicle.imageUrl }}
 							style={[styles.vehicleImage, { opacity: headerOpacity }]}
 						/>
 					) : (
@@ -160,7 +169,7 @@ export default function VehicleDetailScreen() {
 
 				<Animated.View style={[styles.content, { paddingTop: contentPaddingTop }]}>
 					<View style={styles.statusBadgeContainer}>
-						<StatusBadge status={vehicle.status ?? VehicleStatus.INACTIVE} />
+						<StatusBadge status={currentVehicle.status ?? VehicleStatus.INACTIVE} />
 					</View>
 
 					<Text style={styles.cardTitle}>Información del vehículo</Text>
@@ -172,13 +181,13 @@ export default function VehicleDetailScreen() {
 						backgroundColor={lightTheme.colors.surface}
 					>
 						<View style={styles.cardContent}>
-							{vehicle.plateNumber && <InfoRow label="Matrícula" labelFlex={2} valueFlex={3} value={vehicle.plateNumber} />}
+							{currentVehicle.plateNumber && <InfoRow label="Matrícula" labelFlex={2} valueFlex={3} value={currentVehicle.plateNumber} />}
 							<View style={styles.separator} />
-							{vehicle.vehicleBrand && <InfoRow label="Marca" labelFlex={2} valueFlex={3} value={vehicle.vehicleBrand} />}
+							{currentVehicle.vehicleBrand && <InfoRow label="Marca" labelFlex={2} valueFlex={3} value={currentVehicle.vehicleBrand} />}
 							<View style={styles.separator} />
-							{vehicle.vehicleModel && <InfoRow label="Modelo" labelFlex={2} valueFlex={3} value={vehicle.vehicleModel} />}
+							{currentVehicle.vehicleModel && <InfoRow label="Modelo" labelFlex={2} valueFlex={3} value={currentVehicle.vehicleModel} />}
 							<View style={styles.separator} />
-							{vehicle.vehicleType && <InfoRow label="Tipo" labelFlex={2} valueFlex={3} value={vehicle.vehicleType} />}
+							{currentVehicle.vehicleType && <InfoRow label="Tipo" labelFlex={2} valueFlex={3} value={currentVehicle.vehicleType} />}
 						</View>
 					</Card>
 
@@ -191,11 +200,11 @@ export default function VehicleDetailScreen() {
 						backgroundColor={lightTheme.colors.surface}
 					>
 						<View style={styles.cardContent}>
-							{vehicle.year && <InfoRow label="Año" labelFlex={2} valueFlex={3} value={vehicle.year.toString()} />}
+							{currentVehicle.year && <InfoRow label="Año" labelFlex={2} valueFlex={3} value={currentVehicle.year.toString()} />}
 							<View style={styles.separator} />
-							{vehicle.purchaseDate && <InfoRow label="Fecha de adquisición" labelFlex={2} valueFlex={3} value={formatISODate(vehicle.purchaseDate.toISOString())} />}
+							{currentVehicle.purchaseDate && <InfoRow label="Fecha de adquisición" labelFlex={2} valueFlex={3} value={formatISODate(currentVehicle.purchaseDate.toISOString())} />}
 							<View style={styles.separator} />
-							{vehicle.registrationDate && <InfoRow label="Fecha de registro" labelFlex={2} valueFlex={3} value={formatISODate(vehicle.registrationDate.toISOString())} />}
+							{currentVehicle.registrationDate && <InfoRow label="Fecha de registro" labelFlex={2} valueFlex={3} value={formatISODate(currentVehicle.registrationDate.toISOString())} />}
 						</View>
 					</Card>
 
@@ -270,6 +279,10 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: lightTheme.colors.background,
+	},
+	centered: {
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	header: {
 		position: 'absolute',
@@ -381,5 +394,9 @@ const styles = StyleSheet.create({
 		fontStyle: 'italic',
 		color: lightTheme.colors.onSurfaceVariant,
 		textAlign: 'center',
+	},
+	errorText: {
+		fontSize: typography.bodyLarge,
+		color: lightTheme.colors.error,
 	},
 });
