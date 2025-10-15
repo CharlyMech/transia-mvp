@@ -13,15 +13,25 @@ interface FleetState {
 	currentVehicle: Vehicle | null;
 	loadingVehicle: boolean;
 	vehicleError: string | null;
+
+	// Selected vehicle (for actions modal)
+	selectedVehicle: Vehicle | null;
 }
 
 interface FleetActions {
+	// Data fetching
 	fetchFleet: () => Promise<void>;
 	fetchVehicleById: (id: string) => Promise<void>;
+	clearCurrentVehicle: () => void;
+
+	// CRUD operations
 	addVehicle: (vehicle: Vehicle) => void;
 	updateVehicle: (id: string, updates: Partial<Vehicle>) => void;
 	deleteVehicle: (id: string) => void;
-	clearCurrentVehicle: () => void;
+
+	// Selected vehicle actions
+	setSelectedVehicle: (vehicle: Vehicle | null) => void;
+	clearSelectedVehicle: () => void;
 }
 
 type FleetStore = FleetState & FleetActions;
@@ -40,6 +50,9 @@ export const useFleetStore = create<FleetStore>((set, get) => ({
 	currentVehicle: null,
 	loadingVehicle: false,
 	vehicleError: null,
+
+	// Selected vehicle
+	selectedVehicle: null,
 
 	fetchFleet: async () => {
 		set({ loading: true, error: null });
@@ -110,12 +123,34 @@ export const useFleetStore = create<FleetStore>((set, get) => ({
 				state.currentVehicle?.id === id
 					? { ...state.currentVehicle, ...updates }
 					: state.currentVehicle,
+			selectedVehicle:
+				state.selectedVehicle?.id === id
+					? { ...state.selectedVehicle, ...updates }
+					: state.selectedVehicle,
 		}));
 	},
 
 	deleteVehicle: (id) => {
-		set((state) => ({
-			vehicles: state.vehicles.filter((vehicle) => vehicle.id !== id),
-		}));
+		try {
+			// TODO: Call service when available
+			// await fleetService.deleteVehicle(id);
+
+			set((state) => ({
+				vehicles: state.vehicles.filter((vehicle) => vehicle.id !== id),
+			}));
+
+			console.log("Vehículo eliminado:", id);
+		} catch (error) {
+			console.error("Error al eliminar vehículo:", error);
+			throw error;
+		}
+	},
+
+	setSelectedVehicle: (vehicle) => {
+		set({ selectedVehicle: vehicle });
+	},
+
+	clearSelectedVehicle: () => {
+		set({ selectedVehicle: null });
 	},
 }));

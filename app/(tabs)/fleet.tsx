@@ -1,13 +1,17 @@
+import { ActionsModal } from "@/components/ActionsModal";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { IconBadge } from "@/components/IconBadge";
 import { SkeletonList } from "@/components/skeletons";
 import { VehicleStatus } from "@/constants/enums/VehicleStatus";
-import { lightTheme, spacing, typography } from "@/constants/theme";
+import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
+import { useActionsModal } from "@/hooks/useActionsModal";
 import { useFleetStore } from "@/stores/useFleetStore";
 import { router } from "expo-router";
-import { Plus } from "lucide-react-native";
+import { ExternalLink, Plus, Settings, Trash2, Truck } from "lucide-react-native";
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 function getVehicleStatusStyle(status: VehicleStatus) {
@@ -43,6 +47,47 @@ function getVehicleStatusStyle(status: VehicleStatus) {
 export default function FleetScreen() {
 	const vehicles = useFleetStore((state) => state.vehicles);
 	const loading = useFleetStore((state) => state.loading);
+	const selectedVehicle = useFleetStore((state) => state.selectedVehicle);
+
+	const setSelectedVehicle = useFleetStore((state) => state.setSelectedVehicle);
+	const clearSelectedVehicle = useFleetStore((state) => state.clearSelectedVehicle);
+	const deleteVehicle = useFleetStore((state) => state.deleteVehicle);
+
+	const actionsModal = useActionsModal();
+	const confirmationModal = useActionsModal();
+
+	const handleLongPress = (vehicle: typeof vehicles[0]) => {
+		setSelectedVehicle(vehicle);
+		actionsModal.open();
+	};
+
+	const handleCloseActionsModal = () => {
+		actionsModal.close();
+		clearSelectedVehicle();
+	};
+
+	const handleViewVehicle = () => {
+		if (selectedVehicle) {
+			router.push(`/fleet/${selectedVehicle.id}`);
+		}
+	};
+
+	const handleRequestDelete = () => {
+		actionsModal.close();
+		confirmationModal.open();
+	};
+
+	const handleConfirmDelete = async () => {
+		if (selectedVehicle) {
+			await deleteVehicle(selectedVehicle.id);
+			clearSelectedVehicle();
+		}
+	};
+
+	const handleCancelDelete = () => {
+		confirmationModal.close();
+		clearSelectedVehicle();
+	};
 
 	return (
 		<SafeAreaView style={styles.container} edges={['top']}>
@@ -68,6 +113,7 @@ export default function FleetScreen() {
 							<Card
 								key={item.id}
 								onPress={() => router.push(`/fleet/${item.id}`)}
+								onLongPress={() => handleLongPress(item)}
 								paddingX={spacing.md}
 								paddingY={spacing.sm}
 								shadow='none'
@@ -96,6 +142,74 @@ export default function FleetScreen() {
 					})}
 				</ScrollView>
 			)}
+			{selectedVehicle && (
+				<>
+					<ActionsModal
+						visible={actionsModal.visible}
+						onClose={handleCloseActionsModal}
+						title="Acciones"
+					>
+						<View style={{ gap: spacing.sm }}>
+							<TouchableOpacity
+								style={styles.actionButton}
+								onPress={handleViewVehicle}
+							>
+								<ExternalLink size={22} color={lightTheme.colors.onSurface} />
+								<Text style={styles.actionText}>Ver vehículo</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.actionButton, styles.warningAction]}
+							// onPress={handleViewVehicle}
+							>
+								<IconBadge
+									Icon={Truck}
+									BadgeIcon={Settings}
+									size={22}
+									color={lightTheme.colors.onWarningContainer}
+									badgeSize={12}
+									badgeColor={lightTheme.colors.onWarningContainer}
+									badgeBackgroundColor={lightTheme.colors.warningContainer}
+								/>
+								<Text style={[styles.actionText, styles.warningText]}>Poner en mantenimiento</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.actionButton, styles.dangerAction]}
+							// onPress={handleViewVehicle}
+							>
+								<IconBadge
+									Icon={Truck}
+									BadgeIcon={Settings}
+									size={22}
+									color={lightTheme.colors.onErrorContainer}
+									badgeSize={12}
+									badgeColor={lightTheme.colors.onErrorContainer}
+									badgeBackgroundColor={lightTheme.colors.errorContainer}
+								/>
+								<Text style={[styles.actionText, styles.dangerText]}>Dar de baja</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.actionButton, styles.dangerAction]}
+								onPress={handleRequestDelete}
+							>
+								<Trash2 size={22} color={lightTheme.colors.error} />
+								<Text style={[styles.actionText, styles.dangerText]}>
+									Eliminar
+								</Text>
+							</TouchableOpacity>
+						</View>
+					</ActionsModal>
+
+					<ConfirmationModal
+						visible={confirmationModal.visible}
+						onClose={handleCancelDelete}
+						onConfirm={handleConfirmDelete}
+						title="¿Eliminar vehículo?"
+						message="Esta acción no se puede deshacer. El vehículo será eliminado permanentemente."
+						confirmText="Eliminar"
+						cancelText="Cancelar"
+					/>
+				</>
+			)}
 		</SafeAreaView>
 	);
 }
@@ -114,5 +228,30 @@ const styles = StyleSheet.create({
 		paddingTop: spacing.sm,
 		paddingBottom: spacing.xs,
 		backgroundColor: lightTheme.colors.background,
+	},
+	actionButton: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		padding: spacing.md,
+		borderRadius: roundness.sm,
+		backgroundColor: lightTheme.colors.background,
+		gap: spacing.md,
+	},
+	actionText: {
+		fontSize: typography.bodyLarge,
+		fontWeight: '600',
+		color: lightTheme.colors.onSurface,
+	},
+	dangerAction: {
+		backgroundColor: lightTheme.colors.errorContainer,
+	},
+	dangerText: {
+		color: lightTheme.colors.error,
+	},
+	warningAction: {
+		backgroundColor: lightTheme.colors.warningContainer,
+	},
+	warningText: {
+		color: lightTheme.colors.onWarningContainer,
 	},
 });
