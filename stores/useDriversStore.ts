@@ -13,15 +13,25 @@ interface DriversState {
 	currentDriver: Driver | null;
 	loadingDriver: boolean;
 	driverError: string | null;
+
+	// Selected driver (for actions modal)
+	selectedDriver: Driver | null;
 }
 
 interface DriversActions {
+	// Data fetching
 	fetchDrivers: () => Promise<void>;
 	fetchDriverById: (id: string) => Promise<void>;
+	clearCurrentDriver: () => void;
+
+	// CRUD operations
 	addDriver: (driver: Driver) => void;
 	updateDriver: (id: string, updates: Partial<Driver>) => void;
 	deleteDriver: (id: string) => void;
-	clearCurrentDriver: () => void;
+
+	// Selected driver actions
+	setSelectedDriver: (driver: Driver | null) => void;
+	clearSelectedDriver: () => void;
 }
 
 type DriversStore = DriversState & DriversActions;
@@ -40,6 +50,9 @@ export const useDriversStore = create<DriversStore>((set, get) => ({
 	currentDriver: null,
 	loadingDriver: false,
 	driverError: null,
+
+	// Selected driver
+	selectedDriver: null,
 
 	fetchDrivers: async () => {
 		set({ loading: true, error: null });
@@ -110,12 +123,34 @@ export const useDriversStore = create<DriversStore>((set, get) => ({
 				state.currentDriver?.id === id
 					? { ...state.currentDriver, ...updates }
 					: state.currentDriver,
+			selectedDriver:
+				state.selectedDriver?.id === id
+					? { ...state.selectedDriver, ...updates }
+					: state.selectedDriver,
 		}));
 	},
 
 	deleteDriver: (id) => {
-		set((state) => ({
-			drivers: state.drivers.filter((driver) => driver.id !== id),
-		}));
+		try {
+			// TODO: Call service when available
+			// await driversService.deleteDriver(id);
+
+			set((state) => ({
+				drivers: state.drivers.filter((driver) => driver.id !== id),
+			}));
+
+			console.log("Conductor eliminado:", id);
+		} catch (error) {
+			console.error("Error al eliminar conductor:", error);
+			throw error;
+		}
+	},
+
+	setSelectedDriver: (driver) => {
+		set({ selectedDriver: driver });
+	},
+
+	clearSelectedDriver: () => {
+		set({ selectedDriver: null });
 	},
 }));
