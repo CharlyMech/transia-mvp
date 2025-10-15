@@ -13,17 +13,29 @@ interface ReportsState {
 	currentReport: Report | null;
 	loadingReport: boolean;
 	reportError: string | null;
+
+	// Selected report (for actions modal)
+	selectedReport: Report | null;
 }
 
 interface ReportsActions {
+	// Data fetching
 	fetchReports: () => Promise<void>;
 	fetchReportById: (id: string) => Promise<void>;
+	clearCurrentReport: () => void;
+
+	// CRUD operations
 	addReport: (report: Report) => void;
 	updateReport: (id: string, updates: Partial<Report>) => void;
-	deleteReport: (id: string) => void;
+	deleteReport: (id: string) => Promise<void>;
+
+	// Read/Unread actions
 	markAsRead: (id: string) => void;
 	markAsUnread: (id: string) => void;
-	clearCurrentReport: () => void;
+
+	// Selected report actions
+	setSelectedReport: (report: Report | null) => void;
+	clearSelectedReport: () => void;
 }
 
 type ReportsStore = ReportsState & ReportsActions;
@@ -43,12 +55,13 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
 	loadingReport: false,
 	reportError: null,
 
+	// Selected report
+	selectedReport: null,
+
 	fetchReports: async () => {
 		set({ loading: true, error: null });
 		try {
-			// Add 2 second delay to see skeleton
 			await delay(2000);
-
 			const data = await reportsService.listReports();
 			set({ reports: data, loading: false, initialized: true });
 		} catch (error) {
@@ -64,13 +77,9 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
 	fetchReportById: async (id: string) => {
 		set({ loadingReport: true, reportError: null, currentReport: null });
 		try {
-			// Add 1.5 second delay to see skeleton
 			await delay(1500);
-
-			// First search in local store
 			let report = get().reports.find((r) => r.id === id);
 
-			// If not found, search in service
 			if (!report) {
 				const fetchedReport = await reportsService.getReportById(id);
 				if (fetchedReport) {
@@ -112,13 +121,27 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
 				state.currentReport?.id === id
 					? { ...state.currentReport, ...updates }
 					: state.currentReport,
+			selectedReport:
+				state.selectedReport?.id === id
+					? { ...state.selectedReport, ...updates }
+					: state.selectedReport,
 		}));
 	},
 
-	deleteReport: (id) => {
-		set((state) => ({
-			reports: state.reports.filter((report) => report.id !== id),
-		}));
+	deleteReport: async (id: string) => {
+		try {
+			// TODO: Call service when available
+			// await reportsService.deleteReport(id);
+
+			set((state) => ({
+				reports: state.reports.filter((report) => report.id !== id),
+			}));
+
+			console.log("Reporte eliminado:", id);
+		} catch (error) {
+			console.error("Error al eliminar reporte:", error);
+			throw error;
+		}
 	},
 
 	markAsRead: (id) => {
@@ -127,5 +150,13 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
 
 	markAsUnread: (id) => {
 		get().updateReport(id, { read: false });
+	},
+
+	setSelectedReport: (report) => {
+		set({ selectedReport: report });
+	},
+
+	clearSelectedReport: () => {
+		set({ selectedReport: null });
 	},
 }));

@@ -1,53 +1,80 @@
+import { router } from 'expo-router';
+import { Check, ExternalLink, EyeOff, Plus, Trash2 } from 'lucide-react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { ActionsModal } from '@/components/ActionsModal';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
-// import { ConfirmationModal } from '@/components/modals/ConfirmationModal';
-// import { ReportActionsModal } from '@/components/modals/ReportActionModal';
+import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { SkeletonList } from '@/components/skeletons';
 
-import { lightTheme, spacing, typography } from '@/constants/theme';
-// import { useReportActions } from '@/hooks/useReportAction';
+import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { useActionsModal } from '@/hooks/useActionsModal';
 import { useReportsStore } from '@/stores/useReportsStore';
 
-import { router } from 'expo-router';
-import { Plus } from 'lucide-react-native';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ReportsScreen() {
 	const reports = useReportsStore((state) => state.reports);
 	const loading = useReportsStore((state) => state.loading);
+	const selectedReport = useReportsStore((state) => state.selectedReport);
 
-	// TODO -> Implement previous actions with zustand stores
-	// const deleteReport = useReportsStore((state) => state.deleteReport);
-	// const markAsRead = useReportsStore((state) => state.markAsRead);
-	// const markAsUnread = useReportsStore((state) => state.markAsUnread);
+	const setSelectedReport = useReportsStore((state) => state.setSelectedReport);
+	const clearSelectedReport = useReportsStore((state) => state.clearSelectedReport);
+	const deleteReport = useReportsStore((state) => state.deleteReport);
+	const markAsRead = useReportsStore((state) => state.markAsRead);
+	const markAsUnread = useReportsStore((state) => state.markAsUnread);
 
-	// const {
-	// 	selectedReport,
-	// 	modalVisible,
-	// 	confirmationVisible,
-	// 	navigateToReport,
-	// 	openActionsModal,
-	// 	closeModal,
-	// 	requestDeleteReport,
-	// 	confirmDelete,
-	// 	cancelDelete,
-	// } = useReportActions();
+	const actionsModal = useActionsModal();
+	const confirmationModal = useActionsModal();
 
-	// const handleDelete = async () => {
-	// 	const deletedId = await confirmDelete();
-	// 	if (deletedId) {
-	// 		deleteReport(deletedId);
-	// 	}
-	// };
+	const handleLongPress = (report: typeof reports[0]) => {
+		setSelectedReport(report);
+		actionsModal.open();
+	};
 
-	// const handleMarkAsRead = async (reportId: string) => {
-	// 	markAsRead(reportId);
-	// };
+	const handleCloseActionsModal = () => {
+		actionsModal.close();
+		clearSelectedReport();
+	};
 
-	// const handleMarkAsUnread = async (reportId: string) => {
-	// 	markAsUnread(reportId);
-	// };
+	const handleViewReport = () => {
+		if (selectedReport) {
+			router.push(`/reports/${selectedReport.id}`);
+			handleCloseActionsModal();
+		}
+	};
+
+	const handleMarkAsRead = () => {
+		if (selectedReport) {
+			markAsRead(selectedReport.id);
+			handleCloseActionsModal();
+		}
+	};
+
+	const handleMarkAsUnread = () => {
+		if (selectedReport) {
+			markAsUnread(selectedReport.id);
+			handleCloseActionsModal();
+		}
+	};
+
+	const handleRequestDelete = () => {
+		actionsModal.close();
+		confirmationModal.open();
+	};
+
+	const handleConfirmDelete = async () => {
+		if (selectedReport) {
+			await deleteReport(selectedReport.id);
+			clearSelectedReport();
+		}
+	};
+
+	const handleCancelDelete = () => {
+		confirmationModal.close();
+		clearSelectedReport();
+	};
 
 	return (
 		<SafeAreaView style={styles.container} edges={['top']}>
@@ -71,6 +98,7 @@ export default function ReportsScreen() {
 						<Card
 							key={item.id}
 							onPress={() => router.push(`/reports/${item.id}`)}
+							onLongPress={() => handleLongPress(item)}
 							paddingX={spacing.md}
 							paddingY={spacing.sm}
 							shadow='none'
@@ -97,26 +125,63 @@ export default function ReportsScreen() {
 				</ScrollView>
 			)}
 
-			{/* <ReportActionsModal
-				visible={modalVisible}
-				report={selectedReport}
-				onClose={closeModal}
-				onViewReport={navigateToReport}
-				onMarkAsRead={handleMarkAsRead}
-				onMarkAsUnread={handleMarkAsUnread}
-				onDelete={requestDeleteReport}
-			/>
+			{selectedReport && (
+				<>
+					<ActionsModal
+						visible={actionsModal.visible}
+						onClose={handleCloseActionsModal}
+						title="Acciones"
+					>
+						<View style={{ gap: spacing.sm }}>
+							<TouchableOpacity
+								style={styles.actionButton}
+								onPress={handleViewReport}
+							>
+								<ExternalLink size={22} color={lightTheme.colors.onSurface} />
+								<Text style={styles.actionText}>Ver incidencia</Text>
+							</TouchableOpacity>
 
-			<ConfirmationModal
-				visible={confirmationVisible}
-				title="¿Eliminar reporte?"
-				message="Esta acción no se puede deshacer. El reporte será eliminado permanentemente."
-				confirmText="Eliminar"
-				cancelText="Cancelar"
-				variant="danger"
-				onConfirm={handleDelete}
-				onCancel={cancelDelete}
-			/> */}
+							{selectedReport.read ? (
+								<TouchableOpacity
+									style={styles.actionButton}
+									onPress={handleMarkAsUnread}
+								>
+									<EyeOff size={22} color={lightTheme.colors.onSurface} />
+									<Text style={styles.actionText}>Marcar como no leído</Text>
+								</TouchableOpacity>
+							) : (
+								<TouchableOpacity
+									style={styles.actionButton}
+									onPress={handleMarkAsRead}
+								>
+									<Check size={22} color={lightTheme.colors.tertiary} />
+									<Text style={styles.actionText}>Marcar como leído</Text>
+								</TouchableOpacity>
+							)}
+
+							<TouchableOpacity
+								style={[styles.actionButton, styles.dangerAction]}
+								onPress={handleRequestDelete}
+							>
+								<Trash2 size={22} color={lightTheme.colors.error} />
+								<Text style={[styles.actionText, styles.dangerText]}>
+									Eliminar
+								</Text>
+							</TouchableOpacity>
+						</View>
+					</ActionsModal>
+
+					<ConfirmationModal
+						visible={confirmationModal.visible}
+						onClose={handleCancelDelete}
+						onConfirm={handleConfirmDelete}
+						title="¿Eliminar reporte?"
+						message="Esta acción no se puede deshacer. El reporte será eliminado permanentemente."
+						confirmText="Eliminar"
+						cancelText="Cancelar"
+					/>
+				</>
+			)}
 		</SafeAreaView>
 	);
 }
@@ -135,5 +200,24 @@ const styles = StyleSheet.create({
 		paddingTop: spacing.sm,
 		paddingBottom: spacing.xs,
 		backgroundColor: lightTheme.colors.background,
+	},
+	actionButton: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		padding: spacing.md,
+		borderRadius: roundness.sm,
+		backgroundColor: lightTheme.colors.background,
+		gap: spacing.md,
+	},
+	actionText: {
+		fontSize: typography.bodyLarge,
+		fontWeight: '600',
+		color: lightTheme.colors.onSurface,
+	},
+	dangerAction: {
+		backgroundColor: lightTheme.colors.errorContainer,
+	},
+	dangerText: {
+		color: lightTheme.colors.error,
 	},
 });
