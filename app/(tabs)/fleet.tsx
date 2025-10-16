@@ -9,7 +9,7 @@ import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
 import { useActionsModal } from "@/hooks/useActionsModal";
 import { useFleetStore } from "@/stores/useFleetStore";
 import { router } from "expo-router";
-import { ExternalLink, Plus, Settings, Trash2, Truck } from "lucide-react-native";
+import { Check, ExternalLink, Pause, Plus, RefreshCcw, Settings, Trash2, Truck, X } from "lucide-react-native";
 import React from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -51,9 +51,11 @@ export default function FleetScreen() {
 
 	const setSelectedVehicle = useFleetStore((state) => state.setSelectedVehicle);
 	const clearSelectedVehicle = useFleetStore((state) => state.clearSelectedVehicle);
+	const updateVehicle = useFleetStore((state) => state.updateVehicle);
 	const deleteVehicle = useFleetStore((state) => state.deleteVehicle);
 
 	const actionsModal = useActionsModal();
+	const statusModal = useActionsModal();
 	const confirmationModal = useActionsModal();
 
 	const handleLongPress = (vehicle: typeof vehicles[0]) => {
@@ -69,6 +71,23 @@ export default function FleetScreen() {
 	const handleViewVehicle = () => {
 		if (selectedVehicle) {
 			router.push(`/fleet/${selectedVehicle.id}`);
+		}
+	};
+
+	const handleCloseStatusModal = () => {
+		statusModal.close();
+		clearSelectedVehicle();
+	};
+
+	const handleChangeStatus = () => {
+		actionsModal.close();
+		statusModal.open();
+	};
+
+	const handleUpdateVehicleStatus = (status: VehicleStatus) => {
+		if (selectedVehicle) {
+			updateVehicle(selectedVehicle.id, { status });
+			handleCloseStatusModal();
 		}
 	};
 
@@ -148,6 +167,7 @@ export default function FleetScreen() {
 						visible={actionsModal.visible}
 						onClose={handleCloseActionsModal}
 						title="Acciones"
+						animationType="none"
 					>
 						<View style={{ gap: spacing.sm }}>
 							<TouchableOpacity
@@ -158,34 +178,19 @@ export default function FleetScreen() {
 								<Text style={styles.actionText}>Ver vehículo</Text>
 							</TouchableOpacity>
 							<TouchableOpacity
-								style={[styles.actionButton, styles.warningAction]}
-							// onPress={handleViewVehicle}
+								style={styles.actionButton}
+								onPress={handleChangeStatus}
 							>
 								<IconBadge
 									Icon={Truck}
-									BadgeIcon={Settings}
+									BadgeIcon={RefreshCcw}
 									size={22}
-									color={lightTheme.colors.onWarningContainer}
+									color={lightTheme.colors.onBackground}
 									badgeSize={12}
-									badgeColor={lightTheme.colors.onWarningContainer}
-									badgeBackgroundColor={lightTheme.colors.warningContainer}
+									badgeColor={lightTheme.colors.onBackground}
+									badgeBackgroundColor={lightTheme.colors.background}
 								/>
-								<Text style={[styles.actionText, styles.warningText]}>Poner en mantenimiento</Text>
-							</TouchableOpacity>
-							<TouchableOpacity
-								style={[styles.actionButton, styles.dangerAction]}
-							// onPress={handleViewVehicle}
-							>
-								<IconBadge
-									Icon={Truck}
-									BadgeIcon={Settings}
-									size={22}
-									color={lightTheme.colors.onErrorContainer}
-									badgeSize={12}
-									badgeColor={lightTheme.colors.onErrorContainer}
-									badgeBackgroundColor={lightTheme.colors.errorContainer}
-								/>
-								<Text style={[styles.actionText, styles.dangerText]}>Dar de baja</Text>
+								<Text style={styles.actionText}>Cambiar estado del vehículo</Text>
 							</TouchableOpacity>
 							<TouchableOpacity
 								style={[styles.actionButton, styles.dangerAction]}
@@ -195,6 +200,75 @@ export default function FleetScreen() {
 								<Text style={[styles.actionText, styles.dangerText]}>
 									Eliminar
 								</Text>
+							</TouchableOpacity>
+						</View>
+					</ActionsModal>
+
+					<ActionsModal
+						visible={statusModal.visible}
+						onClose={handleCloseStatusModal}
+						animationType="none"
+					>
+						<View style={{ gap: spacing.sm, marginTop: spacing.md }}>
+							<TouchableOpacity
+								style={[styles.actionButton, styles.successAction,]}
+								onPress={() => handleUpdateVehicleStatus(VehicleStatus.ACTIVE)}
+							>
+								<IconBadge
+									Icon={Truck}
+									BadgeIcon={Check}
+									size={22}
+									color={lightTheme.colors.statusActive}
+									badgeSize={12}
+									badgeColor={lightTheme.colors.statusActive}
+									badgeBackgroundColor={lightTheme.colors.statusActiveContainer}
+								/>
+								<Text style={styles.actionText}>Dar de alta</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.actionButton, styles.setBrokenDownAction]}
+								onPress={() => handleUpdateVehicleStatus(VehicleStatus.INACTIVE)}
+							>
+								<IconBadge
+									Icon={Truck}
+									BadgeIcon={X}
+									size={22}
+									color={lightTheme.colors.statusBrokenDown}
+									badgeSize={12}
+									badgeColor={lightTheme.colors.statusBrokenDown}
+									badgeBackgroundColor={lightTheme.colors.statusBrokenDownContainer}
+								/>
+								<Text style={[styles.actionText, styles.setBrokenDownText]}>Dar de baja</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.actionButton, styles.setMaintenanceAction]}
+								onPress={() => handleUpdateVehicleStatus(VehicleStatus.MAINTENANCE)}
+							>
+								<IconBadge
+									Icon={Truck}
+									BadgeIcon={Settings}
+									size={22}
+									color={lightTheme.colors.statusMaintenance}
+									badgeSize={12}
+									badgeColor={lightTheme.colors.statusMaintenance}
+									badgeBackgroundColor={lightTheme.colors.statusMaintenanceContainer}
+								/>
+								<Text style={[styles.actionText, styles.setMaintenanceText]}>Poner en mantenimiento</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.actionButton, styles.setInactiveAction]}
+								onPress={() => handleUpdateVehicleStatus(VehicleStatus.INACTIVE)}
+							>
+								<IconBadge
+									Icon={Truck}
+									BadgeIcon={Pause}
+									size={22}
+									color={lightTheme.colors.onBackground}
+									badgeSize={12}
+									badgeColor={lightTheme.colors.onBackground}
+									badgeBackgroundColor={lightTheme.colors.background}
+								/>
+								<Text style={[styles.actionText, styles.setInactiveText]}>Poner como inactivo</Text>
 							</TouchableOpacity>
 						</View>
 					</ActionsModal>
@@ -253,5 +327,29 @@ const styles = StyleSheet.create({
 	},
 	warningText: {
 		color: lightTheme.colors.onWarningContainer,
+	},
+	successAction: {
+		backgroundColor: lightTheme.colors.statusActiveContainer,
+	},
+	successText: {
+		color: lightTheme.colors.statusActive,
+	},
+	setMaintenanceAction: {
+		backgroundColor: lightTheme.colors.statusMaintenanceContainer,
+	},
+	setMaintenanceText: {
+		color: lightTheme.colors.statusMaintenance,
+	},
+	setInactiveAction: {
+		backgroundColor: lightTheme.colors.background,
+	},
+	setInactiveText: {
+		color: lightTheme.colors.onBackground,
+	},
+	setBrokenDownAction: {
+		backgroundColor: lightTheme.colors.statusBrokenDownContainer,
+	},
+	setBrokenDownText: {
+		color: lightTheme.colors.statusBrokenDown,
 	},
 });

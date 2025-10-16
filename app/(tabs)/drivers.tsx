@@ -2,13 +2,14 @@ import { ActionsModal } from '@/components/ActionsModal';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
+import { IconBadge } from '@/components/IconBadge';
 import { SkeletonList } from '@/components/skeletons';
 import { DriverStatus } from '@/constants/enums/DriverStatus';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
 import { useDriversStore } from '@/stores/useDriversStore';
 import { router } from 'expo-router';
-import { ExternalLink, Plus, Trash2, UserRoundX } from 'lucide-react-native';
+import { CalendarClock, Check, ExternalLink, Pause, Plus, RefreshCcw, Stethoscope, Trash2, UserRound } from 'lucide-react-native';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -50,9 +51,11 @@ export default function DriversScreen() {
 
 	const setSelectedDriver = useDriversStore((state) => state.setSelectedDriver);
 	const clearSelectedDriver = useDriversStore((state) => state.clearSelectedDriver);
+	const updateDriver = useDriversStore((state) => state.updateDriver);
 	const deleteDriver = useDriversStore((state) => state.deleteDriver);
 
 	const actionsModal = useActionsModal();
+	const statusModal = useActionsModal();
 	const confirmationModal = useActionsModal();
 
 	const handleLongPress = (driver: typeof drivers[0]) => {
@@ -69,6 +72,23 @@ export default function DriversScreen() {
 		if (selectedDriver) {
 			router.push(`/drivers/${selectedDriver.id}`);
 			handleCloseActionsModal();
+		}
+	};
+
+	const handleCloseStatusModal = () => {
+		statusModal.close();
+		clearSelectedDriver();
+	};
+
+	const handleChangeStatus = () => {
+		actionsModal.close();
+		statusModal.open();
+	};
+
+	const handleUpdateDriverStatus = (status: DriverStatus) => {
+		if (selectedDriver) {
+			updateDriver(selectedDriver.id, { status });
+			handleCloseStatusModal();
 		}
 	};
 
@@ -147,6 +167,7 @@ export default function DriversScreen() {
 						visible={actionsModal.visible}
 						onClose={handleCloseActionsModal}
 						title="Acciones"
+						animationType="none"
 					>
 						<View style={{ gap: spacing.sm }}>
 							<TouchableOpacity
@@ -154,14 +175,22 @@ export default function DriversScreen() {
 								onPress={handleViewDriver}
 							>
 								<ExternalLink size={22} color={lightTheme.colors.onSurface} />
-								<Text style={styles.actionText}>Ver Conductor</Text>
+								<Text style={styles.actionText}>Ver conductor</Text>
 							</TouchableOpacity>
 							<TouchableOpacity
-								style={[styles.actionButton, styles.warningAction]}
-								onPress={handleViewDriver}
+								style={styles.actionButton}
+								onPress={handleChangeStatus}
 							>
-								<UserRoundX size={22} color={lightTheme.colors.onWarningContainer} />
-								<Text style={[styles.actionText, styles.warningText]}>Dar de baja</Text>
+								<IconBadge
+									Icon={UserRound}
+									BadgeIcon={RefreshCcw}
+									size={22}
+									color={lightTheme.colors.onBackground}
+									badgeSize={12}
+									badgeColor={lightTheme.colors.onBackground}
+									badgeBackgroundColor={lightTheme.colors.background}
+								/>
+								<Text style={styles.actionText}>Cambiar estado del conductor</Text>
 							</TouchableOpacity>
 							<TouchableOpacity
 								style={[styles.actionButton, styles.dangerAction]}
@@ -171,6 +200,75 @@ export default function DriversScreen() {
 								<Text style={[styles.actionText, styles.dangerText]}>
 									Eliminar
 								</Text>
+							</TouchableOpacity>
+						</View>
+					</ActionsModal>
+
+					<ActionsModal
+						visible={statusModal.visible}
+						onClose={handleCloseStatusModal}
+						animationType="none"
+					>
+						<View style={{ gap: spacing.sm, marginTop: spacing.md }}>
+							<TouchableOpacity
+								style={[styles.actionButton, styles.successAction,]}
+								onPress={() => handleUpdateDriverStatus(DriverStatus.ACTIVE)}
+							>
+								<IconBadge
+									Icon={UserRound}
+									BadgeIcon={Check}
+									size={22}
+									color={lightTheme.colors.statusActive}
+									badgeSize={12}
+									badgeColor={lightTheme.colors.statusActive}
+									badgeBackgroundColor={lightTheme.colors.statusActiveContainer}
+								/>
+								<Text style={styles.actionText}>Dar de alta</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.actionButton, styles.setSickAction]}
+								onPress={() => handleUpdateDriverStatus(DriverStatus.SICK_LEAVE)}
+							>
+								<IconBadge
+									Icon={UserRound}
+									BadgeIcon={Stethoscope}
+									size={22}
+									color={lightTheme.colors.statusSickLeave}
+									badgeSize={12}
+									badgeColor={lightTheme.colors.statusSickLeave}
+									badgeBackgroundColor={lightTheme.colors.statusSickLeaveContainer}
+								/>
+								<Text style={[styles.actionText, styles.setSickText]}>Dar de baja</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.actionButton, styles.setHolidaysAction]}
+								onPress={() => handleUpdateDriverStatus(DriverStatus.HOLIDAYS)}
+							>
+								<IconBadge
+									Icon={UserRound}
+									BadgeIcon={CalendarClock}
+									size={22}
+									color={lightTheme.colors.statusHolidays}
+									badgeSize={12}
+									badgeColor={lightTheme.colors.statusHolidays}
+									badgeBackgroundColor={lightTheme.colors.statusHolidaysContainer}
+								/>
+								<Text style={[styles.actionText, styles.setHolidaysText]}>Asignar vacaciones</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.actionButton, styles.setInactiveAction]}
+								onPress={() => handleUpdateDriverStatus(DriverStatus.INACTIVE)}
+							>
+								<IconBadge
+									Icon={UserRound}
+									BadgeIcon={Pause}
+									size={22}
+									color={lightTheme.colors.onBackground}
+									badgeSize={12}
+									badgeColor={lightTheme.colors.onBackground}
+									badgeBackgroundColor={lightTheme.colors.background}
+								/>
+								<Text style={[styles.actionText, styles.setInactiveText]}>Poner como inactivo</Text>
 							</TouchableOpacity>
 						</View>
 					</ActionsModal>
@@ -224,10 +322,28 @@ const styles = StyleSheet.create({
 	dangerText: {
 		color: lightTheme.colors.error,
 	},
-	warningAction: {
-		backgroundColor: lightTheme.colors.warningContainer,
+	successAction: {
+		backgroundColor: lightTheme.colors.statusActiveContainer,
 	},
-	warningText: {
-		color: lightTheme.colors.onWarningContainer,
+	successText: {
+		color: lightTheme.colors.statusActive,
+	},
+	setHolidaysAction: {
+		backgroundColor: lightTheme.colors.statusHolidaysContainer,
+	},
+	setHolidaysText: {
+		color: lightTheme.colors.statusHolidays,
+	},
+	setInactiveAction: {
+		backgroundColor: lightTheme.colors.background,
+	},
+	setInactiveText: {
+		color: lightTheme.colors.onBackground,
+	},
+	setSickAction: {
+		backgroundColor: lightTheme.colors.statusSickLeaveContainer,
+	},
+	setSickText: {
+		color: lightTheme.colors.statusSickLeave,
 	},
 });

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Check, ExternalLink, EyeOff, Plus, Trash2 } from 'lucide-react-native';
+import { Check, ExternalLink, EyeOff, Plus, Power, PowerOff, Trash2 } from 'lucide-react-native';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -22,8 +22,7 @@ export default function ReportsScreen() {
 	const setSelectedReport = useReportsStore((state) => state.setSelectedReport);
 	const clearSelectedReport = useReportsStore((state) => state.clearSelectedReport);
 	const deleteReport = useReportsStore((state) => state.deleteReport);
-	const markAsRead = useReportsStore((state) => state.markAsRead);
-	const markAsUnread = useReportsStore((state) => state.markAsUnread);
+	const updateReport = useReportsStore((state) => state.updateReport);
 
 	const actionsModal = useActionsModal();
 	const confirmationModal = useActionsModal();
@@ -45,16 +44,16 @@ export default function ReportsScreen() {
 		}
 	};
 
-	const handleMarkAsRead = () => {
+	const handleToggleRead = () => {
 		if (selectedReport) {
-			markAsRead(selectedReport.id);
+			updateReport(selectedReport.id, { read: !selectedReport.read });
 			handleCloseActionsModal();
 		}
 	};
 
-	const handleMarkAsUnread = () => {
+	const handleToggleActive = () => {
 		if (selectedReport) {
-			markAsUnread(selectedReport.id);
+			updateReport(selectedReport.id, { active: !selectedReport.active });
 			handleCloseActionsModal();
 		}
 	};
@@ -141,23 +140,39 @@ export default function ReportsScreen() {
 								<Text style={styles.actionText}>Ver incidencia</Text>
 							</TouchableOpacity>
 
-							{selectedReport.read ? (
-								<TouchableOpacity
-									style={styles.actionButton}
-									onPress={handleMarkAsUnread}
-								>
-									<EyeOff size={22} color={lightTheme.colors.onSurface} />
-									<Text style={styles.actionText}>Marcar como no leído</Text>
-								</TouchableOpacity>
-							) : (
-								<TouchableOpacity
-									style={styles.actionButton}
-									onPress={handleMarkAsRead}
-								>
-									<Check size={22} color={lightTheme.colors.tertiary} />
-									<Text style={styles.actionText}>Marcar como leído</Text>
-								</TouchableOpacity>
-							)}
+							<TouchableOpacity
+								style={styles.actionButton}
+								onPress={handleToggleRead}
+							>
+								{selectedReport.read ? (
+									<>
+										<EyeOff size={22} color={lightTheme.colors.onSurface} />
+										<Text style={styles.actionText}>Marcar como no leído</Text>
+									</>
+								) : (
+									<>
+										<Check size={22} color={lightTheme.colors.tertiary} />
+										<Text style={styles.actionText}>Marcar como leído</Text>
+									</>
+								)}
+							</TouchableOpacity>
+
+							<TouchableOpacity
+								style={styles.actionButton}
+								onPress={handleToggleActive}
+							>
+								{selectedReport.active ? (
+									<>
+										<PowerOff size={22} color={lightTheme.colors.onSurface} />
+										<Text style={styles.actionText}>Marcar como inactiva</Text>
+									</>
+								) : (
+									<>
+										<Power size={22} color={lightTheme.colors.tertiary} />
+										<Text style={styles.actionText}>Marcar como activa</Text>
+									</>
+								)}
+							</TouchableOpacity>
 
 							<TouchableOpacity
 								style={[styles.actionButton, styles.dangerAction]}
