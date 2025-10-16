@@ -24,7 +24,7 @@ export const lightTheme = {
 		errorContainer: "#ffdad6",
 		onErrorContainer: "#93000a",
 
-		warning: "#ffb74d",
+		warning: "#f59e0b",
 		onWarning: "#4d2c00",
 		warningContainer: "#ffe0b2",
 		onWarningContainer: "#663c00",
