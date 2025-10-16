@@ -3,15 +3,16 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { IconBadge } from "@/components/IconBadge";
+import { IconPlaceholder } from "@/components/IconPlaceholder";
 import { SkeletonList } from "@/components/skeletons";
 import { VehicleStatus } from "@/constants/enums/VehicleStatus";
 import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
 import { useActionsModal } from "@/hooks/useActionsModal";
 import { useFleetStore } from "@/stores/useFleetStore";
 import { router } from "expo-router";
-import { Check, ExternalLink, Pause, Plus, RefreshCcw, Settings, Trash2, Truck, X } from "lucide-react-native";
+import { AlertTriangle, Check, ExternalLink, Pause, Plus, RefreshCcw, Trash2, Truck, Wrench, X } from "lucide-react-native";
 import React from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 function getVehicleStatusStyle(status: VehicleStatus) {
@@ -133,28 +134,108 @@ export default function FleetScreen() {
 								key={item.id}
 								onPress={() => router.push(`/fleet/${item.id}`)}
 								onLongPress={() => handleLongPress(item)}
-								paddingX={spacing.md}
+								paddingX={spacing.sm}
 								paddingY={spacing.sm}
 								shadow='none'
 								backgroundColor={lightTheme.colors.surface}
 								style={{ height: 100 }}
 							>
-								<View style={{ gap: spacing.xs }}>
-									<Text style={{ fontSize: typography.bodyLarge, fontWeight: "700" }}>
-										{item.vehicleBrand} {item.vehicleModel} ({item.year})
-									</Text>
-									<Text style={{ opacity: 0.7 }}>
-										{item.vehicleType} • {item.plateNumber}
-									</Text>
-									<Text
-										style={{
-											color: statusStyle.color,
-											fontWeight: "600",
-											fontSize: typography.bodyMedium,
-										}}
-									>
-										{statusStyle.label}
-									</Text>
+								<View style={{ width: "100%", height: "100%", flex: 1, flexDirection: "row", gap: spacing.md }}>
+									<View style={{ alignItems: "center", justifyContent: "center" }}>
+										{item.imageUrl ?
+											<Image source={{ uri: item.imageUrl }} style={{ width: 80, height: 80, borderRadius: roundness.xs }} />
+											:
+											<Card
+												paddingX={0}
+												paddingY={0}
+												rounded={roundness.xs}
+												shadow='none'
+												backgroundColor={`${lightTheme.colors.primary}CC`}
+											>
+												<IconPlaceholder color={lightTheme.colors.onPrimary} icon={Truck} size={80} />
+											</Card>
+										}
+									</View>
+									<View style={{
+										flex: 1,
+										flexDirection: "column",
+										alignItems: "flex-start",
+										justifyContent: "flex-start",
+										gap: spacing.sm,
+									}}>
+										<View style={{
+											width: "100%",
+											flexDirection: "row",
+											alignItems: "center",
+											justifyContent: "space-between",
+											gap: spacing.sm,
+										}}>
+											<Text
+												style={{
+													fontSize: typography.titleMedium,
+													fontWeight: "600",
+													flex: 1,
+												}}
+												numberOfLines={1}
+												ellipsizeMode="tail"
+											>
+												{item.vehicleBrand} {item.vehicleModel} ({item.year})
+											</Text>
+											<View style={{
+												flexDirection: "row",
+												alignItems: "center",
+												gap: spacing.xs,
+												paddingHorizontal: spacing.sm,
+												paddingVertical: spacing.xs,
+												borderRadius: roundness.xs,
+												backgroundColor: `${statusStyle.color}15`,
+												flexShrink: 0,
+											}}>
+												{item.status === VehicleStatus.ACTIVE && (
+													<Check size={16} color={statusStyle.color} />
+												)}
+												{item.status === VehicleStatus.INACTIVE && (
+													<Pause size={16} color={statusStyle.color} />
+												)}
+												{item.status === VehicleStatus.BROKEN_DOWN && (
+													<AlertTriangle size={16} color={statusStyle.color} />
+												)}
+												{item.status === VehicleStatus.MAINTENANCE && (
+													<Wrench size={16} color={statusStyle.color} />
+												)}
+
+												<Text style={{
+													fontSize: typography.bodySmall,
+													fontWeight: "600",
+													color: statusStyle.color
+												}}>
+													{statusStyle.label}
+												</Text>
+											</View>
+										</View>
+
+										<Text style={{ fontSize: typography.bodyMedium, opacity: 0.7 }}>
+											{item.plateNumber} ({item.vehicleType})
+										</Text>
+										<View style={{
+											width: "100%",
+											flex: 1,
+											flexDirection: "row",
+											alignItems: "flex-end",
+											justifyContent: "flex-end",
+											gap: spacing.xs,
+										}}>
+											{item.purchaseDate ? (
+												<Text style={{ fontSize: typography.bodySmall, opacity: 0.7 }}>
+													Activo desde: {item.purchaseDate.toLocaleDateString()}
+												</Text>
+											) : (
+												<Text style={{ fontSize: typography.bodySmall, opacity: 0.7 }}>
+													Registrado en: {item.registrationDate.toLocaleDateString()}
+												</Text>
+											)}
+										</View>
+									</View>
 								</View>
 							</Card>
 						);
@@ -246,7 +327,7 @@ export default function FleetScreen() {
 							>
 								<IconBadge
 									Icon={Truck}
-									BadgeIcon={Settings}
+									BadgeIcon={Wrench}
 									size={22}
 									color={lightTheme.colors.statusMaintenance}
 									badgeSize={12}
