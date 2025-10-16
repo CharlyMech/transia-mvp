@@ -1,4 +1,4 @@
-import { lightTheme } from "@/constants/theme";
+import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
 import type { Report } from "@/models/report";
 import { listReports } from "@/services/data/mock/reports";
 import { usePathname, useRouter } from "expo-router";
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
 		borderTopWidth: 1,
 		borderTopColor: lightTheme.colors.outline,
 		overflow: "hidden",
-		paddingHorizontal: 8,
+		paddingHorizontal: spacing.sm,
 	},
 	tabsRow: {
 		flexDirection: "row",
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
 		backgroundColor: lightTheme.colors.secondaryContainer,
 		height: 54,
 		width: 64,
-		borderRadius: 14,
+		borderRadius: roundness.sm,
 	},
 	tab: {
 		flex: 1,
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
 		gap: 2,
 	},
 	label: {
-		fontSize: 11,
+		fontSize: typography.labelSmall,
 		fontWeight: "600",
 		letterSpacing: 0.2,
 	},
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
 	},
 	badgeText: {
 		color: lightTheme.colors.onError,
-		fontSize: 10,
+		fontSize: typography.labelSmall,
 		fontWeight: "700",
 	},
 });
