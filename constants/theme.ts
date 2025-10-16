@@ -29,22 +29,23 @@ export const lightTheme = {
 		warningContainer: "#ffe0b2",
 		onWarningContainer: "#663c00",
 
-		// For status badge
-		statusActive: "#2E7D32",
-		statusActiveContainer: "#DDEEE2",
+		// Status
+		statusActive: "#1E8E3E",
+		statusActiveContainer: "#E6F4EA",
 
-		statusInactive: "#49454F",
-		statusInactiveContainer: "#C0C0C0",
+		statusInactive: "#5F6368",
+		statusInactiveContainer: "#ECEFF1",
 
-		statusMaintenance: "#E65100",
-		statusMaintenanceContainer: "#FFF3E0",
-		statusHolidays: "#E65100",
-		statusHolidaysContainer: "#FFF3E0",
+		statusMaintenance: "#F57C00",
+		statusMaintenanceContainer: "#FFE0B2",
 
-		statusBrokenDown: "#C62828",
-		statusBrokenDownContainer: "#FFEBEE",
-		statusSickLeave: "#C62828",
-		statusSickLeaveContainer: "#FFEBEE",
+		statusHolidays: "#1E88E5",
+		statusHolidaysContainer: "#E3F2FD",
+
+		statusBrokenDown: "#D32F2F",
+		statusBrokenDownContainer: "#FFE3E3",
+		statusSickLeave: "#D32F2F",
+		statusSickLeaveContainer: "#FFE3E3",
 
 		background: "#e0e0e0",
 		onBackground: "#181d18",
@@ -108,22 +109,23 @@ export const darkTheme = {
 		warningContainer: "#ffe0b2",
 		onWarningContainer: "#663c00",
 
-		// For status badge
-		statusActive: "#2E7D32",
-		statusActiveContainer: "#DDEEE2",
+		// Status
+		statusActive: "#1E8E3E",
+		statusActiveContainer: "#E6F4EA",
 
-		statusInactive: "#49454F",
-		statusInactiveContainer: "#C0C0C0",
+		statusInactive: "#5F6368",
+		statusInactiveContainer: "#ECEFF1",
 
-		statusMaintenance: "#E65100",
-		statusMaintenanceContainer: "#FFF3E0",
-		statusHolidays: "#E65100",
-		statusHolidaysContainer: "#FFF3E0",
+		statusMaintenance: "#F57C00",
+		statusMaintenanceContainer: "#FFE0B2",
 
-		statusBrokenDown: "#C62828",
-		statusBrokenDownContainer: "#FFEBEE",
-		statusSickLeave: "#C62828",
-		statusSickLeaveContainer: "#FFEBEE",
+		statusHolidays: "#1E88E5",
+		statusHolidaysContainer: "#E3F2FD",
+
+		statusBrokenDown: "#D32F2F",
+		statusBrokenDownContainer: "#FFE3E3",
+		statusSickLeave: "#D32F2F",
+		statusSickLeaveContainer: "#FFE3E3",
 
 		background: "#e0e0e0",
 		onBackground: "#181d18",
