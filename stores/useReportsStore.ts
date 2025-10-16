@@ -29,10 +29,6 @@ interface ReportsActions {
 	updateReport: (id: string, updates: Partial<Report>) => void;
 	deleteReport: (id: string) => Promise<void>;
 
-	// Read/Unread actions
-	markAsRead: (id: string) => void;
-	markAsUnread: (id: string) => void;
-
 	// Selected report actions
 	setSelectedReport: (report: Report | null) => void;
 	clearSelectedReport: () => void;
@@ -142,14 +138,6 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
 			console.error("Error al eliminar reporte:", error);
 			throw error;
 		}
-	},
-
-	markAsRead: (id) => {
-		get().updateReport(id, { read: true });
-	},
-
-	markAsUnread: (id) => {
-		get().updateReport(id, { read: false });
 	},
 
 	setSelectedReport: (report) => {
