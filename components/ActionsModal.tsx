@@ -14,15 +14,16 @@ type SimpleModalProps = Omit<ModalProps, 'visible'> & {
 	visible: boolean;
 	onClose: () => void;
 	title?: string;
+	animationType?: 'fade' | 'slide' | 'none';
 	children: React.ReactNode;
 };
 
-export function ActionsModal({ visible, onClose, title, children, ...props }: SimpleModalProps) {
+export function ActionsModal({ visible, onClose, title, animationType = 'fade', children, ...props }: SimpleModalProps) {
 	return (
 		<Modal
 			visible={visible}
 			transparent
-			animationType="fade"
+			animationType={animationType}
 			statusBarTranslucent
 			onRequestClose={onClose}
 			{...props}
