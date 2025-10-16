@@ -6,14 +6,16 @@
 		"vehicleId": "11111111-1111-1111-1111-111111111111",
 		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
 		"createdAt": "2025-09-29T09:15:00Z",
-		"checkedAt": "2025-09-29T09:15:00Z",
+		"readAt": "2025-09-29T10:30:00Z",
+		"closedAt": "2025-09-30T14:00:00Z",
+		"reporterComment": "Inspección completada sin problemas mayores",
 		"images": [
 			"https://i.pinimg.com/736x/03/07/a2/0307a23d51b5db55531470b0d24e1718.jpg",
 			"https://alavalascaray.es/wp-content/uploads/2021/02/58.jpg",
 			"https://www.mcondeocasion.com/wp-content/uploads/2025/04/rueda_pinchada_portada.jpg"
 		],
 		"read": true,
-		"active": true
+		"active": false
 	},
 	{
 		"id": "9d6f21e2-85c3-4204-b4ad-7d8a2f4bcb99",
@@ -22,6 +24,8 @@
 		"vehicleId": "22222222-2222-2222-2222-222222222222",
 		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
 		"createdAt": "2025-09-15T12:30:00Z",
+		"readAt": null,
+		"closedAt": null,
 		"images": [
 			"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdG4FDBNHk-4nyPGQkCSGPbhUoST0M7JhuKA&s"
 		],
@@ -35,6 +39,8 @@
 		"vehicleId": "22222222-2222-2222-2222-222222222222",
 		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
 		"createdAt": "2025-10-01T08:45:00Z",
+		"readAt": null,
+		"closedAt": null,
 		"images": [],
 		"read": false,
 		"active": true
@@ -46,7 +52,9 @@
 		"vehicleId": "44444444-4444-4444-4444-444444444444",
 		"driverId": "b8d2c3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e",
 		"createdAt": "2025-09-20T14:20:00Z",
-		"checkedAt": "2025-09-21T10:00:00Z",
+		"readAt": "2025-09-21T10:00:00Z",
+		"closedAt": null,
+		"reporterComment": "Mantenimiento estándar realizado correctamente",
 		"images": [],
 		"read": true,
 		"active": true
@@ -58,6 +66,8 @@
 		"vehicleId": "55555555-5555-5555-5555-555555555555",
 		"driverId": "c7a1b2c3-d4e5-f6a7-b8c9-d0e1f2a3b4c5",
 		"createdAt": "2025-10-03T07:30:00Z",
+		"readAt": null,
+		"closedAt": null,
 		"images": [],
 		"read": false,
 		"active": true
@@ -69,10 +79,12 @@
 		"vehicleId": "66666666-6666-6666-6666-666666666666",
 		"driverId": "ee5a4b6a-43c4-4e1a-9d1c-12f03a47bbf5",
 		"createdAt": "2025-09-18T11:45:00Z",
-		"checkedAt": "2025-09-18T16:30:00Z",
+		"readAt": "2025-09-18T16:30:00Z",
+		"closedAt": "2025-09-18T16:30:00Z",
+		"reporterComment": "ITV pasada exitosamente",
 		"images": [],
 		"read": true,
-		"active": true
+		"active": false
 	},
 	{
 		"id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
@@ -81,7 +93,125 @@
 		"vehicleId": "77777777-7777-7777-7777-777777777777",
 		"driverId": "e5a4b3c2-d1e0-f9a8-b7c6-d5e4f3a2b1c0",
 		"createdAt": "2025-10-02T16:10:00Z",
+		"readAt": null,
+		"closedAt": null,
 		"images": [],
+		"read": false,
+		"active": true
+	},
+	{
+		"id": "5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
+		"title": "Accidente",
+		"description": "Colisión menor en el aparcamiento. Daños en el parachoques delantero del vehículo 6789-PQR.",
+		"vehicleId": "88888888-8888-8888-8888-888888888888",
+		"driverId": "f4c3b2a1-e0d9-c8b7-a6f5-e4d3c2b1a0f9",
+		"createdAt": "2025-10-05T14:22:00Z",
+		"readAt": "2025-10-05T15:10:00Z",
+		"closedAt": null,
+		"reporterComment": "Parte de accidente entregado. Esperando valoración del taller.",
+		"images": [
+			"https://www.autopista.es/uploads/s1/11/37/93/86/golpe-aparcamiento-istock-902886230.jpeg"
+		],
+		"read": true,
+		"active": true
+	},
+	{
+		"id": "6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c",
+		"title": "Otro",
+		"description": "Pérdida de documentación del vehículo 7890-STU. Se solicitó duplicado en tráfico.",
+		"vehicleId": "99999999-9999-9999-9999-999999999999",
+		"driverId": "a9b8c7d6-e5f4-a3b2-c1d0-e9f8a7b6c5d4",
+		"createdAt": "2025-10-08T09:00:00Z",
+		"readAt": "2025-10-08T11:30:00Z",
+		"closedAt": "2025-10-12T16:00:00Z",
+		"reporterComment": "Documentación recuperada y entregada al conductor",
+		"images": [],
+		"read": true,
+		"active": false
+	},
+	{
+		"id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
+		"title": "ITV",
+		"description": "ITV no superada para el vehículo 9012-YZA. Fallo en sistema de emisiones.",
+		"vehicleId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+		"driverId": "b0c9d8e7-f6a5-b4c3-d2e1-f0a9b8c7d6e5",
+		"createdAt": "2025-10-10T10:15:00Z",
+		"readAt": null,
+		"closedAt": null,
+		"images": [],
+		"read": false,
+		"active": true
+	},
+	{
+		"id": "8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e",
+		"title": "Accidente",
+		"description": "Accidente en carretera. Vehículo 0123-BCD impactado por tercero. Sin heridos.",
+		"vehicleId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+		"driverId": "c1d0e9f8-a7b6-c5d4-e3f2-a1b0c9d8e7f6",
+		"createdAt": "2025-10-11T16:45:00Z",
+		"readAt": "2025-10-11T17:20:00Z",
+		"closedAt": null,
+		"reporterComment": "Parte amistoso firmado. Vehículo en taller para reparación",
+		"images": [
+			"https://www.autopista.es/uploads/s1/11/77/43/21/accidente-trafico-istock-1060729228.jpeg",
+			"https://www.autopista.es/uploads/s1/11/77/43/22/accidente-parte-istock-901234567.jpeg"
+		],
+		"read": true,
+		"active": true
+	},
+	{
+		"id": "9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f",
+		"title": "Revisión",
+		"description": "Revisión de 50.000 km programada para el vehículo 1234-EFG.",
+		"vehicleId": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+		"driverId": "d2e1f0a9-b8c7-d6e5-f4a3-b2c1d0e9f8a7",
+		"createdAt": "2025-10-13T08:00:00Z",
+		"readAt": null,
+		"closedAt": null,
+		"images": [],
+		"read": false,
+		"active": true
+	},
+	{
+		"id": "0d1e2f3a-4b5c-6d7e-8f9a-0b1c2d3e4f5a",
+		"title": "Mantenimiento",
+		"description": "Cambio de filtros y revisión de líquidos del vehículo 2345-HIJ completado.",
+		"vehicleId": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+		"driverId": "e3f2a1b0-c9d8-e7f6-a5b4-c3d2e1f0a9b8",
+		"createdAt": "2025-10-14T11:30:00Z",
+		"readAt": "2025-10-14T14:00:00Z",
+		"closedAt": "2025-10-15T10:00:00Z",
+		"reporterComment": "Mantenimiento preventivo completado según programa",
+		"images": [],
+		"read": true,
+		"active": false
+	},
+	{
+		"id": "1e2f3a4b-5c6d-7e8f-9a0b-1c2d3e4f5a6b",
+		"title": "Otro",
+		"description": "Reporte de mal olor en la cabina del vehículo 3456-KLM. Requiere limpieza profunda.",
+		"vehicleId": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+		"driverId": "f4a3b2c1-d0e9-f8a7-b6c5-d4e3f2a1b0c9",
+		"createdAt": "2025-10-15T13:20:00Z",
+		"readAt": "2025-10-15T14:45:00Z",
+		"closedAt": null,
+		"images": [],
+		"read": true,
+		"active": true
+	},
+	{
+		"id": "2f3a4b5c-6d7e-8f9a-0b1c-2d3e4f5a6b7c",
+		"title": "Accidente",
+		"description": "Vehículo 4567-NOP implicado en accidente. Rotura de retrovisores. Conductor ileso.",
+		"vehicleId": "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1",
+		"driverId": "a5b4c3d2-e1f0-a9b8-c7d6-e5f4a3b2c1d0",
+		"createdAt": "2025-10-16T07:55:00Z",
+		"readAt": null,
+		"closedAt": null,
+		"reporterComment": "Pendiente de valoración de daños",
+		"images": [
+			"https://www.autopista.es/uploads/s1/11/77/43/23/retrovisor-roto-istock-123456789.jpeg"
+		],
 		"read": false,
 		"active": true
 	}
