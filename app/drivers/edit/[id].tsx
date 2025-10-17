@@ -3,22 +3,24 @@ import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { DriverForm } from '@/components/forms/DriverForm';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
-import type { Driver, DriverFormData } from '@/models/driver';
+import type { DriverFormData } from '@/models/driver';
 import { useDriversStore } from '@/stores/useDriversStore';
-import * as Crypto from 'expo-crypto';
 import { router } from 'expo-router';
 import { CheckCircle2 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function NewDriverScreen() {
+export default function EditDriverScreen() {
 	const [loading, setLoading] = useState(false);
 	const [hasChanges, setHasChanges] = useState(false);
-	const [newDriverId, setNewDriverId] = useState<string | null>(null);
 
 	const confirmationModal = useActionsModal();
 	const successModal = useActionsModal();
-	const addDriver = useDriversStore((state) => state.addDriver);
+
+	const currentDriver = useDriversStore((state) => state.currentDriver);
+	const driverError = useDriversStore((state) => state.driverError);
+	const updateDriver = useDriversStore((state) => state.updateDriver);
+
 
 	useEffect(() => {
 		const backHandler = BackHandler.addEventListener(
@@ -43,10 +45,11 @@ export default function NewDriverScreen() {
 	};
 
 	const handleSubmit = async (data: DriverFormData & { imageUrl?: string | null }) => {
+		if (!currentDriver) return;
+
 		setLoading(true);
 		try {
-			const newDriver: Driver = {
-				id: Crypto.randomUUID(),
+			updateDriver(currentDriver.id, {
 				name: data.name,
 				surnames: data.surnames,
 				personId: data.personId,
@@ -55,26 +58,16 @@ export default function NewDriverScreen() {
 				phone: data.phone || '',
 				email: data.email || '',
 				licenseNumber: data.licenseNumber || '',
-				registrationDate: new Date(),
 				status: data.status,
 				imageUrl: data.imageUrl || null,
-			};
+			});
 
-			addDriver(newDriver);
-			setNewDriverId(newDriver.id);
 			setHasChanges(false);
 			successModal.open();
 		} catch (error) {
-			console.error('Error creating driver:', error);
+			console.error('Error updating driver:', error);
 		} finally {
 			setLoading(false);
-		}
-	};
-
-	const handleViewDriver = () => {
-		if (newDriverId) {
-			successModal.close();
-			router.replace(`/drivers/${newDriverId}`);
 		}
 	};
 
@@ -89,14 +82,44 @@ export default function NewDriverScreen() {
 		router.back();
 	};
 
+	if (driverError) {
+		return (
+			<View style={[styles.container, styles.centered]}>
+				<Text style={styles.errorText}>Error: {driverError}</Text>
+			</View>
+		);
+	}
+
+	if (!currentDriver) {
+		return (
+			<View style={[styles.container, styles.centered]}>
+				<Text style={styles.errorText}>Conductor no encontrado</Text>
+			</View>
+		);
+	}
+
+	const initialData: Partial<DriverFormData> & { imageUrl?: string | null } = {
+		name: currentDriver.name,
+		surnames: currentDriver.surnames,
+		personId: currentDriver.personId,
+		completeAddress: currentDriver.completeAddress,
+		birthDate: currentDriver.birthDate.toISOString().split('T')[0],
+		phone: currentDriver.phone,
+		email: currentDriver.email,
+		licenseNumber: currentDriver.licenseNumber,
+		status: currentDriver.status,
+		imageUrl: currentDriver.imageUrl,
+	};
+
 	return (
 		<>
 			{/* TODO -> Handle on changed data to execute action modal */}
 			<View style={{ width: '100%', height: 30, backgroundColor: lightTheme.colors.background }} />
 			<DriverForm
+				initialData={initialData}
 				onSubmit={handleSubmit}
 				onFormChange={handleFormChange}
-				submitLabel="Crear conductor"
+				submitLabel="Guardar cambios"
 				loading={loading}
 			/>
 
@@ -105,7 +128,7 @@ export default function NewDriverScreen() {
 				onClose={confirmationModal.close}
 				onConfirm={handleConfirmDiscard}
 				title="¿Descartar cambios?"
-				message="Los datos ingresados se perderán si sales ahora."
+				message="Los cambios realizados se perderán si sales ahora."
 				confirmText="Descartar"
 				cancelText="Continuar editando"
 			/>
@@ -121,21 +144,14 @@ export default function NewDriverScreen() {
 					</View>
 
 					<Text style={styles.successTitle}>Éxito</Text>
-					<Text style={styles.successMessage}>Conductor creado correctamente</Text>
+					<Text style={styles.successMessage}>Conductor actualizado correctamente</Text>
 
 					<View style={styles.buttonsContainer}>
 						<TouchableOpacity
-							style={[styles.button, styles.secondaryButton]}
+							style={[styles.button, styles.primaryButton]}
 							onPress={handleGoBack}
 						>
-							<Text style={styles.secondaryButtonText}>Volver</Text>
-						</TouchableOpacity>
-
-						<TouchableOpacity
-							style={[styles.button, styles.primaryButton]}
-							onPress={handleViewDriver}
-						>
-							<Text style={styles.primaryButtonText}>Ver conductor</Text>
+							<Text style={styles.primaryButtonText}>Volver</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -145,6 +161,18 @@ export default function NewDriverScreen() {
 }
 
 const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		backgroundColor: lightTheme.colors.background,
+	},
+	centered: {
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	errorText: {
+		fontSize: typography.bodyLarge,
+		color: lightTheme.colors.error,
+	},
 	successContent: {
 		alignItems: 'center',
 		gap: spacing.md,
@@ -179,14 +207,6 @@ const styles = StyleSheet.create({
 		borderRadius: roundness.sm,
 		alignItems: 'center',
 		justifyContent: 'center',
-	},
-	secondaryButton: {
-		backgroundColor: lightTheme.colors.background,
-	},
-	secondaryButtonText: {
-		fontSize: typography.bodyLarge,
-		fontWeight: '600',
-		color: lightTheme.colors.onBackground,
 	},
 	primaryButton: {
 		backgroundColor: lightTheme.colors.primary,

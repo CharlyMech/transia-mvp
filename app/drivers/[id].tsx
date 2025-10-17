@@ -5,12 +5,14 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { DriverStatus } from '@/constants/enums/DriverStatus';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useDriversStore } from '@/stores/useDriversStore';
-import { useLocalSearchParams } from 'expo-router';
-import { UserRound } from 'lucide-react-native';
+import { formatDateToDisplay } from '@/utils/dateUtils';
+import { router, useLocalSearchParams } from 'expo-router';
+import { SquarePen, UserRound } from 'lucide-react-native';
 import React, { useEffect, useRef } from 'react';
 import {
 	Animated,
 	Dimensions,
+	Pressable,
 	StatusBar,
 	StyleSheet,
 	Text,
@@ -42,6 +44,12 @@ export default function DriverProfileScreen() {
 			clearCurrentDriver();
 		};
 	}, [id, fetchDriverById, clearCurrentDriver]);
+
+	const handleEditPress = () => {
+		if (id) {
+			router.push(`/drivers/edit/${id}` as any);
+		}
+	};
 
 	const headerHeight = scrollY.interpolate({
 		inputRange: [0, SCROLL_DISTANCE],
@@ -102,6 +110,12 @@ export default function DriverProfileScreen() {
 				backgroundColor="transparent"
 				translucent={true}
 			/>
+			<Pressable
+				style={styles.editButton}
+				onPress={handleEditPress}
+			>
+				<SquarePen size={28} color={lightTheme.colors.onSurface} />
+			</Pressable>
 			<Animated.View
 				style={[
 					styles.header,
@@ -210,14 +224,14 @@ export default function DriverProfileScreen() {
 								label="Fecha de nacimiento"
 								labelFlex={2}
 								valueFlex={3}
-								value={new Date(currentDriver.birthDate).toLocaleDateString()}
+								value={formatDateToDisplay(currentDriver.birthDate)}
 							/>
 							<View style={styles.separator} />
 							<InfoRow
 								label="Fecha de registro"
 								labelFlex={2}
 								valueFlex={3}
-								value={new Date(currentDriver.registrationDate).toLocaleDateString()}
+								value={formatDateToDisplay(currentDriver.registrationDate)}
 							/>
 							<View style={styles.separator} />
 							<InfoRow
@@ -262,6 +276,12 @@ const styles = StyleSheet.create({
 	centered: {
 		justifyContent: 'center',
 		alignItems: 'center',
+	},
+	editButton: {
+		position: 'absolute',
+		right: spacing.md,
+		top: STATUS_BAR_HEIGHT + spacing.md,
+		zIndex: 1002,
 	},
 	header: {
 		position: 'absolute',

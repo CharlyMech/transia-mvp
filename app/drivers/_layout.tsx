@@ -1,12 +1,9 @@
 import { lightTheme, spacing } from "@/constants/theme";
-import { router, Stack, useSegments } from "expo-router";
-import { ArrowLeft, SquarePen } from "lucide-react-native";
+import { router, Stack } from "expo-router";
+import { ArrowLeft } from "lucide-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 
 export default function DriversStack() {
-	const segments = useSegments();
-	const isNewDriverRoute = segments[segments.length - 1] === 'new-driver';
-
 	return (
 		<View style={styles.container}>
 			<Pressable
@@ -15,15 +12,6 @@ export default function DriversStack() {
 			>
 				<ArrowLeft size={30} color={lightTheme.colors.onSurface} />
 			</Pressable>
-
-			{!isNewDriverRoute && (
-				<Pressable
-					style={styles.editButton}
-					onPress={() => console.log("Edit Driver")}
-				>
-					<SquarePen size={26} color={lightTheme.colors.onSurface} />
-				</Pressable>
-			)}
 
 			<Stack
 				screenOptions={{
@@ -46,6 +34,12 @@ export default function DriversStack() {
 						headerShown: false,
 					}}
 				/>
+				<Stack.Screen
+					name="edit"
+					options={{
+						headerShown: false,
+					}}
+				/>
 			</Stack>
 		</View>
 	);
@@ -60,16 +54,6 @@ const styles = StyleSheet.create({
 		position: 'absolute',
 		top: spacing.xxl,
 		left: spacing.sm,
-		zIndex: 10000,
-		width: 48,
-		height: 48,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	editButton: {
-		position: 'absolute',
-		top: spacing.xxl,
-		right: spacing.sm,
 		zIndex: 10000,
 		width: 48,
 		height: 48,
