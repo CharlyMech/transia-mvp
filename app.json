@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "transia-mvp",
+    "name": "Transia MVP",
     "slug": "transia-mvp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,7 +9,13 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.charlymech.transiamvp",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "La aplicación necesita acceso a tus fotos para seleccionar una imagen de perfil.",
+        "NSCameraUsageDescription": "La aplicación necesita acceso a tu cámara para tomar fotos de perfil.",
+        "NSPhotoLibraryAddUsageDescription": "La aplicación necesita permiso para guardar fotos en tu galería."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,8 +24,15 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "package": "com.charlymech.transiamvp",
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES"
+      ]
     },
     "web": {
       "output": "static",
@@ -39,7 +52,14 @@
           }
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "La aplicación necesita acceso a tus fotos para seleccionar una imagen de perfil.",
+          "cameraPermission": "La aplicación necesita acceso a tu cámara para tomar fotos de perfil."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
