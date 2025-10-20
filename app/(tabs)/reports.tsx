@@ -107,76 +107,88 @@ export default function ReportsScreen() {
 							<View style={{
 								flex: 1,
 								flexDirection: "column",
-								justifyContent: "space-between"
+								alignItems: "flex-start",
+								justifyContent: "flex-start",
+								gap: spacing.sm,
 							}}>
 								<View style={{
-									flexDirection: "column",
-									gap: spacing.sm
+									width: "100%",
+									flexDirection: "row",
+									alignItems: "center",
+									justifyContent: "space-between",
+									gap: spacing.sm,
 								}}>
-									<View style={{
-										width: "100%",
-										flexDirection: "row",
-										alignItems: "baseline",
-										justifyContent: "space-between"
+									<Text style={{
+										fontSize: typography.titleMedium,
+										fontWeight: "600"
 									}}>
-										<Text style={{
-											fontSize: typography.titleMedium,
-											fontWeight: "600"
-										}}>
-											{item.title}
-										</Text>
+										{item.title}
+									</Text>
+									{item.active ? (
 										<View style={{
 											flexDirection: "row",
 											alignItems: "center",
-											gap: spacing.xs
+											gap: spacing.xs,
+											paddingHorizontal: spacing.sm,
+											paddingVertical: spacing.xs,
+											borderRadius: roundness.xs,
+											backgroundColor: `${lightTheme.colors.warning}15`,
+											flexShrink: 0,
 										}}>
-											{item.active ? (
-												<>
-													<Text style={{
-														fontSize: typography.bodyMedium,
-														fontWeight: "400",
-														color: lightTheme.colors.warning
-													}}>
-														Pendiente
-													</Text>
-													<TriangleAlert
-														size={20}
-														color={lightTheme.colors.warning}
-													/>
-												</>
-											) : (
-												<>
-													<Text style={{
-														fontSize: typography.bodyMedium,
-														fontWeight: "400",
-														color: lightTheme.colors.statusActive
-													}}>
-														Resuelta
-													</Text>
-													<CheckCheck
-														size={20}
-														color={lightTheme.colors.statusActive}
-													/>
-												</>
-											)}
+											<TriangleAlert
+												size={16}
+												color={lightTheme.colors.onWarning}
+											/>
+											<Text style={{
+												fontSize: typography.bodySmall,
+												fontWeight: "600",
+												color: lightTheme.colors.onWarning
+											}}>
+												Pendiente
+											</Text>
 										</View>
-									</View>
-
-									<Text
-										style={{
-											fontSize: typography.bodyMedium,
-											fontWeight: "400",
-											opacity: 0.7
-										}}
-										numberOfLines={1}
-										ellipsizeMode="tail"
-									>
-										Vehículo: {item.vehicleId}
-									</Text>
+									) : (
+										<View style={{
+											flexDirection: "row",
+											alignItems: "center",
+											gap: spacing.xs,
+											paddingHorizontal: spacing.sm,
+											paddingVertical: spacing.xs,
+											borderRadius: roundness.xs,
+											backgroundColor: `${lightTheme.colors.statusActive}15`,
+											flexShrink: 0,
+										}}>
+											<CheckCheck
+												size={16}
+												color={lightTheme.colors.statusActive}
+											/>
+											<Text style={{
+												fontSize: typography.bodySmall,
+												fontWeight: "600",
+												color: lightTheme.colors.statusActive
+											}}>
+												Resuelta
+											</Text>
+										</View>
+									)}
 								</View>
+
+								<Text
+									style={{
+										fontSize: typography.bodyMedium,
+										fontWeight: "400",
+										opacity: 0.7
+									}}
+									numberOfLines={1}
+									ellipsizeMode="tail"
+								>
+									Vehículo: {item.vehicleId}
+								</Text>
 
 								<View style={{
 									width: "100%",
+									position: "absolute",
+									bottom: 0,
 									flexDirection: "row",
 									alignItems: "center",
 									justifyContent: "flex-end"
