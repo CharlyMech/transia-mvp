@@ -89,7 +89,7 @@ export default function ReportDetailScreen() {
 						activeOpacity={0.7}
 					>
 						<Text style={styles.checkboxLabel}>
-							Solventada
+							Resuelta
 						</Text>
 						<View style={[
 							styles.checkbox,
@@ -106,7 +106,7 @@ export default function ReportDetailScreen() {
 					<Card
 						paddingX={spacing.md}
 						paddingY={spacing.md}
-						rounded={roundness.md}
+						rounded={roundness.sm}
 						shadow='none'
 						backgroundColor={lightTheme.colors.surface}
 					>
@@ -140,7 +140,7 @@ export default function ReportDetailScreen() {
 							<Card
 								paddingX={spacing.md}
 								paddingY={spacing.md}
-								rounded={roundness.md}
+								rounded={roundness.sm}
 								shadow='none'
 								backgroundColor={lightTheme.colors.surface}
 							>
@@ -156,6 +156,7 @@ export default function ReportDetailScreen() {
 							<Text style={styles.cardTitle}>Imágenes</Text>
 							<Carousel
 								data={currentReport.images}
+								containerStyle={{ borderRadius: roundness.sm }}
 								renderItem={(imageUri, index) => (
 									<Image
 										source={{ uri: imageUri }}

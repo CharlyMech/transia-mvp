@@ -194,7 +194,7 @@ export default function DriverProfileScreen() {
 					<Card
 						paddingX={spacing.md}
 						paddingY={spacing.md}
-						rounded={roundness.md}
+						rounded={roundness.sm}
 						shadow='none'
 						backgroundColor={lightTheme.colors.surface}
 					>
@@ -211,7 +211,7 @@ export default function DriverProfileScreen() {
 					<Card
 						paddingX={spacing.md}
 						paddingY={spacing.md}
-						rounded={roundness.md}
+						rounded={roundness.sm}
 						shadow='none'
 						backgroundColor={lightTheme.colors.surface}
 					>
