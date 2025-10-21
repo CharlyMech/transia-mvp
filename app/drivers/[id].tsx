@@ -1,5 +1,6 @@
 import { Card } from '@/components/Card';
 import { IconPlaceholder } from '@/components/IconPlaceholder';
+import { InfoRow } from '@/components/InfoRow';
 import { SkeletonHeaderDetail } from '@/components/skeletons';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DriverStatus } from '@/constants/enums/DriverStatus';
@@ -217,6 +218,7 @@ export default function DriverProfileScreen() {
 					>
 						<View style={styles.cardContent}>
 							{currentDriver.licenseNumber && (
+
 								<InfoRow label="Licencia" labelFlex={2} valueFlex={3} value={currentDriver.licenseNumber} />
 							)}
 							<View style={styles.separator} />
@@ -248,22 +250,6 @@ export default function DriverProfileScreen() {
 					{/* More data??? */}
 				</Animated.View>
 			</Animated.ScrollView>
-		</View>
-	);
-}
-
-type InfoRowProps = {
-	label: string;
-	value: string;
-	labelFlex?: number;
-	valueFlex?: number;
-};
-
-function InfoRow({ label, value, labelFlex = 1, valueFlex = 1 }: InfoRowProps) {
-	return (
-		<View style={styles.infoRow}>
-			<Text style={[styles.infoLabel, { flex: labelFlex }]}>{label}</Text>
-			<Text style={[styles.infoValue, { flex: valueFlex }]}>{value}</Text>
 		</View>
 	);
 }

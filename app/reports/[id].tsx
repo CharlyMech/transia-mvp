@@ -1,5 +1,6 @@
 import { Card } from '@/components/Card';
 import { Carousel } from '@/components/Carousel';
+import { InfoRow } from '@/components/InfoRow';
 import { SkeletonDetail } from '@/components/skeletons';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useReportsStore } from '@/stores/useReportsStore';
@@ -179,22 +180,6 @@ export default function ReportDetailScreen() {
 				</View>
 			</ScrollView>
 		</SafeAreaView>
-	);
-}
-
-type InfoRowProps = {
-	label: string;
-	value: string;
-	labelFlex?: number;
-	valueFlex?: number;
-};
-
-function InfoRow({ label, value, labelFlex = 1, valueFlex = 1 }: InfoRowProps) {
-	return (
-		<View style={styles.infoRow}>
-			<Text style={[styles.infoLabel, { flex: labelFlex }]}>{label}</Text>
-			<Text style={[styles.infoValue, { flex: valueFlex }]}>{value}</Text>
-		</View>
 	);
 }
 
