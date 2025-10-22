@@ -1,24 +1,21 @@
 import { DriverStatus } from "@/constants/enums/DriverStatus";
+import { UserRole } from "@/constants/enums/UserRole";
 import { z } from "zod";
 
-// Parse ISO dates from JSON
 const ISODate = z.string().transform((s) => new Date(s));
 
-// Regex patterns
 const DNI_NIE_REGEX = /^[0-9]{8}[A-Z]$|^[XYZ][0-9]{7}[A-Z]$/i;
 const PHONE_REGEX = /^\d{9}$/;
-// const LICENSE_REGEX = /^[0-9]{8}[A-Z]{1,2}$/i;
 
-// Validation messages
 const VALIDATION_MESSAGES = {
 	personId: "DNI/NIE inválido. Formato: 12345678A o X1234567A",
 	phone: "Teléfono inválido. Debe ser un número español válido (sin extensión)",
 	email: "Email inválido",
-	// licenseNumber: "Número de licencia inválido. Formato: 12345678AB",
 	name: "El nombre es obligatorio",
 	surnames: "Los apellidos son obligatorios",
 	completeAddress: "La dirección es obligatoria",
 	birthDate: "La fecha de nacimiento es obligatoria y debe ser válida",
+	password: "La contraseña debe tener al menos 6 caracteres",
 };
 
 export const DriverSchema = z.object({
@@ -43,13 +40,11 @@ export const DriverSchema = z.object({
 		.email(VALIDATION_MESSAGES.email)
 		.optional()
 		.or(z.literal("")),
-	licenseNumber: z
-		.string()
-		// .regex(LICENSE_REGEX, VALIDATION_MESSAGES.licenseNumber)
-		.optional()
-		.or(z.literal("")),
+	licenseNumber: z.string().optional().or(z.literal("")),
 	registrationDate: ISODate,
 	status: z.nativeEnum(DriverStatus),
+	role: z.nativeEnum(UserRole).default(UserRole.DRIVER),
+	hashedPassword: z.string().optional(), // Only for backend
 });
 
 // Schema for form data (before submission)
@@ -74,11 +69,7 @@ export const DriverFormSchema = z.object({
 		.email(VALIDATION_MESSAGES.email)
 		.optional()
 		.or(z.literal("")),
-	licenseNumber: z
-		.string()
-		// .regex(LICENSE_REGEX, VALIDATION_MESSAGES.licenseNumber)
-		.optional()
-		.or(z.literal("")),
+	licenseNumber: z.string().optional().or(z.literal("")),
 	status: z.nativeEnum(DriverStatus).default(DriverStatus.ACTIVE),
 });
 
