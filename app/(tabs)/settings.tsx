@@ -1,15 +1,18 @@
 import { Card } from "@/components/Card";
+import { IconPlaceholder } from "@/components/IconPlaceholder";
 import { lightTheme, roundness, spacing, typography } from "@/constants/theme"; // Ajusta la ruta según tu estructura
+import { useAuthStore } from "@/stores/useAuthStore";
 import { router } from "expo-router";
-import { ChevronRight, LogOut } from "lucide-react-native";
+import { ChevronRight, LogOut, UserRound } from "lucide-react-native";
 import React, { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Dropdown } from 'react-native-element-dropdown';
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SettingsScreen() {
 	const [theme, setTheme] = useState<string>('light');
 	const [language, setLanguage] = useState<string>('es');
+	const { user, logout } = useAuthStore();
 
 	const themeItems = [
 		{ label: "Claro", value: "light", disabled: false },
@@ -31,6 +34,55 @@ export default function SettingsScreen() {
 			<ScrollView contentContainerStyle={styles.scrollContainer}>
 				<Text style={styles.title}>Ajustes</Text>
 
+				{user && (
+					<View style={styles.section}>
+						<Card
+							paddingX={spacing.sm}
+							paddingY={spacing.sm}
+							rounded={roundness.sm}
+							shadow='none'
+							backgroundColor={lightTheme.colors.surface}
+							onPress={() => router.push(`/drivers/${user.id}`)}
+						>
+							<View style={styles.loggedUserContainer}>
+								{user.imageUrl ? (
+									<Image
+										source={{ uri: user.imageUrl }}
+										style={styles.userImage}
+									/>
+								) : (
+									<Card
+										paddingX={0}
+										paddingY={0}
+										rounded={roundness.xs}
+										shadow='none'
+										backgroundColor={`${lightTheme.colors.primary}CC`}
+										style={styles.userImage}
+									>
+										<IconPlaceholder
+											color={lightTheme.colors.onPrimary}
+											icon={UserRound}
+											size={80}
+										/>
+									</Card>
+								)}
+								<View style={styles.userInfo}>
+									<Text style={styles.userName}>
+										Hola, {user.name} {user.surnames}
+									</Text>
+									<Text style={styles.userEmail}>
+										{user.email}
+									</Text>
+								</View>
+								<View style={styles.arrowContainer}>
+									<ChevronRight size={20} style={styles.rowIcon} />
+								</View>
+							</View>
+						</Card>
+					</View>
+				)}
+
+
 				<View style={styles.section}>
 					<Text style={styles.sectionTitle}>Mi cuenta</Text>
 					<Card
@@ -41,22 +93,6 @@ export default function SettingsScreen() {
 						backgroundColor={lightTheme.colors.surface}
 					>
 						<View style={styles.cardContent}>
-							{/* TODO -> go to driver/[id] where id is the logged driver id */}
-							<Pressable
-								// onPress={() => router.push("/settings/profile")}
-								style={({ pressed }) => [
-									styles.rowContainer,
-									pressed && styles.rowPressed,
-								]}
-							>
-								{({ pressed }) => (
-									<View style={styles.row}>
-										<Text style={styles.rowText}>Ver mi perfil</Text>
-										<ChevronRight size={20} style={styles.rowIcon} />
-									</View>
-								)}
-							</Pressable>
-							<View style={styles.separator} />
 							<Pressable
 								// onPress={() => router.push("/settings/change-password")}
 								style={({ pressed }) => [
@@ -263,11 +299,10 @@ export default function SettingsScreen() {
 						</View>
 					</Card>
 				</View>
-				{/* HARDCODED -> pending auth store for logged user */}
 				<View style={styles.footerContainer}>
 					<TouchableOpacity
 						style={styles.logoutButton}
-						onPress={() => { }}
+						onPress={() => logout()}
 						disabled={false}
 						activeOpacity={0.8}
 					>
@@ -281,7 +316,6 @@ export default function SettingsScreen() {
 		</SafeAreaView>
 	);
 };
-
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
@@ -306,22 +340,39 @@ const styles = StyleSheet.create({
 		marginBottom: spacing.sm,
 		color: lightTheme.colors.onSurfaceVariant,
 	},
-	tile: {
-		backgroundColor: lightTheme.colors.surface,
-		paddingVertical: spacing.md,
-		paddingHorizontal: spacing.md,
-		borderRadius: roundness.sm,
-		marginBottom: spacing.md,
+	loggedUserContainer: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: spacing.md,
 	},
-	tileText: {
-		color: lightTheme.colors.onSurface,
-		fontSize: typography.bodyMedium,
+	userImage: {
+		width: 60,
+		height: 60,
+		borderRadius: roundness.xs,
 	},
-	cardTitle: {
+	userInfo: {
+		flex: 1,
+		flexDirection: 'column',
+		justifyContent: 'center',
+		alignItems: 'flex-start',
+		gap: spacing.xs,
+	},
+	arrowContainer: {
+		marginRight: spacing.sm,
+		alignSelf: 'center',
+	},
+	userName: {
 		fontSize: typography.titleMedium,
 		fontWeight: '600',
 		color: lightTheme.colors.onSurface,
-		marginBottom: spacing.xs,
+	},
+	userStatus: {
+		fontSize: typography.bodyMedium,
+		color: lightTheme.colors.onSurfaceVariant,
+	},
+	userEmail: {
+		fontSize: typography.bodyMedium,
+		color: lightTheme.colors.onSurfaceVariant,
 	},
 	cardContent: {
 		gap: spacing.sm,
@@ -353,19 +404,6 @@ const styles = StyleSheet.create({
 		color: lightTheme.colors.onSurface,
 		opacity: 0.9,
 	},
-	label: {
-		color: lightTheme.colors.onSurface,
-	},
-	labelPressed: {
-		color: lightTheme.colors.onBackground,
-	},
-	value: {
-		color: lightTheme.colors.onSurfaceVariant,
-	},
-	valuePressed: {
-		color: lightTheme.colors.onBackground,
-	},
-	// Estilos para el Dropdown
 	dropdown: {
 		minWidth: 120,
 		height: 25,
@@ -418,6 +456,7 @@ const styles = StyleSheet.create({
 		opacity: 0.5,
 	},
 	footerContainer: {
+		marginTop: spacing.xxxl,
 		flexDirection: "row",
 		justifyContent: "center",
 		alignItems: "center",
