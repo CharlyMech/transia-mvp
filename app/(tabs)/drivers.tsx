@@ -5,6 +5,7 @@ import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { IconBadge } from '@/components/IconBadge';
 import { IconPlaceholder } from '@/components/IconPlaceholder';
 import { SkeletonList } from '@/components/skeletons';
+import { StatusLabel } from '@/components/StatusLabel';
 import { DriverStatus } from '@/constants/enums/DriverStatus';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
@@ -15,33 +16,18 @@ import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-function getDriverStatusStyle(status: DriverStatus) {
+function getDriverStatusIcon(status: DriverStatus) {
 	switch (status) {
 		case DriverStatus.ACTIVE:
-			return {
-				label: "Activo",
-				color: lightTheme.colors.statusActive,
-			};
+			return Check;
 		case DriverStatus.INACTIVE:
-			return {
-				label: "Inactivo",
-				color: lightTheme.colors.statusInactive,
-			};
+			return Pause;
 		case DriverStatus.SICK_LEAVE:
-			return {
-				label: "Baja médica",
-				color: lightTheme.colors.statusSickLeave,
-			};
+			return Stethoscope;
 		case DriverStatus.HOLIDAYS:
-			return {
-				label: "Vacaciones",
-				color: lightTheme.colors.statusHolidays,
-			};
+			return CalendarClock;
 		default:
-			return {
-				label: "Desconocido",
-				color: lightTheme.colors.onSurfaceVariant,
-			};
+			return UserRound;
 	}
 }
 
@@ -129,7 +115,6 @@ export default function DriversScreen() {
 				>
 
 					{drivers.map((item) => {
-						const statusStyle = getDriverStatusStyle(item.status);
 
 						return (
 							<Card
@@ -184,37 +169,10 @@ export default function DriversScreen() {
 												{item.name} {item.surnames}
 											</Text>
 
-											<View style={{
-												flexDirection: "row",
-												alignItems: "center",
-												gap: spacing.xs,
-												paddingHorizontal: spacing.sm,
-												paddingVertical: spacing.xs,
-												borderRadius: roundness.xs,
-												backgroundColor: `${statusStyle.color}15`,
-												flexShrink: 0,
-											}}>
-												{item.status === DriverStatus.ACTIVE && (
-													<Check size={16} color={statusStyle.color} />
-												)}
-												{item.status === DriverStatus.INACTIVE && (
-													<Pause size={16} color={statusStyle.color} />
-												)}
-												{item.status === DriverStatus.SICK_LEAVE && (
-													<Stethoscope size={16} color={statusStyle.color} />
-												)}
-												{item.status === DriverStatus.HOLIDAYS && (
-													<CalendarClock size={16} color={statusStyle.color} />
-												)}
-
-												<Text style={{
-													fontSize: typography.bodySmall,
-													fontWeight: "600",
-													color: statusStyle.color
-												}}>
-													{statusStyle.label}
-												</Text>
-											</View>
+											<StatusLabel
+												status={item.status}
+												Icon={getDriverStatusIcon(item.status)}
+											/>
 										</View>
 
 										<Text style={{ fontSize: typography.bodyMedium, opacity: 0.7 }}>{item.phone}</Text>

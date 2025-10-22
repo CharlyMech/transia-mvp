@@ -9,6 +9,7 @@ import { Card } from '@/components/Card';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { SkeletonList } from '@/components/skeletons';
 
+import { StatusLabel } from '@/components/StatusLabel';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
 import { useReportsStore } from '@/stores/useReportsStore';
@@ -124,53 +125,11 @@ export default function ReportsScreen() {
 									}}>
 										{item.title}
 									</Text>
-									{item.active ? (
-										<View style={{
-											flexDirection: "row",
-											alignItems: "center",
-											gap: spacing.xs,
-											paddingHorizontal: spacing.sm,
-											paddingVertical: spacing.xs,
-											borderRadius: roundness.xs,
-											backgroundColor: `${lightTheme.colors.warning}15`,
-											flexShrink: 0,
-										}}>
-											<TriangleAlert
-												size={16}
-												color={lightTheme.colors.onWarning}
-											/>
-											<Text style={{
-												fontSize: typography.bodySmall,
-												fontWeight: "600",
-												color: lightTheme.colors.onWarning
-											}}>
-												Pendiente
-											</Text>
-										</View>
-									) : (
-										<View style={{
-											flexDirection: "row",
-											alignItems: "center",
-											gap: spacing.xs,
-											paddingHorizontal: spacing.sm,
-											paddingVertical: spacing.xs,
-											borderRadius: roundness.xs,
-											backgroundColor: `${lightTheme.colors.statusActive}15`,
-											flexShrink: 0,
-										}}>
-											<CheckCheck
-												size={16}
-												color={lightTheme.colors.statusActive}
-											/>
-											<Text style={{
-												fontSize: typography.bodySmall,
-												fontWeight: "600",
-												color: lightTheme.colors.statusActive
-											}}>
-												Resuelta
-											</Text>
-										</View>
-									)}
+
+									<StatusLabel
+										status={item.active ? "PENDING" : "RESOLVED"}
+										Icon={item.active ? TriangleAlert : CheckCheck}
+									/>
 								</View>
 
 								<Text

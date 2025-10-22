@@ -5,6 +5,7 @@ import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { IconBadge } from "@/components/IconBadge";
 import { IconPlaceholder } from "@/components/IconPlaceholder";
 import { SkeletonList } from "@/components/skeletons";
+import { StatusLabel } from "@/components/StatusLabel";
 import { VehicleStatus } from "@/constants/enums/VehicleStatus";
 import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
 import { useActionsModal } from "@/hooks/useActionsModal";
@@ -15,33 +16,18 @@ import React from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-function getVehicleStatusStyle(status: VehicleStatus) {
+function getVehicleStatusIcon(status: VehicleStatus) {
 	switch (status) {
 		case VehicleStatus.ACTIVE:
-			return {
-				label: "Activo",
-				color: lightTheme.colors.statusActive,
-			};
+			return Check;
 		case VehicleStatus.INACTIVE:
-			return {
-				label: "Inactivo",
-				color: lightTheme.colors.statusInactive,
-			};
+			return Pause;
 		case VehicleStatus.BROKEN_DOWN:
-			return {
-				label: "Averiado",
-				color: lightTheme.colors.statusBrokenDown,
-			};
+			return AlertTriangle;
 		case VehicleStatus.MAINTENANCE:
-			return {
-				label: "Mantenimiento",
-				color: lightTheme.colors.statusMaintenance,
-			};
+			return Wrench;
 		default:
-			return {
-				label: "Desconocido",
-				color: lightTheme.colors.onSurfaceVariant,
-			};
+			return Truck;
 	}
 }
 
@@ -128,7 +114,6 @@ export default function FleetScreen() {
 					showsVerticalScrollIndicator={false}
 				>
 					{vehicles.map((item) => {
-						const statusStyle = getVehicleStatusStyle(item.status);
 						return (
 							<Card
 								key={item.id}
@@ -181,37 +166,10 @@ export default function FleetScreen() {
 											>
 												{item.vehicleBrand} {item.vehicleModel} ({item.year})
 											</Text>
-											<View style={{
-												flexDirection: "row",
-												alignItems: "center",
-												gap: spacing.xs,
-												paddingHorizontal: spacing.sm,
-												paddingVertical: spacing.xs,
-												borderRadius: roundness.xs,
-												backgroundColor: `${statusStyle.color}15`,
-												flexShrink: 0,
-											}}>
-												{item.status === VehicleStatus.ACTIVE && (
-													<Check size={16} color={statusStyle.color} />
-												)}
-												{item.status === VehicleStatus.INACTIVE && (
-													<Pause size={16} color={statusStyle.color} />
-												)}
-												{item.status === VehicleStatus.BROKEN_DOWN && (
-													<AlertTriangle size={16} color={statusStyle.color} />
-												)}
-												{item.status === VehicleStatus.MAINTENANCE && (
-													<Wrench size={16} color={statusStyle.color} />
-												)}
-
-												<Text style={{
-													fontSize: typography.bodySmall,
-													fontWeight: "600",
-													color: statusStyle.color
-												}}>
-													{statusStyle.label}
-												</Text>
-											</View>
+											<StatusLabel
+												status={item.status}
+												Icon={getVehicleStatusIcon(item.status)}
+											/>
 										</View>
 
 										<Text style={{ fontSize: typography.bodyMedium, opacity: 0.7 }}>
