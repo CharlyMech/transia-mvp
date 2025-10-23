@@ -2,7 +2,6 @@ import { Card } from '@/components/Card';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { LoginCredentialsSchema } from '@/models/auth';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { router } from 'expo-router';
 import { AlertTriangle, Eye, EyeOff } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -37,14 +36,6 @@ export default function LoginScreen() {
 	const isLoading = useAuthStore((state) => state.isLoading);
 	const error = useAuthStore((state) => state.error);
 	const clearError = useAuthStore((state) => state.clearError);
-	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-
-	// Redirect if already authenticated
-	useEffect(() => {
-		if (isAuthenticated) {
-			router.replace('/(tabs)' as any);
-		}
-	}, [isAuthenticated]);
 
 	// Clear error when user starts typing
 	useEffect(() => {
@@ -120,6 +111,7 @@ export default function LoginScreen() {
 
 		try {
 			await login(validation.data);
+			// Navigation will be handled by _layout.tsx
 		} catch (error) {
 			console.error('Login failed:', error);
 		}
