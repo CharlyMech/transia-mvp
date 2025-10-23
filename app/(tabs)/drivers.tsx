@@ -10,26 +10,12 @@ import { DriverStatus } from '@/constants/enums/DriverStatus';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
 import { useDriversStore } from '@/stores/useDriversStore';
+import { getDriverStatusIcon } from '@/utils/driversUtils';
 import { router } from 'expo-router';
 import { CalendarClock, Check, ExternalLink, Pause, Plus, RefreshCcw, Stethoscope, Trash2, UserRound } from 'lucide-react-native';
 import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-function getDriverStatusIcon(status: DriverStatus) {
-	switch (status) {
-		case DriverStatus.ACTIVE:
-			return Check;
-		case DriverStatus.INACTIVE:
-			return Pause;
-		case DriverStatus.SICK_LEAVE:
-			return Stethoscope;
-		case DriverStatus.HOLIDAYS:
-			return CalendarClock;
-		default:
-			return UserRound;
-	}
-}
 
 export default function DriversScreen() {
 	const drivers = useDriversStore((state) => state.drivers);

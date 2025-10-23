@@ -2,11 +2,11 @@ import { Card } from '@/components/Card';
 import { IconPlaceholder } from '@/components/IconPlaceholder';
 import { InfoRow } from '@/components/InfoRow';
 import { SkeletonHeaderDetail } from '@/components/skeletons';
-import { StatusBadge } from '@/components/StatusBadge';
-import { DriverStatus } from '@/constants/enums/DriverStatus';
+import { StatusLabel } from '@/components/StatusLabel';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useDriversStore } from '@/stores/useDriversStore';
 import { formatDateToDisplay } from '@/utils/dateUtils';
+import { getDriverStatusIcon } from '@/utils/driversUtils';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SquarePen, UserRound } from 'lucide-react-native';
 import React, { useEffect, useRef } from 'react';
@@ -182,7 +182,7 @@ export default function DriverProfileScreen() {
 
 				<Animated.View style={[styles.content, { paddingTop: contentPaddingTop }]}>
 					<View style={styles.statusBadgeContainer}>
-						<StatusBadge status={currentDriver.status ?? DriverStatus.INACTIVE} />
+						<StatusLabel status={currentDriver.status} Icon={getDriverStatusIcon(currentDriver.status)} iconSize={20} textSize={typography.titleSmall} />
 					</View>
 
 					<View>

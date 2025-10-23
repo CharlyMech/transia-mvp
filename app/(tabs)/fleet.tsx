@@ -10,26 +10,12 @@ import { VehicleStatus } from "@/constants/enums/VehicleStatus";
 import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
 import { useActionsModal } from "@/hooks/useActionsModal";
 import { useFleetStore } from "@/stores/useFleetStore";
+import { getVehicleStatusIcon } from "@/utils/fleetUtils";
 import { router } from "expo-router";
-import { AlertTriangle, Check, ExternalLink, Pause, Plus, RefreshCcw, Trash2, Truck, Wrench, X } from "lucide-react-native";
+import { Check, ExternalLink, Pause, Plus, RefreshCcw, Trash2, Truck, Wrench, X } from "lucide-react-native";
 import React from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-function getVehicleStatusIcon(status: VehicleStatus) {
-	switch (status) {
-		case VehicleStatus.ACTIVE:
-			return Check;
-		case VehicleStatus.INACTIVE:
-			return Pause;
-		case VehicleStatus.BROKEN_DOWN:
-			return AlertTriangle;
-		case VehicleStatus.MAINTENANCE:
-			return Wrench;
-		default:
-			return Truck;
-	}
-}
 
 export default function FleetScreen() {
 	const vehicles = useFleetStore((state) => state.vehicles);

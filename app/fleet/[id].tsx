@@ -2,11 +2,11 @@ import { Card } from '@/components/Card';
 import { IconPlaceholder } from '@/components/IconPlaceholder';
 import { InfoRow } from '@/components/InfoRow';
 import { SkeletonHeaderDetail } from '@/components/skeletons';
-import { StatusBadge } from '@/components/StatusBadge';
-import { VehicleStatus } from '@/constants/enums/VehicleStatus';
+import { StatusLabel } from '@/components/StatusLabel';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useFleetStore } from '@/stores/useFleetStore';
 import { formatISODate } from '@/utils/dateUtils';
+import { getVehicleStatusIcon } from '@/utils/fleetUtils';
 import { useLocalSearchParams } from 'expo-router';
 import { ExternalLink, Truck } from 'lucide-react-native';
 import React, { useEffect, useRef } from 'react';
@@ -170,7 +170,7 @@ export default function VehicleDetailScreen() {
 
 				<Animated.View style={[styles.content, { paddingTop: contentPaddingTop }]}>
 					<View style={styles.statusBadgeContainer}>
-						<StatusBadge status={currentVehicle.status ?? VehicleStatus.INACTIVE} />
+						<StatusLabel status={currentVehicle.status} Icon={getVehicleStatusIcon(currentVehicle.status)} iconSize={20} textSize={typography.titleSmall} />
 					</View>
 
 					<Text style={styles.cardTitle}>Información del vehículo</Text>

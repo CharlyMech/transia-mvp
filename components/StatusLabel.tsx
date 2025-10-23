@@ -16,6 +16,7 @@ interface StatusLabelProps {
 	status: StatusType;
 	Icon: LucideIcon;
 	iconSize?: number;
+	textSize?: number;
 }
 
 function getStatusConfig(status: StatusType): StatusConfig {
@@ -84,7 +85,7 @@ function getStatusConfig(status: StatusType): StatusConfig {
 	}
 }
 
-export function StatusLabel({ status, Icon, iconSize = 16 }: StatusLabelProps) {
+export function StatusLabel({ status, Icon, iconSize = 16, textSize = typography.bodySmall }: StatusLabelProps) {
 	const config = getStatusConfig(status);
 
 	return (
@@ -95,7 +96,7 @@ export function StatusLabel({ status, Icon, iconSize = 16 }: StatusLabelProps) {
 			]}
 		>
 			<Icon size={iconSize} color={config.color} />
-			<Text style={[styles.label, { color: config.color }]}>
+			<Text style={[styles.label, { color: config.color, fontSize: textSize }]}>
 				{config.label}
 			</Text>
 		</View>
@@ -113,7 +114,6 @@ const styles = StyleSheet.create({
 		flexShrink: 0,
 	},
 	label: {
-		fontSize: typography.bodySmall,
 		fontWeight: "600",
 	},
 });

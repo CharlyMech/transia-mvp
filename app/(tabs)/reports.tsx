@@ -13,6 +13,7 @@ import { StatusLabel } from '@/components/StatusLabel';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
 import { useReportsStore } from '@/stores/useReportsStore';
+import { getReportActiveStatusIcon } from '@/utils/reportsUtils';
 
 
 export default function ReportsScreen() {
@@ -128,7 +129,7 @@ export default function ReportsScreen() {
 
 									<StatusLabel
 										status={item.active ? "PENDING" : "RESOLVED"}
-										Icon={item.active ? TriangleAlert : CheckCheck}
+										Icon={getReportActiveStatusIcon(item.active)}
 									/>
 								</View>
 
