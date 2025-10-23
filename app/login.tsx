@@ -4,10 +4,11 @@ import { LoginCredentialsSchema } from '@/models/auth';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { router } from 'expo-router';
 import { AlertTriangle, Eye, EyeOff } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
 	ActivityIndicator,
 	Image,
+	Keyboard,
 	KeyboardAvoidingView,
 	Platform,
 	Pressable,
@@ -16,6 +17,7 @@ import {
 	Text,
 	TextInput,
 	TouchableOpacity,
+	TouchableWithoutFeedback,
 	View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,6 +27,11 @@ export default function LoginScreen() {
 	const [password, setPassword] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
 	const [errors, setErrors] = useState<{ identifier?: string; password?: string }>({});
+	const [hasScrolledToForm, setHasScrolledToForm] = useState(false);
+
+	const scrollViewRef = useRef<ScrollView>(null);
+	const identifierInputRef = useRef<TextInput>(null);
+	const passwordInputRef = useRef<TextInput>(null);
 
 	const login = useAuthStore((state) => state.login);
 	const isLoading = useAuthStore((state) => state.isLoading);
@@ -47,7 +54,50 @@ export default function LoginScreen() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [identifier, password]);
 
+	// Reset scroll flag when keyboard is dismissed
+	useEffect(() => {
+		const keyboardDidHideListener = Keyboard.addListener(
+			'keyboardDidHide',
+			() => {
+				setHasScrolledToForm(false);
+			}
+		);
+
+		return () => {
+			keyboardDidHideListener.remove();
+		};
+	}, []);
+
+
+	const handleInputFocus = (inputY: number, isFirstInput: boolean) => {
+		// Only scroll once when focusing the first input
+		if (isFirstInput && !hasScrolledToForm) {
+			setTimeout(() => {
+				const formAreaOffset = inputY - 250;
+
+				scrollViewRef.current?.scrollTo({
+					y: Math.max(0, formAreaOffset),
+					animated: true,
+				});
+
+				setHasScrolledToForm(true);
+			}, 150);
+		} else if (!isFirstInput && hasScrolledToForm) {
+			setTimeout(() => {
+				const formAreaOffset = inputY - 100;
+
+				scrollViewRef.current?.scrollTo({
+					y: Math.max(0, formAreaOffset),
+					animated: true,
+				});
+			}, 150);
+		}
+	};
+
 	const handleLogin = async () => {
+		// Dismiss keyboard
+		Keyboard.dismiss();
+
 		// Clear previous errors
 		setErrors({});
 		clearError();
@@ -75,154 +125,195 @@ export default function LoginScreen() {
 		}
 	};
 
+	const dismissKeyboard = () => {
+		Keyboard.dismiss();
+	};
+
 	return (
 		<SafeAreaView style={styles.container} edges={['top']}>
 			<KeyboardAvoidingView
 				style={styles.keyboardView}
 				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
 			>
-				<ScrollView
-					contentContainerStyle={styles.scrollContent}
-					keyboardShouldPersistTaps="handled"
-					showsVerticalScrollIndicator={false}
-				>
+				<TouchableWithoutFeedback onPress={dismissKeyboard}>
+					<ScrollView
+						ref={scrollViewRef}
+						contentContainerStyle={styles.scrollContent}
+						keyboardShouldPersistTaps="handled"
+						showsVerticalScrollIndicator={false}
+					>
 
-					{/* TODO -> Design logo */}
-					<View style={styles.header}>
-						<Image
-							source={require('@/assets/images/icon.png')}
-							style={styles.logo}
-							resizeMode="contain"
-						/>
-						<View style={styles.headerTextContainer}>
-							<Text style={styles.title}>Transia MVP</Text>
-							<Text style={styles.subtitle}>Gestión de flota de vehículos a tu alcance</Text>
-						</View>
-
-					</View>
-
-					<View style={styles.formSection}>
-						<Text style={styles.welcomeText}>Bienvenido de nuevo</Text>
-
-						{error && (
-							<Card
-								paddingX={spacing.md}
-								paddingY={spacing.md}
-								rounded={roundness.sm}
-								shadow="none"
-								backgroundColor={lightTheme.colors.errorContainer}
-								style={styles.errorCard}
-							>
-								<View style={styles.errorContent}>
-									<AlertTriangle
-										size={20}
-										color={lightTheme.colors.error}
-									/>
-									<Text style={styles.errorText}>{error}</Text>
-								</View>
-							</Card>
-						)}
-
-						<View style={styles.inputContainer}>
-							<Text style={styles.label}>Teléfono, Email o DNI/NIE</Text>
-							<View style={styles.inputWrapper}>
-								<TextInput
-									style={[
-										styles.input,
-										errors.identifier && styles.inputError,
-									]}
-									value={identifier}
-									onChangeText={setIdentifier}
-									placeholder="Ej: 612345678 o correo@ejemplo.com"
-									placeholderTextColor={lightTheme.colors.onSurfaceVariant}
-									autoCapitalize="none"
-									autoCorrect={false}
-									editable={!isLoading}
-								/>
+						{/* TODO -> Design logo */}
+						<View style={styles.header}>
+							<Image
+								source={require('@/assets/images/icon.png')}
+								style={styles.logo}
+								resizeMode="contain"
+							/>
+							<View style={styles.headerTextContainer}>
+								<Text style={styles.title}>Transia MVP</Text>
+								<Text style={styles.subtitle}>Gestión de flota de vehículos a tu alcance</Text>
 							</View>
-							{errors.identifier && (
-								<Text style={styles.fieldErrorText}>{errors.identifier}</Text>
-							)}
+
 						</View>
 
-						<View style={styles.inputContainer}>
-							<Text style={styles.label}>Contraseña</Text>
-							<View style={styles.inputWrapper}>
-								<TextInput
-									style={[
-										styles.input,
-										errors.password && styles.inputError,
-									]}
-									value={password}
-									onChangeText={setPassword}
-									placeholder="Ingresa tu contraseña"
-									placeholderTextColor={lightTheme.colors.onSurfaceVariant}
-									secureTextEntry={!showPassword}
-									autoCapitalize="none"
-									autoCorrect={false}
-									editable={!isLoading}
-								/>
-								<Pressable
-									onPress={() => setShowPassword(!showPassword)}
-									style={styles.eyeIcon}
-									disabled={isLoading}
+						<View style={styles.formSection}>
+							<Text style={styles.welcomeText}>Bienvenido de nuevo</Text>
+
+							{error && (
+								<Card
+									paddingX={spacing.md}
+									paddingY={spacing.md}
+									rounded={roundness.sm}
+									shadow="none"
+									backgroundColor={lightTheme.colors.errorContainer}
+									style={styles.errorCard}
 								>
-									{showPassword ? (
-										<EyeOff
+									<View style={styles.errorContent}>
+										<AlertTriangle
 											size={20}
-											color={lightTheme.colors.onSurfaceVariant}
+											color={lightTheme.colors.error}
 										/>
-									) : (
-										<Eye
-											size={20}
-											color={lightTheme.colors.onSurfaceVariant}
-										/>
-									)}
-								</Pressable>
+										<Text style={styles.errorText}>{error}</Text>
+									</View>
+								</Card>
+							)}
+
+							<View
+								style={styles.inputContainer}
+								onLayout={(event) => {
+									const layout = event.nativeEvent.layout;
+									identifierInputRef.current?.setNativeProps({
+										layoutY: layout.y,
+									});
+								}}
+							>
+								<Text style={styles.label}>Teléfono, Email o DNI/NIE</Text>
+								<View style={styles.inputWrapper}>
+									<TextInput
+										ref={identifierInputRef}
+										style={[
+											styles.input,
+											errors.identifier && styles.inputError,
+										]}
+										value={identifier}
+										onChangeText={setIdentifier}
+										placeholder="Ej: 612345678 o correo@ejemplo.com"
+										placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+										autoCapitalize="none"
+										autoCorrect={false}
+										editable={!isLoading}
+										returnKeyType="next"
+										onSubmitEditing={() => passwordInputRef.current?.focus()}
+										blurOnSubmit={false}
+										onFocus={(e) => {
+											e.target.measure((x, y, width, height, pageX, pageY) => {
+												handleInputFocus(pageY, true);
+											});
+										}}
+									/>
+								</View>
+								{errors.identifier && (
+									<Text style={styles.fieldErrorText}>{errors.identifier}</Text>
+								)}
 							</View>
-							{errors.password && (
-								<Text style={styles.fieldErrorText}>{errors.password}</Text>
-							)}
+
+							<View
+								style={styles.inputContainer}
+								onLayout={(event) => {
+									const layout = event.nativeEvent.layout;
+									passwordInputRef.current?.setNativeProps({
+										layoutY: layout.y,
+									});
+								}}
+							>
+								<Text style={styles.label}>Contraseña</Text>
+								<View style={styles.inputWrapper}>
+									<TextInput
+										ref={passwordInputRef}
+										style={[
+											styles.input,
+											errors.password && styles.inputError,
+										]}
+										value={password}
+										onChangeText={setPassword}
+										placeholder="Ingresa tu contraseña"
+										placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+										secureTextEntry={!showPassword}
+										autoCapitalize="none"
+										autoCorrect={false}
+										editable={!isLoading}
+										returnKeyType="done"
+										onSubmitEditing={handleLogin}
+										onFocus={(e) => {
+											e.target.measure((x, y, width, height, pageX, pageY) => {
+												handleInputFocus(pageY, false);
+											});
+										}}
+									/>
+									<Pressable
+										onPress={() => setShowPassword(!showPassword)}
+										style={styles.eyeIcon}
+										disabled={isLoading}
+									>
+										{showPassword ? (
+											<EyeOff
+												size={20}
+												color={lightTheme.colors.onSurfaceVariant}
+											/>
+										) : (
+											<Eye
+												size={20}
+												color={lightTheme.colors.onSurfaceVariant}
+											/>
+										)}
+									</Pressable>
+								</View>
+								{errors.password && (
+									<Text style={styles.fieldErrorText}>{errors.password}</Text>
+								)}
+							</View>
+
+							<TouchableOpacity
+								style={[
+									styles.loginButton,
+									isLoading && styles.loginButtonDisabled,
+								]}
+								onPress={handleLogin}
+								disabled={isLoading}
+								activeOpacity={0.8}
+							>
+								{isLoading ? (
+									<ActivityIndicator
+										size="small"
+										color={lightTheme.colors.onPrimary}
+									/>
+								) : (
+									<Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+								)}
+							</TouchableOpacity>
+
+							<View style={styles.helperContainer}>
+								<Text style={styles.helperText}>
+									¿Problemas para iniciar sesión?
+								</Text>
+								<Text style={styles.helperTextBold}>
+									Contacta a tu administrador
+								</Text>
+							</View>
 						</View>
 
-						<TouchableOpacity
-							style={[
-								styles.loginButton,
-								isLoading && styles.loginButtonDisabled,
-							]}
-							onPress={handleLogin}
-							disabled={isLoading}
-							activeOpacity={0.8}
-						>
-							{isLoading ? (
-								<ActivityIndicator
-									size="small"
-									color={lightTheme.colors.onPrimary}
-								/>
-							) : (
-								<Text style={styles.loginButtonText}>Iniciar Sesión</Text>
-							)}
-						</TouchableOpacity>
-
-						<View style={styles.helperContainer}>
-							<Text style={styles.helperText}>
-								¿Problemas para iniciar sesión?
+						<View style={styles.footer}>
+							<Text style={styles.footerText}>
+								Transia MVP v1.0.0
 							</Text>
-							<Text style={styles.helperTextBold}>
-								Contacta a tu administrador
+							<Text style={styles.footerTextSmall}>
+								© 2025 Todos los derechos reservados
 							</Text>
 						</View>
-					</View>
-
-					<View style={styles.footer}>
-						<Text style={styles.footerText}>
-							Transia MVP v1.0.0
-						</Text>
-						<Text style={styles.footerTextSmall}>
-							© 2025 Todos los derechos reservados
-						</Text>
-					</View>
-				</ScrollView>
+					</ScrollView>
+				</TouchableWithoutFeedback>
 			</KeyboardAvoidingView>
 
 			{isLoading && (
