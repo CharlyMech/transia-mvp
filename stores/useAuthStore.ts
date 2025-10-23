@@ -146,13 +146,33 @@ export const useAuthStore = create<AuthStore>()(
 		{
 			name: "auth-storage",
 			storage: createJSONStorage(() => AsyncStorage),
-			// Only persist certain fields
 			partialize: (state) => ({
 				user: state.user,
 				token: state.token,
 				expiresAt: state.expiresAt,
 				isAuthenticated: state.isAuthenticated,
 			}),
+			version: 1,
+			migrate: (persistedState: any, version: number) => {
+				console.log("🔄 Migrating auth storage from version", version);
+				try {
+					if (version === 0) {
+						return persistedState;
+					}
+					return persistedState;
+				} catch (error) {
+					console.error(
+						"❌ Migration failed, returning clean state:",
+						error
+					);
+					return {
+						user: null,
+						token: null,
+						expiresAt: null,
+						isAuthenticated: false,
+					};
+				}
+			},
 		}
 	)
 );

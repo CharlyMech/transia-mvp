@@ -1,6 +1,8 @@
 import { Card } from '@/components/Card';
+import { DebugPanel } from '@/components/DebugPanel';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { LoginCredentialsSchema } from '@/models/auth';
+import { DEBUG_PANEL_ENABLED } from '@/services/env';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { AlertTriangle, Eye, EyeOff } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
@@ -58,7 +60,6 @@ export default function LoginScreen() {
 			keyboardDidHideListener.remove();
 		};
 	}, []);
-
 
 	const handleInputFocus = (inputY: number, isFirstInput: boolean) => {
 		// Only scroll once when focusing the first input
@@ -121,6 +122,8 @@ export default function LoginScreen() {
 		Keyboard.dismiss();
 	};
 
+	const shouldShowDebugPanel = DEBUG_PANEL_ENABLED && Platform.OS === 'android';
+
 	return (
 		<SafeAreaView style={styles.container} edges={['top']}>
 			<KeyboardAvoidingView
@@ -136,7 +139,14 @@ export default function LoginScreen() {
 						showsVerticalScrollIndicator={false}
 					>
 
-						{/* TODO -> Design logo */}
+						{shouldShowDebugPanel && (
+							<DebugPanel
+								onOperationComplete={(operation) => {
+									console.log(`✅ Operation completed: ${operation}`);
+								}}
+							/>
+						)}
+
 						<View style={styles.header}>
 							<Image
 								source={require('@/assets/images/icon.png')}
@@ -147,7 +157,6 @@ export default function LoginScreen() {
 								<Text style={styles.title}>Transia MVP</Text>
 								<Text style={styles.subtitle}>Gestión de flota de vehículos a tu alcance</Text>
 							</View>
-
 						</View>
 
 						<View style={styles.formSection}>
