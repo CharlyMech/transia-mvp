@@ -26,6 +26,11 @@
 		"createdAt": "2025-09-15T12:30:00Z",
 		"readAt": null,
 		"closedAt": null,
+		"location": {
+			"latitude": 40.41678,
+			"longitude": -3.70379,
+			"address": "C. de Alcalá 1, 28014 Madrid, ES"
+		},
 		"images": [
 			"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdG4FDBNHk-4nyPGQkCSGPbhUoST0M7JhuKA&s"
 		],
@@ -68,6 +73,11 @@
 		"createdAt": "2025-10-03T07:30:00Z",
 		"readAt": null,
 		"closedAt": null,
+		"location": {
+			"latitude": 41.3851,
+			"longitude": 2.1734,
+			"address": "Plaça de Catalunya, 08002 Barcelona, ES"
+		},
 		"images": [],
 		"read": false,
 		"active": true
@@ -81,6 +91,11 @@
 		"createdAt": "2025-09-18T11:45:00Z",
 		"readAt": "2025-09-18T16:30:00Z",
 		"closedAt": "2025-09-18T16:30:00Z",
+		"location": {
+			"latitude": 39.4699,
+			"longitude": -0.3763,
+			"address": "Plaza del Ayuntamiento, 46002 València, ES"
+		},
 		"reporterComment": "ITV pasada exitosamente",
 		"images": [],
 		"read": true,
@@ -95,6 +110,11 @@
 		"createdAt": "2025-10-02T16:10:00Z",
 		"readAt": null,
 		"closedAt": null,
+		"location": {
+			"latitude": 37.3891,
+			"longitude": -5.9845,
+			"address": "Av. de la Constitución, 41001 Sevilla, ES"
+		},
 		"images": [],
 		"read": false,
 		"active": true
@@ -108,6 +128,11 @@
 		"createdAt": "2025-10-05T14:22:00Z",
 		"readAt": "2025-10-05T15:10:00Z",
 		"closedAt": null,
+		"location": {
+			"latitude": 37.3891,
+			"longitude": -5.9845,
+			"address": "Av. de la Constitución, 41001 Sevilla, ES"
+		},
 		"reporterComment": "Parte de accidente entregado. Esperando valoración del taller.",
 		"images": [
 			"https://www.autopista.es/uploads/s1/11/37/93/86/golpe-aparcamiento-istock-902886230.jpeg"
@@ -138,6 +163,11 @@
 		"createdAt": "2025-10-10T10:15:00Z",
 		"readAt": null,
 		"closedAt": null,
+		"location": {
+			"latitude": 41.6561,
+			"longitude": -0.8773,
+			"address": "Pl. del Pilar, 50003 Zaragoza, ES"
+		},
 		"images": [],
 		"read": false,
 		"active": true
@@ -151,6 +181,11 @@
 		"createdAt": "2025-10-11T16:45:00Z",
 		"readAt": "2025-10-11T17:20:00Z",
 		"closedAt": null,
+		"location": {
+			"latitude": 41.6561,
+			"longitude": -0.8773,
+			"address": "Pl. del Pilar, 50003 Zaragoza, ES"
+		},
 		"reporterComment": "Parte amistoso firmado. Vehículo en taller para reparación",
 		"images": [
 			"https://www.autopista.es/uploads/s1/11/77/43/21/accidente-trafico-istock-1060729228.jpeg",
@@ -168,6 +203,11 @@
 		"createdAt": "2025-10-13T08:00:00Z",
 		"readAt": null,
 		"closedAt": null,
+		"location": {
+			"latitude": 43.263,
+			"longitude": -2.935,
+			"address": "Arenal Kalea, 48005 Bilbao, ES"
+		},
 		"images": [],
 		"read": false,
 		"active": true
@@ -181,6 +221,11 @@
 		"createdAt": "2025-10-14T11:30:00Z",
 		"readAt": "2025-10-14T14:00:00Z",
 		"closedAt": "2025-10-15T10:00:00Z",
+		"location": {
+			"latitude": 43.263,
+			"longitude": -2.935,
+			"address": "Arenal Kalea, 48005 Bilbao, ES"
+		},
 		"reporterComment": "Mantenimiento preventivo completado según programa",
 		"images": [],
 		"read": true,

@@ -1,6 +1,7 @@
 import { Card } from '@/components/Card';
 import { Carousel } from '@/components/Carousel';
 import { InfoRow } from '@/components/InfoRow';
+import { ReportMap } from '@/components/ReportMap';
 import { SkeletonDetail } from '@/components/skeletons';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useReportsStore } from '@/stores/useReportsStore';
@@ -177,6 +178,19 @@ export default function ReportDetailScreen() {
 							/>
 						</>
 					)}
+
+					{currentReport.location && (
+						<>
+							<Text style={styles.cardTitle}>Ubicación del reporte</Text>
+							<ReportMap
+								location={currentReport.location}
+								compact={true}
+								showExpandButton={true}
+								height={320}
+								containerStyle={{ borderRadius: roundness.sm, overflow: 'hidden' }}
+							/>
+						</>
+					)}
 				</View>
 			</ScrollView>
 		</SafeAreaView>
@@ -281,5 +295,17 @@ const styles = StyleSheet.create({
 	errorText: {
 		fontSize: typography.bodyLarge,
 		color: lightTheme.colors.error,
+	},
+	mapWrapper: {
+		marginHorizontal: spacing.md,
+		marginBottom: spacing.md,
+		borderRadius: roundness.sm,
+		overflow: 'hidden',
+		// Opcional: añadir sombra como el carrusel si lo deseas
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.1,
+		shadowRadius: 4,
+		elevation: 3,
 	},
 });

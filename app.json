@@ -14,7 +14,9 @@
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "La aplicación necesita acceso a tus fotos para seleccionar una imagen de perfil.",
         "NSCameraUsageDescription": "La aplicación necesita acceso a tu cámara para tomar fotos de perfil.",
-        "NSPhotoLibraryAddUsageDescription": "La aplicación necesita permiso para guardar fotos en tu galería."
+        "NSPhotoLibraryAddUsageDescription": "La aplicación necesita permiso para guardar fotos en tu galería.",
+        "NSLocationWhenInUseUsageDescription": "La aplicación necesita acceso a tu ubicación para registrar el lugar donde se realiza el reporte.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "La aplicación necesita acceso a tu ubicación para registrar el lugar donde se realiza el reporte."
       }
     },
     "android": {
@@ -31,7 +33,9 @@
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
-        "READ_MEDIA_IMAGES"
+        "READ_MEDIA_IMAGES",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
       ]
     },
     "web": {
@@ -58,6 +62,13 @@
         {
           "photosPermission": "La aplicación necesita acceso a tus fotos para seleccionar una imagen de perfil.",
           "cameraPermission": "La aplicación necesita acceso a tu cámara para tomar fotos de perfil."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "La aplicación necesita acceso a tu ubicación para registrar el lugar donde se realiza el reporte.",
+          "locationWhenInUsePermission": "La aplicación necesita acceso a tu ubicación para registrar el lugar donde se realiza el reporte."
         }
       ]
     ],
