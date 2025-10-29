@@ -1,12 +1,9 @@
 import { lightTheme, spacing } from "@/constants/theme";
-import { router, Stack, useSegments } from "expo-router";
-import { ArrowLeft, SquarePen } from "lucide-react-native";
+import { router, Stack } from "expo-router";
+import { ArrowLeft } from "lucide-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 
 export default function FleetStack() {
-	const segments = useSegments();
-	const isNewVehicleRoute = segments[segments.length - 1] === 'new-vehicle';
-
 	return (
 		<View style={styles.container}>
 			<Pressable
@@ -15,15 +12,6 @@ export default function FleetStack() {
 			>
 				<ArrowLeft size={24} color={lightTheme.colors.onSurface} />
 			</Pressable>
-
-			{!isNewVehicleRoute && (
-				<Pressable
-					style={styles.editButton}
-					onPress={() => console.log("Edit Vehicle")}
-				>
-					<SquarePen size={26} color={lightTheme.colors.onSurface} />
-				</Pressable>
-			)}
 
 			<Stack
 				screenOptions={{
@@ -36,6 +24,7 @@ export default function FleetStack() {
 			>
 				<Stack.Screen name="[id]" />
 				<Stack.Screen name="new-vehicle" />
+				<Stack.Screen name="edit" />
 			</Stack>
 		</View>
 	);

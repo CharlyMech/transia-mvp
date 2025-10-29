@@ -1,24 +1,25 @@
-import { ActionsModal } from '@/components/ActionsModal';
-import { ConfirmationModal } from '@/components/ConfirmationModal';
-import { VehicleForm } from '@/components/forms/VehicleForm';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
-import { useActionsModal } from '@/hooks/useActionsModal';
-import type { Vehicle, VehicleFormData } from '@/models';
-import { useFleetStore } from '@/stores/useFleetStore';
-import * as Crypto from 'expo-crypto';
-import { router } from 'expo-router';
-import { CheckCircle2 } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
-import { BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActionsModal } from "@/components/ActionsModal";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { VehicleForm } from "@/components/forms/VehicleForm";
+import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
+import { useActionsModal } from "@/hooks/useActionsModal";
+import { VehicleFormData } from "@/models";
+import { useFleetStore } from "@/stores/useFleetStore";
+import { router } from "expo-router";
+import { CheckCircle2 } from "lucide-react-native";
+import { useEffect, useState } from "react";
+import { BackHandler, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export default function NewVehicleScreen() {
+export default function EditVehicleScreen() {
 	const [loading, setLoading] = useState(false);
 	const [hasChanges, setHasChanges] = useState(false);
-	const [newVehicleId, setNewVehicleId] = useState<string | null>(null);
 
 	const confirmationModal = useActionsModal();
 	const successModal = useActionsModal();
-	const addVehicle = useFleetStore((state) => state.addVehicle);
+
+	const currentVehicle = useFleetStore((state) => state.currentVehicle);
+	const vehicleError = useFleetStore((state) => state.vehicleError);
+	const updateVehicle = useFleetStore((state) => state.updateVehicle);
 
 	useEffect(() => {
 		const backHandler = BackHandler.addEventListener(
@@ -43,10 +44,11 @@ export default function NewVehicleScreen() {
 	};
 
 	const handleSubmit = async (data: VehicleFormData & { imageUrl?: string | null }) => {
+		if (!currentVehicle) return;
+
 		setLoading(true);
 		try {
-			const newVehicle: Vehicle = {
-				id: Crypto.randomUUID(),
+			updateVehicle(currentVehicle.id, {
 				vehicleBrand: data.vehicleBrand,
 				vehicleModel: data.vehicleModel,
 				vehicleType: data.vehicleType,
@@ -56,23 +58,14 @@ export default function NewVehicleScreen() {
 				purchaseDate: data.purchaseDate ? new Date(data.purchaseDate) : undefined,
 				status: data.status,
 				imageUrl: data.imageUrl || null,
-			};
+			});
 
-			addVehicle(newVehicle);
-			setNewVehicleId(newVehicle.id);
 			setHasChanges(false);
 			successModal.open();
 		} catch (error) {
-			console.error('Error creating vehicle:', error);
+			console.error('Error updating vehicle:', error);
 		} finally {
 			setLoading(false);
-		}
-	};
-
-	const handleViewVehicle = () => {
-		if (newVehicleId) {
-			successModal.close();
-			router.replace(`/fleet/${newVehicleId}`);
 		}
 	};
 
@@ -87,14 +80,44 @@ export default function NewVehicleScreen() {
 		router.back();
 	};
 
+	if (vehicleError) {
+		return (
+			<View style={[styles.container, styles.centered]}>
+				<Text style={styles.errorText}>Error: {vehicleError}</Text>
+			</View>
+		);
+	}
+
+	if (!currentVehicle) {
+		return (
+			<View style={[styles.container, styles.centered]}>
+				<Text style={styles.errorText}>Vehículo no encontrado</Text>
+			</View>
+		);
+	}
+
+	const initialData: Partial<VehicleFormData> & { imageUrl?: string | null } = {
+		vehicleBrand: currentVehicle.vehicleBrand,
+		vehicleModel: currentVehicle.vehicleModel,
+		vehicleType: currentVehicle.vehicleType,
+		year: currentVehicle.year,
+		plateNumber: currentVehicle.plateNumber,
+		registrationDate: currentVehicle.registrationDate.toISOString().split('T')[0],
+		purchaseDate: currentVehicle.purchaseDate?.toISOString().split('T')[0] || '',
+		status: currentVehicle.status,
+		imageUrl: currentVehicle.imageUrl,
+	};
+
+
 	return (
 		<>
 			{/* TODO -> Handle on changed data to execute action modal */}
 			<View style={{ width: '100%', height: 30, backgroundColor: lightTheme.colors.background }} />
 			<VehicleForm
+				initialData={initialData}
 				onSubmit={handleSubmit}
 				onFormChange={handleFormChange}
-				submitLabel="Crear vehículo"
+				submitLabel="Guardar cambios"
 				loading={loading}
 			/>
 
@@ -103,7 +126,7 @@ export default function NewVehicleScreen() {
 				onClose={confirmationModal.close}
 				onConfirm={handleConfirmDiscard}
 				title="¿Descartar cambios?"
-				message="Los datos ingresados se perderán si sales ahora."
+				message="Los cambios realizados se perderán si sales ahora."
 				confirmText="Descartar"
 				cancelText="Continuar editando"
 			/>
@@ -119,21 +142,14 @@ export default function NewVehicleScreen() {
 					</View>
 
 					<Text style={styles.successTitle}>Éxito</Text>
-					<Text style={styles.successMessage}>Vehículo creado correctamente</Text>
+					<Text style={styles.successMessage}>Vehículo actualizado correctamente</Text>
 
 					<View style={styles.buttonsContainer}>
 						<TouchableOpacity
-							style={[styles.button, styles.secondaryButton]}
+							style={[styles.button, styles.primaryButton]}
 							onPress={handleGoBack}
 						>
-							<Text style={styles.secondaryButtonText}>Volver</Text>
-						</TouchableOpacity>
-
-						<TouchableOpacity
-							style={[styles.button, styles.primaryButton]}
-							onPress={handleViewVehicle}
-						>
-							<Text style={styles.primaryButtonText}>Ver vehículo</Text>
+							<Text style={styles.primaryButtonText}>Volver</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -143,6 +159,18 @@ export default function NewVehicleScreen() {
 }
 
 const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		backgroundColor: lightTheme.colors.background,
+	},
+	centered: {
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	errorText: {
+		fontSize: typography.bodyLarge,
+		color: lightTheme.colors.error,
+	},
 	successContent: {
 		alignItems: 'center',
 		gap: spacing.md,
@@ -177,14 +205,6 @@ const styles = StyleSheet.create({
 		borderRadius: roundness.sm,
 		alignItems: 'center',
 		justifyContent: 'center',
-	},
-	secondaryButton: {
-		backgroundColor: lightTheme.colors.background,
-	},
-	secondaryButtonText: {
-		fontSize: typography.bodyLarge,
-		fontWeight: '600',
-		color: lightTheme.colors.onBackground,
 	},
 	primaryButton: {
 		backgroundColor: lightTheme.colors.primary,

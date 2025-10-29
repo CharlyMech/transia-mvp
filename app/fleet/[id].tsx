@@ -7,8 +7,8 @@ import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useFleetStore } from '@/stores/useFleetStore';
 import { formatISODate } from '@/utils/dateUtils';
 import { getVehicleStatusIcon } from '@/utils/fleetUtils';
-import { useLocalSearchParams } from 'expo-router';
-import { ExternalLink, Truck } from 'lucide-react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { ExternalLink, SquarePen, Truck } from 'lucide-react-native';
 import React, { useEffect, useRef } from 'react';
 import {
 	Animated,
@@ -35,7 +35,6 @@ export default function VehicleDetailScreen() {
 	const fetchVehicleById = useFleetStore((state) => state.fetchVehicleById);
 	const clearCurrentVehicle = useFleetStore((state) => state.clearCurrentVehicle);
 
-	// Fetch driver
 	useEffect(() => {
 		if (id) {
 			fetchVehicleById(id as string);
@@ -45,6 +44,12 @@ export default function VehicleDetailScreen() {
 			clearCurrentVehicle();
 		};
 	}, [id, fetchVehicleById, clearCurrentVehicle]);
+
+	const handleEditPress = () => {
+		if (id) {
+			router.push(`/fleet/edit/${id}` as any);
+		}
+	};
 
 	const headerHeight = scrollY.interpolate({
 		inputRange: [0, SCROLL_DISTANCE],
@@ -105,6 +110,12 @@ export default function VehicleDetailScreen() {
 				backgroundColor="transparent"
 				translucent={true}
 			/>
+			<Pressable
+				style={styles.editButton}
+				onPress={handleEditPress}
+			>
+				<SquarePen size={28} color={lightTheme.colors.onSurface} />
+			</Pressable>
 			<Animated.View
 				style={[
 					styles.header,
@@ -268,6 +279,12 @@ const styles = StyleSheet.create({
 	centered: {
 		justifyContent: 'center',
 		alignItems: 'center',
+	},
+	editButton: {
+		position: 'absolute',
+		right: spacing.md,
+		top: STATUS_BAR_HEIGHT + spacing.md,
+		zIndex: 1002,
 	},
 	header: {
 		position: 'absolute',
