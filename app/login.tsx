@@ -122,8 +122,6 @@ export default function LoginScreen() {
 		Keyboard.dismiss();
 	};
 
-	const shouldShowDebugPanel = DEBUG_PANEL_ENABLED && Platform.OS === 'android';
-
 	return (
 		<SafeAreaView style={styles.container} edges={['top']}>
 			<KeyboardAvoidingView
@@ -139,7 +137,7 @@ export default function LoginScreen() {
 						showsVerticalScrollIndicator={false}
 					>
 
-						{shouldShowDebugPanel && (
+						{DEBUG_PANEL_ENABLED && (
 							<DebugPanel
 								onOperationComplete={(operation) => {
 									console.log(`✅ Operation completed: ${operation}`);
