@@ -56,6 +56,7 @@ export const ReportFormSchema = z.object({
 		.optional()
 		.or(z.literal("")),
 	vehicleId: z.string().uuid(VALIDATION_MESSAGES.vehicleId),
+	driverId: z.string().uuid(VALIDATION_MESSAGES.driverId),
 	reporterComment: z
 		.string()
 		.min(10, VALIDATION_MESSAGES.reporterComment)

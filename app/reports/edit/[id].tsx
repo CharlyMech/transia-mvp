@@ -3,26 +3,25 @@ import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { ReportForm } from '@/components/forms/ReportForm';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
-import type { Report, ReportFormData } from '@/models/report';
+import type { ReportFormData } from '@/models/report';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useFleetStore } from '@/stores/useFleetStore';
 import { useReportsStore } from '@/stores/useReportsStore';
-import * as Crypto from 'expo-crypto';
 import { router } from 'expo-router';
-import { CheckCircle2 } from 'lucide-react-native';
+import { AlertCircle, CheckCircle2 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function NewReportScreen() {
+export default function EditReportScreen() {
 	const [loading, setLoading] = useState(false);
 	const [hasChanges, setHasChanges] = useState(false);
-	const [newReportId, setNewReportId] = useState<string | null>(null);
 
 	const confirmationModal = useActionsModal();
 	const successModal = useActionsModal();
-	const addReport = useReportsStore((state) => state.addReport);
+
+	const currentReport = useReportsStore((state) => state.currentReport);
+	const reportError = useReportsStore((state) => state.reportError);
+	const updateReport = useReportsStore((state) => state.updateReport);
 	const user = useAuthStore((state) => state.user);
-	const vehicles = useFleetStore((state) => state.vehicles);
 
 	useEffect(() => {
 		const backHandler = BackHandler.addEventListener(
@@ -47,44 +46,27 @@ export default function NewReportScreen() {
 	};
 
 	const handleSubmit = async (data: ReportFormData & { images: string[] }) => {
-		if (!user) {
-			console.error('No user found');
-			return;
-		}
+		if (!currentReport || !user) return;
 
 		setLoading(true);
 		try {
-			const newReport: Report = {
-				id: Crypto.randomUUID(),
+
+			updateReport(currentReport.id, {
 				title: data.title,
 				description: data.description || undefined,
 				vehicleId: data.vehicleId,
-				driverId: user.id,
-				createdAt: new Date(),
-				readAt: null,
-				closedAt: null,
+				driverId: data.driverId,
 				reporterComment: data.reporterComment || undefined,
 				images: data.images,
-				read: false,
-				active: true,
 				location: data.location || undefined,
-			};
+			});
 
-			addReport(newReport);
-			setNewReportId(newReport.id);
 			setHasChanges(false);
 			successModal.open();
 		} catch (error) {
-			console.error('Error creating report:', error);
+			console.error('Error updating report:', error);
 		} finally {
 			setLoading(false);
-		}
-	};
-
-	const handleViewReport = () => {
-		if (newReportId) {
-			successModal.close();
-			router.replace(`/reports/${newReportId}`);
 		}
 	};
 
@@ -99,29 +81,56 @@ export default function NewReportScreen() {
 		router.back();
 	};
 
-	// Get the first active vehicle as default
-	const defaultVehicle = vehicles.find(v => v.status === 'Activo');
+	// Loading/Error states
+	if (reportError) {
+		return (
+			<View style={[styles.container, styles.centered]}>
+				<AlertCircle size={48} color={lightTheme.colors.error} />
+				<Text style={styles.errorText}>Error: {reportError}</Text>
+			</View>
+		);
+	}
+
+	if (!currentReport) {
+		return (
+			<View style={[styles.container, styles.centered]}>
+				<AlertCircle size={48} color={lightTheme.colors.error} />
+				<Text style={styles.errorText}>Reporte no encontrado</Text>
+			</View>
+		);
+	}
 
 	if (!user) {
 		return (
-			<View style={styles.container}>
+			<View style={[styles.container, styles.centered]}>
+				<AlertCircle size={48} color={lightTheme.colors.error} />
 				<Text style={styles.errorText}>Usuario no autenticado</Text>
 			</View>
 		);
 	}
 
+	const initialData: Partial<ReportFormData> & { images: string[] } = {
+		title: currentReport.title,
+		description: currentReport.description || '',
+		vehicleId: currentReport.vehicleId,
+		driverId: currentReport.driverId,
+		reporterComment: currentReport.reporterComment || '',
+		images: currentReport.images,
+		location: currentReport.location || null,
+	};
+
 	return (
 		<>
 			<View style={{ width: '100%', height: 30, backgroundColor: lightTheme.colors.background }} />
+
 			<ReportForm
-				driverId={user.id}
-				initialData={{
-					vehicleId: defaultVehicle?.id || '',
-				}}
+				driverId={currentReport.driverId}
+				initialData={initialData}
 				onSubmit={handleSubmit}
 				onFormChange={handleFormChange}
-				submitLabel="Crear reporte"
+				submitLabel="Guardar cambios"
 				loading={loading}
+				isEditMode={true}
 			/>
 
 			<ConfirmationModal
@@ -129,7 +138,7 @@ export default function NewReportScreen() {
 				onClose={confirmationModal.close}
 				onConfirm={handleConfirmDiscard}
 				title="¿Descartar cambios?"
-				message="Los datos ingresados se perderán si sales ahora."
+				message="Los cambios realizados se perderán si sales ahora."
 				confirmText="Descartar"
 				cancelText="Continuar editando"
 			/>
@@ -144,22 +153,15 @@ export default function NewReportScreen() {
 						<CheckCircle2 size={56} color={lightTheme.colors.primary} />
 					</View>
 
-					<Text style={styles.successTitle}>Éxito</Text>
-					<Text style={styles.successMessage}>Reporte creado correctamente</Text>
+					<Text style={styles.successTitle}>¡Reporte actualizado!</Text>
+					<Text style={styles.successMessage}>Los cambios se han guardado correctamente</Text>
 
 					<View style={styles.buttonsContainer}>
 						<TouchableOpacity
-							style={[styles.button, styles.secondaryButton]}
+							style={[styles.button, styles.primaryButton]}
 							onPress={handleGoBack}
 						>
-							<Text style={styles.secondaryButtonText}>Volver</Text>
-						</TouchableOpacity>
-
-						<TouchableOpacity
-							style={[styles.button, styles.primaryButton]}
-							onPress={handleViewReport}
-						>
-							<Text style={styles.primaryButtonText}>Ver reporte</Text>
+							<Text style={styles.primaryButtonText}>Volver al reporte</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -172,12 +174,56 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: lightTheme.colors.background,
+	},
+	centered: {
 		justifyContent: 'center',
 		alignItems: 'center',
+		padding: spacing.xl,
+		gap: spacing.md,
 	},
 	errorText: {
 		fontSize: typography.bodyLarge,
 		color: lightTheme.colors.error,
+		textAlign: 'center',
+	},
+	permissionTitle: {
+		fontSize: typography.headlineMedium,
+		fontWeight: '700',
+		color: lightTheme.colors.onBackground,
+		textAlign: 'center',
+		marginTop: spacing.md,
+	},
+	permissionText: {
+		fontSize: typography.bodyLarge,
+		color: lightTheme.colors.onSurfaceVariant,
+		textAlign: 'center',
+		lineHeight: 24,
+	},
+	backButton: {
+		backgroundColor: lightTheme.colors.primary,
+		paddingVertical: spacing.md,
+		paddingHorizontal: spacing.xl,
+		borderRadius: roundness.sm,
+		marginTop: spacing.md,
+	},
+	backButtonText: {
+		fontSize: typography.bodyLarge,
+		fontWeight: '600',
+		color: lightTheme.colors.onPrimary,
+	},
+	noticeContainer: {
+		backgroundColor: lightTheme.colors.secondaryContainer,
+		padding: spacing.md,
+		marginHorizontal: spacing.md,
+		marginBottom: spacing.sm,
+		borderRadius: roundness.sm,
+		borderLeftWidth: 4,
+		borderLeftColor: lightTheme.colors.secondary,
+	},
+	noticeText: {
+		fontSize: typography.bodyMedium,
+		color: lightTheme.colors.onSecondaryContainer,
+		lineHeight: 20,
 	},
 	successContent: {
 		alignItems: 'center',
@@ -201,26 +247,15 @@ const styles = StyleSheet.create({
 		lineHeight: 22,
 	},
 	buttonsContainer: {
-		flexDirection: 'row',
-		gap: spacing.sm,
 		width: '100%',
 		marginTop: spacing.sm,
 	},
 	button: {
-		flex: 1,
 		paddingVertical: spacing.md,
 		paddingHorizontal: spacing.sm,
 		borderRadius: roundness.sm,
 		alignItems: 'center',
 		justifyContent: 'center',
-	},
-	secondaryButton: {
-		backgroundColor: lightTheme.colors.background,
-	},
-	secondaryButtonText: {
-		fontSize: typography.bodyLarge,
-		fontWeight: '600',
-		color: lightTheme.colors.onBackground,
 	},
 	primaryButton: {
 		backgroundColor: lightTheme.colors.primary,

@@ -1,16 +1,19 @@
 import { Card } from '@/components/Card';
 import { Carousel } from '@/components/Carousel';
 import { InfoRow } from '@/components/InfoRow';
-import { ReportMap } from '@/components/ReportMap';
+import { LeafletMap } from '@/components/LeafletMap';
 import { SkeletonDetail } from '@/components/skeletons';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useReportsStore } from '@/stores/useReportsStore';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { SquarePen } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {
 	Dimensions,
 	Image,
+	Pressable,
 	ScrollView,
+	StatusBar,
 	StyleSheet,
 	Text,
 	TouchableOpacity,
@@ -19,6 +22,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 44;
+
 
 export default function ReportDetailScreen() {
 	const { id } = useLocalSearchParams<{ id: string }>();
@@ -40,6 +45,12 @@ export default function ReportDetailScreen() {
 			clearCurrentReport();
 		};
 	}, [id, fetchReportById, clearCurrentReport]);
+
+	const handleEditPress = () => {
+		if (id) {
+			router.push(`/reports/edit/${id}` as any);
+		}
+	};
 
 	useEffect(() => {
 		if (currentReport) {
@@ -78,6 +89,18 @@ export default function ReportDetailScreen() {
 	return (
 		<SafeAreaView style={styles.container} edges={['top']}>
 			<View style={{ width: '100%', height: 30, backgroundColor: lightTheme.colors.background }} />
+
+			<StatusBar
+				barStyle="dark-content"
+				backgroundColor="transparent"
+				translucent={true}
+			/>
+			<Pressable
+				style={styles.editButton}
+				onPress={handleEditPress}
+			>
+				<SquarePen size={28} color={lightTheme.colors.onSurface} />
+			</Pressable>
 
 			<ScrollView
 				style={styles.scrollView}
@@ -182,12 +205,9 @@ export default function ReportDetailScreen() {
 					{currentReport.location && (
 						<>
 							<Text style={styles.cardTitle}>Ubicación del reporte</Text>
-							<ReportMap
+							<LeafletMap
 								location={currentReport.location}
-								compact={true}
-								showExpandButton={true}
-								height={320}
-								containerStyle={{ borderRadius: roundness.sm, overflow: 'hidden' }}
+								editable={false}
 							/>
 						</>
 					)}
@@ -205,6 +225,12 @@ const styles = StyleSheet.create({
 	centered: {
 		justifyContent: 'center',
 		alignItems: 'center',
+	},
+	editButton: {
+		position: 'absolute',
+		right: spacing.md,
+		top: STATUS_BAR_HEIGHT + spacing.md,
+		zIndex: 1002,
 	},
 	scrollView: {
 		flex: 1,

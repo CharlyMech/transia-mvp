@@ -11,7 +11,8 @@
     "email": "carlos.perez@transia.com",
     "licenseNumber": "B-12345678",
     "registrationDate": "2020-01-15T00:00:00.000Z",
-    "status": "Activo"
+    "status": "Activo",
+    "role": "admin"
   },
   {
     "id": "c9e99a91-2de5-4c90-8e52-d3f92d4c5f13",

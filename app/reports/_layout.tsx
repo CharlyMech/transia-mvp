@@ -1,12 +1,9 @@
 import { lightTheme, spacing } from "@/constants/theme";
-import { router, Stack, useSegments } from "expo-router";
-import { ArrowLeft, SquarePen } from "lucide-react-native";
+import { router, Stack } from "expo-router";
+import { ArrowLeft } from "lucide-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 
 export default function ReportsStack() {
-	const segments = useSegments();
-	const isNewReportRoute = segments[segments.length - 1] === 'new-report';
-
 	return (
 		<View style={styles.container}>
 			<Pressable
@@ -15,15 +12,6 @@ export default function ReportsStack() {
 			>
 				<ArrowLeft size={30} color={lightTheme.colors.onSurface} />
 			</Pressable>
-
-			{!isNewReportRoute && (
-				<Pressable
-					style={styles.editButton}
-					onPress={() => console.log("Edit Report")}
-				>
-					<SquarePen size={26} color={lightTheme.colors.onSurface} />
-				</Pressable>
-			)}
 
 			<Stack
 				screenOptions={{
@@ -36,15 +24,12 @@ export default function ReportsStack() {
 			>
 				<Stack.Screen
 					name="[id]"
-					options={{
-						headerShown: false,
-					}}
 				/>
 				<Stack.Screen
 					name="new-report"
-					options={{
-						headerShown: false,
-					}}
+				/>
+				<Stack.Screen
+					name="edit"
 				/>
 			</Stack>
 		</View>
