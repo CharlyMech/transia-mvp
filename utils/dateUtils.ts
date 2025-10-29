@@ -22,32 +22,51 @@ export function toISOStringFromLocal(date: Date): string {
 
 /**
  * Formats a date string to Spanish locale format (DD/MM/YYYY)
+ * Handles YYYY-MM-DD format without timezone issues
  */
 export function formatDateToDisplay(
 	date: string | Date | undefined | null
 ): string {
 	if (!date) return "";
 
-	const dateObj = typeof date === "string" ? new Date(date) : date;
+	let dateObj: Date;
+
+	if (typeof date === "string") {
+		// If it's a YYYY-MM-DD format, parse as local date
+		const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+		if (isoDatePattern.test(date)) {
+			const [year, month, day] = date.split("-").map(Number);
+			dateObj = new Date(year, month - 1, day);
+		} else {
+			dateObj = new Date(date);
+		}
+	} else {
+		dateObj = date;
+	}
 
 	if (isNaN(dateObj.getTime())) return "";
 
-	return dateObj.toLocaleDateString("es-ES", {
-		day: "2-digit",
-		month: "2-digit",
-		year: "numeric",
-	});
+	const day = String(dateObj.getDate()).padStart(2, "0");
+	const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+	const year = dateObj.getFullYear();
+
+	return `${day}/${month}/${year}`;
 }
 
 /**
  * Formats a date to ISO string format (YYYY-MM-DD)
+ * Uses local date components to avoid timezone issues
  */
 export function formatDateToISO(date: Date): string {
-	return date.toISOString().split("T")[0];
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, "0");
+	const day = String(date.getDate()).padStart(2, "0");
+	return `${year}-${month}-${day}`;
 }
 
 /**
  * Parses a date string or returns a default date
+ * For YYYY-MM-DD format, creates date using local timezone to avoid timezone issues
  */
 export function parseDate(
 	dateString: string | undefined | null,
@@ -55,6 +74,14 @@ export function parseDate(
 ): Date {
 	if (!dateString) return defaultDate || new Date(2000, 0, 1);
 
+	// If it's a YYYY-MM-DD format (ISO date without time), parse it as local date
+	const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+	if (isoDatePattern.test(dateString)) {
+		const [year, month, day] = dateString.split("-").map(Number);
+		return new Date(year, month - 1, day);
+	}
+
+	// For other formats, use standard Date parsing
 	const parsed = new Date(dateString);
 	return isNaN(parsed.getTime())
 		? defaultDate || new Date(2000, 0, 1)
