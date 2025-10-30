@@ -1,7 +1,7 @@
 import { ActionsModal } from '@/components/ActionsModal';
-import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
+import { ElevatedButton } from '@/components/ElevatedButton';
 import { IconBadge } from '@/components/IconBadge';
 import { IconPlaceholder } from '@/components/IconPlaceholder';
 import { SkeletonList } from '@/components/skeletons';
@@ -85,12 +85,21 @@ export default function DriversScreen() {
 	return (
 		<SafeAreaView style={styles.container} edges={['top']}>
 			<View style={styles.headerContainer}>
-				<Button
-					label="Nuevo"
+				<ElevatedButton
+					backgroundColor={lightTheme.colors.primary}
 					icon={Plus}
+					iconSize={22}
+					iconColor={lightTheme.colors.onPrimary}
+					label="Nuevo"
+					fontSize={typography.bodyMedium}
+					paddingX={spacing.sm}
+					paddingY={spacing.sm}
+					rounded={roundness.sm}
+					shadow="large"
 					onPress={() => router.push("/drivers/new-driver")}
 				/>
 			</View>
+
 			{loading ? (
 				<SkeletonList count={8} cardHeight={100} />
 			) : (

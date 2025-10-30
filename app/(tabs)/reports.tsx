@@ -4,11 +4,11 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionsModal } from '@/components/ActionsModal';
-import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { SkeletonList } from '@/components/skeletons';
 
+import { ElevatedButton } from '@/components/ElevatedButton';
 import { StatusLabel } from '@/components/StatusLabel';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
@@ -80,9 +80,17 @@ export default function ReportsScreen() {
 	return (
 		<SafeAreaView style={styles.container} edges={['top']}>
 			<View style={styles.headerContainer}>
-				<Button
-					label="Nuevo"
+				<ElevatedButton
+					backgroundColor={lightTheme.colors.primary}
 					icon={Plus}
+					iconSize={22}
+					iconColor={lightTheme.colors.onPrimary}
+					label="Nuevo"
+					fontSize={typography.bodyMedium}
+					paddingX={spacing.sm}
+					paddingY={spacing.sm}
+					rounded={roundness.sm}
+					shadow="large"
 					onPress={() => router.push("/reports/new-report")}
 				/>
 			</View>
@@ -281,7 +289,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: spacing.sm,
 		paddingTop: spacing.sm,
 		paddingBottom: spacing.xs,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: 'transparent',
 	},
 	actionButton: {
 		flexDirection: 'row',
