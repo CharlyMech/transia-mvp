@@ -1,5 +1,6 @@
 import { ActionsModal } from '@/components/ActionsModal';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
+import { ElevatedButton } from '@/components/ElevatedButton';
 import { ReportForm } from '@/components/forms/ReportForm';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
@@ -7,9 +8,10 @@ import type { ReportFormData } from '@/models/report';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useReportsStore } from '@/stores/useReportsStore';
 import { router } from 'expo-router';
-import { AlertCircle, CheckCircle2 } from 'lucide-react-native';
+import { AlertCircle, ArrowLeft, CheckCircle2 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BackHandler, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function EditReportScreen() {
 	const [loading, setLoading] = useState(false);
@@ -23,22 +25,30 @@ export default function EditReportScreen() {
 	const updateReport = useReportsStore((state) => state.updateReport);
 	const user = useAuthStore((state) => state.user);
 
+	const insets = useSafeAreaInsets();
+
 	useEffect(() => {
 		const backHandler = BackHandler.addEventListener(
 			'hardwareBackPress',
-			handleBackPress
+			() => {
+				if (hasChanges) {
+					confirmationModal.open();
+					return true;
+				}
+				return false;
+			}
 		);
 
 		return () => backHandler.remove();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [hasChanges]);
 
-	const handleBackPress = (): boolean => {
+	const handleBackPress = () => {
 		if (hasChanges) {
 			confirmationModal.open();
-			return true;
+		} else {
+			router.back();
 		}
-		return false;
 	};
 
 	const handleFormChange = (changed: boolean) => {
@@ -120,18 +130,47 @@ export default function EditReportScreen() {
 	};
 
 	return (
-		<>
-			<View style={{ width: '100%', height: 30, backgroundColor: lightTheme.colors.background }} />
-
-			<ReportForm
-				driverId={currentReport.driverId}
-				initialData={initialData}
-				onSubmit={handleSubmit}
-				onFormChange={handleFormChange}
-				submitLabel="Guardar cambios"
-				loading={loading}
-				isEditMode={true}
+		<View style={styles.container}>
+			<StatusBar
+				barStyle="dark-content"
+				backgroundColor={lightTheme.colors.background}
+				translucent={false}
 			/>
+
+			<View style={[styles.floatingButtonsContainer, { paddingTop: insets.top + spacing.sm }]}>
+				<ElevatedButton
+					backgroundColor={lightTheme.colors.primary}
+					icon={ArrowLeft}
+					iconSize={22}
+					iconColor={lightTheme.colors.onPrimary}
+					paddingX={spacing.sm}
+					paddingY={spacing.sm}
+					rounded={roundness.full}
+					shadow="large"
+					onPress={handleBackPress}
+				/>
+			</View>
+
+			<ScrollView
+				style={styles.scrollView}
+				contentContainerStyle={[
+					styles.scrollViewContent,
+					{ paddingTop: insets.top + 60 }
+				]}
+				showsVerticalScrollIndicator={false}
+			>
+				<View style={styles.content}>
+					<ReportForm
+						driverId={currentReport.driverId}
+						initialData={initialData}
+						onSubmit={handleSubmit}
+						onFormChange={handleFormChange}
+						submitLabel="Guardar cambios"
+						loading={loading}
+						isEditMode={true}
+					/>
+				</View>
+			</ScrollView>
 
 			<ConfirmationModal
 				visible={confirmationModal.visible}
@@ -166,7 +205,7 @@ export default function EditReportScreen() {
 					</View>
 				</View>
 			</ActionsModal>
-		</>
+		</View>
 	);
 }
 
@@ -174,6 +213,29 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: lightTheme.colors.background,
+	},
+	floatingButtonsContainer: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		right: 0,
+		flexDirection: 'row',
+		justifyContent: 'flex-start',
+		alignItems: 'center',
+		paddingHorizontal: spacing.md,
+		zIndex: 1000,
+	},
+	scrollView: {
+		flex: 1,
+	},
+	scrollViewContent: {
+		flexGrow: 1,
+	},
+	content: {
+		flex: 1,
+		paddingHorizontal: spacing.md,
+		paddingBottom: spacing.xl,
+		gap: spacing.md,
 	},
 	centered: {
 		justifyContent: 'center',
@@ -198,18 +260,6 @@ const styles = StyleSheet.create({
 		color: lightTheme.colors.onSurfaceVariant,
 		textAlign: 'center',
 		lineHeight: 24,
-	},
-	backButton: {
-		backgroundColor: lightTheme.colors.primary,
-		paddingVertical: spacing.md,
-		paddingHorizontal: spacing.xl,
-		borderRadius: roundness.sm,
-		marginTop: spacing.md,
-	},
-	backButtonText: {
-		fontSize: typography.bodyLarge,
-		fontWeight: '600',
-		color: lightTheme.colors.onPrimary,
 	},
 	noticeContainer: {
 		backgroundColor: lightTheme.colors.secondaryContainer,

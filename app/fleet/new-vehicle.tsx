@@ -1,5 +1,6 @@
 import { ActionsModal } from '@/components/ActionsModal';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
+import { ElevatedButton } from '@/components/ElevatedButton';
 import { VehicleForm } from '@/components/forms/VehicleForm';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
@@ -7,9 +8,10 @@ import type { Vehicle, VehicleFormData } from '@/models';
 import { useFleetStore } from '@/stores/useFleetStore';
 import * as Crypto from 'expo-crypto';
 import { router } from 'expo-router';
-import { CheckCircle2 } from 'lucide-react-native';
+import { ArrowLeft, CheckCircle2 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BackHandler, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function NewVehicleScreen() {
 	const [loading, setLoading] = useState(false);
@@ -20,22 +22,30 @@ export default function NewVehicleScreen() {
 	const successModal = useActionsModal();
 	const addVehicle = useFleetStore((state) => state.addVehicle);
 
+	const insets = useSafeAreaInsets();
+
 	useEffect(() => {
 		const backHandler = BackHandler.addEventListener(
 			'hardwareBackPress',
-			handleBackPress
+			() => {
+				if (hasChanges) {
+					confirmationModal.open();
+					return true;
+				}
+				return false;
+			}
 		);
 
 		return () => backHandler.remove();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [hasChanges]);
 
-	const handleBackPress = (): boolean => {
+	const handleBackPress = () => {
 		if (hasChanges) {
 			confirmationModal.open();
-			return true;
+		} else {
+			router.back();
 		}
-		return false;
 	};
 
 	const handleFormChange = (changed: boolean) => {
@@ -88,15 +98,43 @@ export default function NewVehicleScreen() {
 	};
 
 	return (
-		<>
-			{/* TODO -> Handle on changed data to execute action modal */}
-			<View style={{ width: '100%', height: 30, backgroundColor: lightTheme.colors.background }} />
-			<VehicleForm
-				onSubmit={handleSubmit}
-				onFormChange={handleFormChange}
-				submitLabel="Crear vehículo"
-				loading={loading}
+		<View style={styles.container}>
+			<StatusBar
+				barStyle="dark-content"
+				backgroundColor={lightTheme.colors.background}
+				translucent={false}
 			/>
+			<View style={[styles.floatingButtonsContainer, { paddingTop: insets.top + spacing.sm }]}>
+				<ElevatedButton
+					backgroundColor={lightTheme.colors.primary}
+					icon={ArrowLeft}
+					iconSize={22}
+					iconColor={lightTheme.colors.onPrimary}
+					paddingX={spacing.sm}
+					paddingY={spacing.sm}
+					rounded={roundness.full}
+					shadow="large"
+					onPress={handleBackPress}
+				/>
+			</View>
+
+			<ScrollView
+				style={styles.scrollView}
+				contentContainerStyle={[
+					styles.scrollViewContent,
+					{ paddingTop: insets.top + 60 }
+				]}
+				showsVerticalScrollIndicator={false}
+			>
+				<View style={styles.content}>
+					<VehicleForm
+						onSubmit={handleSubmit}
+						onFormChange={handleFormChange}
+						submitLabel="Crear vehículo"
+						loading={loading}
+					/>
+				</View>
+			</ScrollView>
 
 			<ConfirmationModal
 				visible={confirmationModal.visible}
@@ -138,11 +176,42 @@ export default function NewVehicleScreen() {
 					</View>
 				</View>
 			</ActionsModal>
-		</>
+		</View>
 	);
 }
 
 const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		backgroundColor: lightTheme.colors.background,
+	},
+	floatingButtonsContainer: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		right: 0,
+		flexDirection: 'row',
+		justifyContent: 'flex-start',
+		alignItems: 'center',
+		paddingHorizontal: spacing.md,
+		zIndex: 1000,
+	},
+	centered: {
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	scrollView: {
+		flex: 1,
+	},
+	scrollViewContent: {
+		flexGrow: 1,
+	},
+	content: {
+		flex: 1,
+		paddingHorizontal: spacing.md,
+		paddingBottom: spacing.xl,
+		gap: spacing.md,
+	},
 	successContent: {
 		alignItems: 'center',
 		gap: spacing.md,

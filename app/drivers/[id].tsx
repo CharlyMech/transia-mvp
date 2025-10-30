@@ -1,31 +1,32 @@
 import { Card } from '@/components/Card';
+import { ElevatedButton } from '@/components/ElevatedButton';
 import { IconPlaceholder } from '@/components/IconPlaceholder';
 import { InfoRow } from '@/components/InfoRow';
-import { SkeletonHeaderDetail } from '@/components/skeletons';
+import { SkeletonDetail } from '@/components/skeletons';
 import { StatusLabel } from '@/components/StatusLabel';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useDriversStore } from '@/stores/useDriversStore';
 import { formatDateToDisplay } from '@/utils/dateUtils';
 import { getDriverStatusIcon } from '@/utils/driversUtils';
 import { router, useLocalSearchParams } from 'expo-router';
-import { SquarePen, UserRound } from 'lucide-react-native';
+import { ArrowLeft, ExternalLink, SquarePen, UserRound } from 'lucide-react-native';
 import React, { useEffect, useRef } from 'react';
 import {
 	Animated,
-	Dimensions,
+	Image,
 	Pressable,
 	StatusBar,
 	StyleSheet,
 	Text,
 	View
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const HEADER_HEIGHT = 250;
-const SCROLL_DISTANCE = 200;
-const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 44;
+const CARD_HEIGHT = 280;
+const SCROLL_DISTANCE = 250;
 
 export default function DriverProfileScreen() {
+	const insets = useSafeAreaInsets();
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const scrollY = useRef(new Animated.Value(0)).current;
 
@@ -35,12 +36,10 @@ export default function DriverProfileScreen() {
 	const fetchDriverById = useDriversStore((state) => state.fetchDriverById);
 	const clearCurrentDriver = useDriversStore((state) => state.clearCurrentDriver);
 
-	// Fetch driver
 	useEffect(() => {
 		if (id) {
 			fetchDriverById(id as string);
 		}
-		// Clean up
 		return () => {
 			clearCurrentDriver();
 		};
@@ -52,38 +51,27 @@ export default function DriverProfileScreen() {
 		}
 	};
 
-	const headerHeight = scrollY.interpolate({
+	// Animaciones para la card
+	const cardScale = scrollY.interpolate({
 		inputRange: [0, SCROLL_DISTANCE],
-		outputRange: [HEADER_HEIGHT + STATUS_BAR_HEIGHT, STATUS_BAR_HEIGHT],
+		outputRange: [1, 0.3],
 		extrapolate: 'clamp',
 	});
 
-	const imageScale = scrollY.interpolate({
-		inputRange: [0, SCROLL_DISTANCE * 0.7, SCROLL_DISTANCE],
-		outputRange: [1, 0.3, 0],
-		extrapolate: 'clamp',
-	});
-
-	const headerOpacity = scrollY.interpolate({
+	const cardOpacity = scrollY.interpolate({
 		inputRange: [0, SCROLL_DISTANCE * 0.8, SCROLL_DISTANCE],
-		outputRange: [1, 0.3, 0],
+		outputRange: [1, 0.5, 0],
 		extrapolate: 'clamp',
 	});
 
-	const overlayOpacity = scrollY.interpolate({
-		inputRange: [0, SCROLL_DISTANCE * 0.8],
-		outputRange: [0, 1],
-		extrapolate: 'clamp',
-	});
-
-	const contentPaddingTop = scrollY.interpolate({
+	const cardTranslateY = scrollY.interpolate({
 		inputRange: [0, SCROLL_DISTANCE],
-		outputRange: [spacing.md, 0],
+		outputRange: [0, -50],
 		extrapolate: 'clamp',
 	});
 
 	if (loadingDriver) {
-		return <SkeletonHeaderDetail />;
+		return <SkeletonDetail />;
 	}
 
 	if (driverError) {
@@ -97,9 +85,7 @@ export default function DriverProfileScreen() {
 	if (!currentDriver) {
 		return (
 			<View style={[styles.container, styles.centered]}>
-				<Text style={styles.errorText}>
-					Conductor no encontrado
-				</Text>
+				<Text style={styles.errorText}>Conductor no encontrado</Text>
 			</View>
 		);
 	}
@@ -108,81 +94,94 @@ export default function DriverProfileScreen() {
 		<View style={styles.container}>
 			<StatusBar
 				barStyle="dark-content"
-				backgroundColor="transparent"
-				translucent={true}
+				backgroundColor={lightTheme.colors.background}
+				translucent={false}
 			/>
-			<Pressable
-				style={styles.editButton}
-				onPress={handleEditPress}
-			>
-				<SquarePen size={28} color={lightTheme.colors.onSurface} />
-			</Pressable>
-			<Animated.View
-				style={[
-					styles.header,
-					{
-						height: headerHeight,
-						opacity: headerOpacity,
-						backgroundColor: lightTheme.colors.primary,
-					}
-				]}
-			>
-				<Animated.View
-					style={[
-						styles.imageContainer,
-						{
-							transform: [{ scale: imageScale }],
-						}
-					]}
-				>
-					{currentDriver.imageUrl ? (
-						<Animated.Image
-							source={{ uri: currentDriver.imageUrl }}
-							style={[styles.driverImage, { opacity: headerOpacity }]}
-						/>
-					) : (
-						<Card
-							paddingX={0}
-							paddingY={0}
-							rounded={roundness.md}
-							shadow='none'
-							backgroundColor={`${lightTheme.colors.onPrimary}CC`}
-							style={styles.driverImage}
-						>
-							<View style={styles.iconContainer}>
-								<IconPlaceholder icon={UserRound} rounded={roundness.sm} size={150} borderWidth={6} />
-							</View>
-						</Card>
-					)}
-				</Animated.View>
-			</Animated.View>
 
-			<Animated.View
-				style={[
-					styles.backgroundOverlay,
-					{
-						opacity: overlayOpacity,
-						height: STATUS_BAR_HEIGHT + 55,
-					}
-				]}
-			/>
+			<View style={[styles.floatingButtonsContainer, { paddingTop: insets.top + spacing.sm }]}>
+				<ElevatedButton
+					backgroundColor={lightTheme.colors.primary}
+					icon={ArrowLeft}
+					iconSize={22}
+					iconColor={lightTheme.colors.onPrimary}
+					paddingX={spacing.sm}
+					paddingY={spacing.sm}
+					rounded={roundness.full}
+					shadow="large"
+					onPress={() => router.back()}
+				/>
+				<ElevatedButton
+					backgroundColor={lightTheme.colors.primary}
+					icon={SquarePen}
+					iconSize={22}
+					iconColor={lightTheme.colors.onPrimary}
+					paddingX={spacing.sm}
+					paddingY={spacing.sm}
+					rounded={roundness.full}
+					shadow="large"
+					onPress={handleEditPress}
+				/>
+			</View>
 
 			<Animated.ScrollView
 				style={styles.scrollView}
-				contentContainerStyle={styles.scrollViewContent}
+				contentContainerStyle={[
+					styles.scrollViewContent,
+					{ paddingTop: insets.top + 60 }
+				]}
 				showsVerticalScrollIndicator={false}
 				onScroll={Animated.event(
 					[{ nativeEvent: { contentOffset: { y: scrollY } } }],
-					{ useNativeDriver: false }
+					{ useNativeDriver: true }
 				)}
 				scrollEventThrottle={16}
-				bounces={false}
 			>
-				<View style={[styles.headerSpacer, { height: HEADER_HEIGHT + STATUS_BAR_HEIGHT }]} />
+				<Animated.View
+					style={[
+						styles.imageCardContainer,
+						{
+							opacity: cardOpacity,
+							transform: [
+								{ scale: cardScale },
+								{ translateY: cardTranslateY }
+							],
+						}
+					]}
+				>
+					<Card
+						paddingX={spacing.md}
+						paddingY={spacing.md}
+						rounded={roundness.sm}
+						shadow="medium"
+						backgroundColor={lightTheme.colors.surface}
+					>
+						{currentDriver.imageUrl ? (
+							<Image
+								source={{ uri: currentDriver.imageUrl }}
+								style={styles.driverImage}
+								resizeMode="cover"
+							/>
+						) : (
+							<View style={styles.iconContainer}>
+								<IconPlaceholder
+									icon={UserRound}
+									size={150}
+									rounded={roundness.sm}
+									borderWidth={6}
+								/>
+							</View>
+						)}
+					</Card>
+				</Animated.View>
 
-				<Animated.View style={[styles.content, { paddingTop: contentPaddingTop }]}>
+				<View style={styles.content}>
 					<View style={styles.statusBadgeContainer}>
-						<StatusLabel status={currentDriver.status} Icon={getDriverStatusIcon(currentDriver.status)} iconSize={20} textSize={typography.titleSmall} />
+						<StatusLabel
+							status={currentDriver.status}
+							Icon={getDriverStatusIcon(currentDriver.status)}
+							iconSize={20}
+							textSize={typography.titleSmall}
+						/>
 					</View>
 
 					<View>
@@ -196,15 +195,36 @@ export default function DriverProfileScreen() {
 						paddingX={spacing.md}
 						paddingY={spacing.md}
 						rounded={roundness.sm}
-						shadow='none'
+						shadow="none"
 						backgroundColor={lightTheme.colors.surface}
 					>
 						<View style={styles.cardContent}>
-							{currentDriver.phone && <InfoRow label="Teléfono" labelFlex={2} valueFlex={3} value={currentDriver.phone} />}
+							{currentDriver.phone && (
+								<InfoRow
+									label="Teléfono"
+									labelFlex={2}
+									valueFlex={3}
+									value={currentDriver.phone}
+								/>
+							)}
 							<View style={styles.separator} />
-							{currentDriver.email && <InfoRow label="Email" labelFlex={2} valueFlex={3} value={currentDriver.email} />}
+							{currentDriver.email && (
+								<InfoRow
+									label="Email"
+									labelFlex={2}
+									valueFlex={3}
+									value={currentDriver.email}
+								/>
+							)}
 							<View style={styles.separator} />
-							{currentDriver.completeAddress && <InfoRow label="Dirección" labelFlex={2} valueFlex={3} value={currentDriver.completeAddress} />}
+							{currentDriver.completeAddress && (
+								<InfoRow
+									label="Dirección"
+									labelFlex={2}
+									valueFlex={3}
+									value={currentDriver.completeAddress}
+								/>
+							)}
 						</View>
 					</Card>
 
@@ -213,13 +233,17 @@ export default function DriverProfileScreen() {
 						paddingX={spacing.md}
 						paddingY={spacing.md}
 						rounded={roundness.sm}
-						shadow='none'
+						shadow="none"
 						backgroundColor={lightTheme.colors.surface}
 					>
 						<View style={styles.cardContent}>
 							{currentDriver.licenseNumber && (
-
-								<InfoRow label="Licencia" labelFlex={2} valueFlex={3} value={currentDriver.licenseNumber} />
+								<InfoRow
+									label="Licencia"
+									labelFlex={2}
+									valueFlex={3}
+									value={currentDriver.licenseNumber}
+								/>
 							)}
 							<View style={styles.separator} />
 							<InfoRow
@@ -245,10 +269,74 @@ export default function DriverProfileScreen() {
 						</View>
 					</Card>
 
-					{/* TODO -> assigned vehicle & assign new vehicle */}
+					<Pressable
+						style={({ pressed }) => [
+							styles.cardTitleContainer,
+							pressed && { opacity: 0.8 },
+						]}
+						onPress={() => console.log('Accediendo al historial de incidencias y mantenimientos')}
+					>
+						<Text style={styles.cardTitle}>Registro horario</Text>
+						<ExternalLink size={16} strokeWidth={2.5} color={lightTheme.colors.onSurface} />
+					</Pressable>
+					<Card
+						paddingX={spacing.md}
+						paddingY={spacing.md}
+						rounded={roundness.sm}
+						shadow="none"
+						backgroundColor={lightTheme.colors.surface}
+					>
+						<View style={styles.cardContent}>
+							<Text style={styles.assignationText}>Sin registros horarios</Text>
+						</View>
+					</Card>
 
-					{/* More data??? */}
-				</Animated.View>
+					<Pressable
+						style={({ pressed }) => [
+							styles.cardTitleContainer,
+							pressed && { opacity: 0.8 },
+						]}
+						onPress={() => console.log('Accediendo al historial de asignaciones')}
+					>
+						<Text style={styles.cardTitle}>Asignaciones recientes</Text>
+						<ExternalLink size={16} strokeWidth={2.5} color={lightTheme.colors.onSurface} />
+					</Pressable>
+					<Card
+						paddingX={spacing.md}
+						paddingY={spacing.md}
+						rounded={roundness.sm}
+						shadow="none"
+						backgroundColor={lightTheme.colors.surface}
+					>
+						<View style={styles.cardContent}>
+							<Text style={styles.assignationText}>Sin asignaciones previas</Text>
+						</View>
+					</Card>
+
+					<Pressable
+						style={({ pressed }) => [
+							styles.cardTitleContainer,
+							pressed && { opacity: 0.8 },
+						]}
+						onPress={() => console.log('Accediendo al historial de incidencias y mantenimientos')}
+					>
+						<Text style={styles.cardTitle}>Incidencias relacionadas</Text>
+						<ExternalLink size={16} strokeWidth={2.5} color={lightTheme.colors.onSurface} />
+					</Pressable>
+					<Card
+						paddingX={spacing.md}
+						paddingY={spacing.md}
+						rounded={roundness.sm}
+						shadow="none"
+						backgroundColor={lightTheme.colors.surface}
+					>
+						<View style={styles.cardContent}>
+							<Text style={styles.assignationText}>Sin incidencias ni mantenimientos</Text>
+						</View>
+					</Card>
+
+					{/* TODO -> assigned vehicle & assign new vehicle */}
+				</View>
 			</Animated.ScrollView>
 		</View>
 	);
@@ -263,62 +351,40 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
-	editButton: {
-		position: 'absolute',
-		right: spacing.md,
-		top: STATUS_BAR_HEIGHT + spacing.md,
-		zIndex: 1002,
-	},
-	header: {
+	floatingButtonsContainer: {
 		position: 'absolute',
 		top: 0,
 		left: 0,
 		right: 0,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		paddingHorizontal: spacing.md,
 		zIndex: 1000,
-		justifyContent: 'center',
-		alignItems: 'center',
-		paddingTop: STATUS_BAR_HEIGHT,
-	},
-	backgroundOverlay: {
-		position: 'absolute',
-		top: 0,
-		left: 0,
-		right: 0,
-		zIndex: 1001,
-		backgroundColor: lightTheme.colors.background,
-	},
-	imageContainer: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	driverImage: {
-		width: 180,
-		height: 180,
-		borderRadius: roundness.md,
-	},
-	iconContainer: {
-		width: 180,
-		height: 180,
-		justifyContent: 'center',
-		alignItems: 'center',
 	},
 	scrollView: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
 	},
 	scrollViewContent: {
 		flexGrow: 1,
-		minHeight: SCREEN_HEIGHT - STATUS_BAR_HEIGHT + SCROLL_DISTANCE + 30,
 	},
-	headerSpacer: {
-		backgroundColor: 'transparent',
+	imageCardContainer: {
+		paddingHorizontal: spacing.md,
+		marginBottom: spacing.md,
+	},
+	driverImage: {
+		width: '100%',
+		height: CARD_HEIGHT,
+		borderRadius: roundness.xs,
+	},
+	iconContainer: {
+		width: '100%',
+		height: CARD_HEIGHT,
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	content: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
-		borderTopLeftRadius: spacing.md,
-		borderTopRightRadius: spacing.md,
 		paddingHorizontal: spacing.md,
 		paddingBottom: spacing.xl,
 		gap: spacing.md,
@@ -327,6 +393,7 @@ const styles = StyleSheet.create({
 		fontSize: typography.headlineLarge,
 		fontWeight: '700',
 		color: lightTheme.colors.onBackground,
+		marginBottom: spacing.sm,
 	},
 	statusBadgeContainer: {
 		width: '100%',
@@ -336,11 +403,24 @@ const styles = StyleSheet.create({
 		backgroundColor: 'transparent',
 		marginBottom: spacing.xs,
 	},
+	cardTitleContainer: {
+		flexDirection: 'row',
+		justifyContent: 'flex-start',
+		alignItems: 'center',
+		gap: spacing.xs,
+	},
 	cardTitle: {
 		fontSize: typography.titleMedium,
 		fontWeight: '600',
 		color: lightTheme.colors.onSurface,
 		marginBottom: spacing.xs,
+	},
+	assignationText: {
+		fontSize: typography.bodyMedium,
+		fontWeight: '500',
+		fontStyle: 'italic',
+		color: lightTheme.colors.onSurfaceVariant,
+		textAlign: 'center',
 	},
 	cardContent: {
 		gap: spacing.sm,
@@ -348,23 +428,7 @@ const styles = StyleSheet.create({
 	separator: {
 		height: 1,
 		backgroundColor: lightTheme.colors.outline,
-		opacity: 0.5
-	},
-	infoRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		paddingVertical: spacing.xs,
-	},
-	infoLabel: {
-		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
-	},
-	infoValue: {
-		fontSize: typography.bodyMedium,
-		fontWeight: '500',
-		color: lightTheme.colors.onSurface,
-		textAlign: 'right',
+		opacity: 0.5,
 	},
 	errorText: {
 		fontSize: typography.bodyLarge,

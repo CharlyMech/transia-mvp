@@ -16,14 +16,12 @@ import {
 	Image,
 	Platform,
 	Pressable,
-	ScrollView,
 	StyleSheet,
 	Text,
 	TextInput,
 	TouchableOpacity,
 	View
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 type DriverFormProps = {
 	initialData?: Partial<DriverFormData> & { imageUrl?: string | null };
@@ -159,254 +157,246 @@ export function DriverForm({
 	};
 
 	return (
-		<SafeAreaView style={styles.container} edges={['top']}>
-			<ScrollView
-				style={styles.container}
-				contentContainerStyle={styles.content}
-				showsVerticalScrollIndicator={false}
-				keyboardShouldPersistTaps="handled"
-			>
-				{/* Image Section */}
-				<View style={styles.imageSection}>
-					<Pressable
-						onPress={() => setShowImageOptions(true)}
-						disabled={imageLoading}
-						style={{ alignItems: 'center', justifyContent: 'center' }}
-					>
-						{imageLoading ? (
-							<View style={styles.imageContainer}>
-								<ActivityIndicator size="large" color={lightTheme.colors.primary} />
-							</View>
-						) : formData.imageUrl ? (
-							<Image
-								source={{ uri: formData.imageUrl }}
-								style={styles.driverImage}
-							/>
-						) : (
-							<Card
-								paddingX={0}
-								paddingY={0}
-								rounded={roundness.sm}
-								shadow='none'
-								backgroundColor={`${lightTheme.colors.primary}CC`}
-								style={styles.driverImage}
-							>
-								<IconPlaceholder
-									color={lightTheme.colors.onPrimary}
-									icon={ImagePlus}
-									size={150}
-								/>
-							</Card>
-						)}
-						<Text style={styles.imageHint}>Toca para cambiar foto</Text>
-					</Pressable>
-				</View>
-				<ActionsModal
-					visible={showImageOptions}
-					onClose={() => setShowImageOptions(false)}
-					title="Seleccionar imagen"
-					animationType="fade"
+		<View style={styles.container}>
+			<View style={styles.imageSection}>
+				<Pressable
+					onPress={() => setShowImageOptions(true)}
+					disabled={imageLoading}
+					style={{ alignItems: 'center', justifyContent: 'center' }}
 				>
-					<View style={styles.imageOptionsContent}>
-						<TouchableOpacity
-							style={styles.imageOption}
-							onPress={() => handleImageSelect('camera')}
-						>
-							<Camera size={24} color={lightTheme.colors.onSurface} />
-							<Text style={styles.imageOptionText}>Tomar foto</Text>
-						</TouchableOpacity>
-
-						<TouchableOpacity
-							style={styles.imageOption}
-							onPress={() => handleImageSelect('gallery')}
-						>
-							<ImageIcon size={24} color={lightTheme.colors.onSurface} />
-							<Text style={styles.imageOptionText}>Elegir de galería</Text>
-						</TouchableOpacity>
-					</View>
-				</ActionsModal>
-
-				{/* Información Personal */}
-				<View style={styles.section}>
-					<Text style={styles.sectionTitle}>Información Personal</Text>
-
-					{/* Nombre */}
-					<View style={styles.inputContainer}>
-						<Text style={styles.label}>Nombre *</Text>
-						<TextInput
-							style={[styles.input, errors.name && styles.inputError]}
-							value={formData.name}
-							onChangeText={(value) => handleChange('name', value)}
-							placeholder="Ej: Juan"
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
-							autoCapitalize="words"
+					{imageLoading ? (
+						<View style={styles.imageContainer}>
+							<ActivityIndicator size="large" color={lightTheme.colors.primary} />
+						</View>
+					) : formData.imageUrl ? (
+						<Image
+							source={{ uri: formData.imageUrl }}
+							style={styles.driverImage}
 						/>
-						{errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
-					</View>
-
-					{/* Apellidos */}
-					<View style={styles.inputContainer}>
-						<Text style={styles.label}>Apellidos *</Text>
-						<TextInput
-							style={[styles.input, errors.surnames && styles.inputError]}
-							value={formData.surnames}
-							onChangeText={(value) => handleChange('surnames', value)}
-							placeholder="Ej: García López"
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
-							autoCapitalize="words"
-						/>
-						{errors.surnames && <Text style={styles.errorText}>{errors.surnames}</Text>}
-					</View>
-
-					{/* DNI/NIE */}
-					<View style={styles.inputContainer}>
-						<Text style={styles.label}>DNI/NIE *</Text>
-						<TextInput
-							style={[styles.input, errors.personId && styles.inputError]}
-							value={formData.personId}
-							onChangeText={(value) => handleChange('personId', value)}
-							placeholder="Ej: 12345678A"
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
-							autoCapitalize="characters"
-							maxLength={9}
-						/>
-						{errors.personId && <Text style={styles.errorText}>{errors.personId}</Text>}
-					</View>
-
-					{/* Fecha de Nacimiento */}
-					<View style={styles.inputContainer}>
-						<Text style={styles.label}>Fecha de nacimiento *</Text>
-						<TouchableOpacity
-							style={[styles.input, styles.dateInput, errors.birthDate && styles.inputError]}
-							onPress={() => {
-								setTempDate(parseDate(formData.birthDate));
-								setShowDatePicker(true);
-							}}
-						>
-							<Text style={[
-								styles.dateText,
-								!formData.birthDate && styles.placeholderText
-							]}>
-								{formData.birthDate
-									? formatDateToDisplay(formData.birthDate)
-									: 'Selecciona una fecha'}
-							</Text>
-							<Calendar size={20} color={lightTheme.colors.onSurfaceVariant} />
-						</TouchableOpacity>
-						{errors.birthDate && <Text style={styles.errorText}>{errors.birthDate}</Text>}
-					</View>
-				</View>
-
-				{/* Date Picker Modal for iOS */}
-				{Platform.OS === 'ios' && (
-					<IOSDatePickerModal
-						visible={showDatePicker}
-						value={tempDate}
-						onChange={handleDateChange}
-						onConfirm={handleIOSDateConfirm}
-						onCancel={handleIOSDateCancel}
-						minimumDate={new Date(1900, 0, 1)}
-						maximumDate={new Date()}
-						title="Seleccionar Fecha"
-					/>
-				)}
-
-				{/* Date Picker for Android */}
-				{Platform.OS === 'android' && showDatePicker && (
-					<DateTimePicker
-						value={parseDate(formData.birthDate)}
-						mode="date"
-						locale="es-ES" // force Spanish
-						display="default"
-						onChange={handleDateChange}
-						maximumDate={new Date()}
-						minimumDate={new Date(1900, 0, 1)}
-					/>
-				)}
-
-				{/* Información de Contacto */}
-				<View style={styles.section}>
-					<Text style={styles.sectionTitle}>Información de Contacto</Text>
-
-					{/* Teléfono */}
-					<View style={styles.inputContainer}>
-						<Text style={styles.label}>Teléfono</Text>
-						<TextInput
-							style={[styles.input, errors.phone && styles.inputError]}
-							value={formData.phone}
-							onChangeText={(value) => handleChange('phone', value)}
-							placeholder="Ej: 612345678"
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
-							keyboardType="phone-pad"
-							maxLength={9}
-						/>
-						{errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
-					</View>
-
-					{/* Email */}
-					<View style={styles.inputContainer}>
-						<Text style={styles.label}>Email</Text>
-						<TextInput
-							style={[styles.input, errors.email && styles.inputError]}
-							value={formData.email}
-							onChangeText={(value) => handleChange('email', value)}
-							placeholder="Ej: conductor@ejemplo.com"
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
-							keyboardType="email-address"
-							autoCapitalize="none"
-						/>
-						{errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-					</View>
-
-					{/* Dirección */}
-					<View style={styles.inputContainer}>
-						<Text style={styles.label}>Dirección *</Text>
-						<TextInput
-							style={[styles.input, errors.completeAddress && styles.inputError]}
-							value={formData.completeAddress}
-							onChangeText={(value) => handleChange('completeAddress', value)}
-							placeholder="Ej: Calle Principal 123"
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
-							autoCapitalize="words"
-						/>
-						{errors.completeAddress && <Text style={styles.errorText}>{errors.completeAddress}</Text>}
-					</View>
-				</View>
-
-				{/* Información Profesional */}
-				<View style={styles.section}>
-					<Text style={styles.sectionTitle}>Información Profesional</Text>
-
-					{/* Número de Licencia */}
-					<View style={styles.inputContainer}>
-						<Text style={styles.label}>Número de licencia</Text>
-						<TextInput
-							style={[styles.input, errors.licenseNumber && styles.inputError]}
-							value={formData.licenseNumber}
-							onChangeText={(value) => handleChange('licenseNumber', value)}
-							placeholder="Ej: 12345678AB"
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
-							autoCapitalize="characters"
-						/>
-						{errors.licenseNumber && <Text style={styles.errorText}>{errors.licenseNumber}</Text>}
-					</View>
-				</View>
-				{/* Submit Button */}
-				<TouchableOpacity
-					style={[styles.submitButton, loading && styles.submitButtonDisabled]}
-					onPress={handleSubmit}
-					disabled={loading}
-				>
-					{loading ? (
-						<ActivityIndicator color={lightTheme.colors.onPrimary} />
 					) : (
-						<Text style={styles.submitButtonText}>{submitLabel}</Text>
+						<Card
+							paddingX={0}
+							paddingY={0}
+							rounded={roundness.sm}
+							shadow='none'
+							backgroundColor={`${lightTheme.colors.primary}CC`}
+							style={styles.driverImage}
+						>
+							<IconPlaceholder
+								color={lightTheme.colors.onPrimary}
+								icon={ImagePlus}
+								size={150}
+							/>
+						</Card>
 					)}
-				</TouchableOpacity>
+					<Text style={styles.imageHint}>Toca para cambiar foto</Text>
+				</Pressable>
+			</View>
+			<ActionsModal
+				visible={showImageOptions}
+				onClose={() => setShowImageOptions(false)}
+				title="Seleccionar imagen"
+				animationType="fade"
+			>
+				<View style={styles.imageOptionsContent}>
+					<TouchableOpacity
+						style={styles.imageOption}
+						onPress={() => handleImageSelect('camera')}
+					>
+						<Camera size={24} color={lightTheme.colors.onSurface} />
+						<Text style={styles.imageOptionText}>Tomar foto</Text>
+					</TouchableOpacity>
 
-				<View style={styles.bottomSpacer} />
-			</ScrollView>
-		</SafeAreaView>
+					<TouchableOpacity
+						style={styles.imageOption}
+						onPress={() => handleImageSelect('gallery')}
+					>
+						<ImageIcon size={24} color={lightTheme.colors.onSurface} />
+						<Text style={styles.imageOptionText}>Elegir de galería</Text>
+					</TouchableOpacity>
+				</View>
+			</ActionsModal>
+
+			{/* Información Personal */}
+			<View style={styles.section}>
+				<Text style={styles.sectionTitle}>Información Personal</Text>
+
+				{/* Nombre */}
+				<View style={styles.inputContainer}>
+					<Text style={styles.label}>Nombre *</Text>
+					<TextInput
+						style={[styles.input, errors.name && styles.inputError]}
+						value={formData.name}
+						onChangeText={(value) => handleChange('name', value)}
+						placeholder="Ej: Juan"
+						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						autoCapitalize="words"
+					/>
+					{errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+				</View>
+
+				{/* Apellidos */}
+				<View style={styles.inputContainer}>
+					<Text style={styles.label}>Apellidos *</Text>
+					<TextInput
+						style={[styles.input, errors.surnames && styles.inputError]}
+						value={formData.surnames}
+						onChangeText={(value) => handleChange('surnames', value)}
+						placeholder="Ej: García López"
+						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						autoCapitalize="words"
+					/>
+					{errors.surnames && <Text style={styles.errorText}>{errors.surnames}</Text>}
+				</View>
+
+				{/* DNI/NIE */}
+				<View style={styles.inputContainer}>
+					<Text style={styles.label}>DNI/NIE *</Text>
+					<TextInput
+						style={[styles.input, errors.personId && styles.inputError]}
+						value={formData.personId}
+						onChangeText={(value) => handleChange('personId', value)}
+						placeholder="Ej: 12345678A"
+						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						autoCapitalize="characters"
+						maxLength={9}
+					/>
+					{errors.personId && <Text style={styles.errorText}>{errors.personId}</Text>}
+				</View>
+
+				{/* Fecha de Nacimiento */}
+				<View style={styles.inputContainer}>
+					<Text style={styles.label}>Fecha de nacimiento *</Text>
+					<TouchableOpacity
+						style={[styles.input, styles.dateInput, errors.birthDate && styles.inputError]}
+						onPress={() => {
+							setTempDate(parseDate(formData.birthDate));
+							setShowDatePicker(true);
+						}}
+					>
+						<Text style={[
+							styles.dateText,
+							!formData.birthDate && styles.placeholderText
+						]}>
+							{formData.birthDate
+								? formatDateToDisplay(formData.birthDate)
+								: 'Selecciona una fecha'}
+						</Text>
+						<Calendar size={20} color={lightTheme.colors.onSurfaceVariant} />
+					</TouchableOpacity>
+					{errors.birthDate && <Text style={styles.errorText}>{errors.birthDate}</Text>}
+				</View>
+			</View>
+
+			{/* Date Picker Modal for iOS */}
+			{Platform.OS === 'ios' && (
+				<IOSDatePickerModal
+					visible={showDatePicker}
+					value={tempDate}
+					onChange={handleDateChange}
+					onConfirm={handleIOSDateConfirm}
+					onCancel={handleIOSDateCancel}
+					minimumDate={new Date(1900, 0, 1)}
+					maximumDate={new Date()}
+					title="Seleccionar Fecha"
+				/>
+			)}
+
+			{/* Date Picker for Android */}
+			{Platform.OS === 'android' && showDatePicker && (
+				<DateTimePicker
+					value={parseDate(formData.birthDate)}
+					mode="date"
+					locale="es-ES" // force Spanish
+					display="default"
+					onChange={handleDateChange}
+					maximumDate={new Date()}
+					minimumDate={new Date(1900, 0, 1)}
+				/>
+			)}
+
+			{/* Información de Contacto */}
+			<View style={styles.section}>
+				<Text style={styles.sectionTitle}>Información de Contacto</Text>
+
+				{/* Teléfono */}
+				<View style={styles.inputContainer}>
+					<Text style={styles.label}>Teléfono</Text>
+					<TextInput
+						style={[styles.input, errors.phone && styles.inputError]}
+						value={formData.phone}
+						onChangeText={(value) => handleChange('phone', value)}
+						placeholder="Ej: 612345678"
+						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						keyboardType="phone-pad"
+						maxLength={9}
+					/>
+					{errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
+				</View>
+
+				{/* Email */}
+				<View style={styles.inputContainer}>
+					<Text style={styles.label}>Email</Text>
+					<TextInput
+						style={[styles.input, errors.email && styles.inputError]}
+						value={formData.email}
+						onChangeText={(value) => handleChange('email', value)}
+						placeholder="Ej: conductor@ejemplo.com"
+						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						keyboardType="email-address"
+						autoCapitalize="none"
+					/>
+					{errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+				</View>
+
+				{/* Dirección */}
+				<View style={styles.inputContainer}>
+					<Text style={styles.label}>Dirección *</Text>
+					<TextInput
+						style={[styles.input, errors.completeAddress && styles.inputError]}
+						value={formData.completeAddress}
+						onChangeText={(value) => handleChange('completeAddress', value)}
+						placeholder="Ej: Calle Principal 123"
+						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						autoCapitalize="words"
+					/>
+					{errors.completeAddress && <Text style={styles.errorText}>{errors.completeAddress}</Text>}
+				</View>
+			</View>
+
+			{/* Información Profesional */}
+			<View style={styles.section}>
+				<Text style={styles.sectionTitle}>Información Profesional</Text>
+
+				{/* Número de Licencia */}
+				<View style={styles.inputContainer}>
+					<Text style={styles.label}>Número de licencia</Text>
+					<TextInput
+						style={[styles.input, errors.licenseNumber && styles.inputError]}
+						value={formData.licenseNumber}
+						onChangeText={(value) => handleChange('licenseNumber', value)}
+						placeholder="Ej: 12345678AB"
+						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						autoCapitalize="characters"
+					/>
+					{errors.licenseNumber && <Text style={styles.errorText}>{errors.licenseNumber}</Text>}
+				</View>
+			</View>
+			{/* Submit Button */}
+			<TouchableOpacity
+				style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+				onPress={handleSubmit}
+				disabled={loading}
+			>
+				{loading ? (
+					<ActivityIndicator color={lightTheme.colors.onPrimary} />
+				) : (
+					<Text style={styles.submitButtonText}>{submitLabel}</Text>
+				)}
+			</TouchableOpacity>
+
+			<View style={styles.bottomSpacer} />
+		</View>
 	);
 }
 

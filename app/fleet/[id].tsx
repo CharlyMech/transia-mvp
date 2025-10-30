@@ -1,31 +1,32 @@
 import { Card } from '@/components/Card';
+import { ElevatedButton } from '@/components/ElevatedButton';
 import { IconPlaceholder } from '@/components/IconPlaceholder';
 import { InfoRow } from '@/components/InfoRow';
-import { SkeletonHeaderDetail } from '@/components/skeletons';
+import { SkeletonDetail } from '@/components/skeletons';
 import { StatusLabel } from '@/components/StatusLabel';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useFleetStore } from '@/stores/useFleetStore';
 import { formatISODate } from '@/utils/dateUtils';
 import { getVehicleStatusIcon } from '@/utils/fleetUtils';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ExternalLink, SquarePen, Truck } from 'lucide-react-native';
+import { ArrowLeft, ExternalLink, SquarePen, Truck } from 'lucide-react-native';
 import React, { useEffect, useRef } from 'react';
 import {
 	Animated,
-	Dimensions,
+	Image,
 	Pressable,
 	StatusBar,
 	StyleSheet,
 	Text,
 	View
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const HEADER_HEIGHT = 250;
+const CARD_HEIGHT = 280;
 const SCROLL_DISTANCE = 200;
-const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 44;
 
 export default function VehicleDetailScreen() {
+	const insets = useSafeAreaInsets();
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const scrollY = useRef(new Animated.Value(0)).current;
 
@@ -39,7 +40,6 @@ export default function VehicleDetailScreen() {
 		if (id) {
 			fetchVehicleById(id as string);
 		}
-		// Clean up
 		return () => {
 			clearCurrentVehicle();
 		};
@@ -51,38 +51,27 @@ export default function VehicleDetailScreen() {
 		}
 	};
 
-	const headerHeight = scrollY.interpolate({
+	// Animaciones para la card
+	const cardScale = scrollY.interpolate({
 		inputRange: [0, SCROLL_DISTANCE],
-		outputRange: [HEADER_HEIGHT + STATUS_BAR_HEIGHT, STATUS_BAR_HEIGHT],
+		outputRange: [1, 0.3],
 		extrapolate: 'clamp',
 	});
 
-	const imageScale = scrollY.interpolate({
-		inputRange: [0, SCROLL_DISTANCE * 0.7, SCROLL_DISTANCE],
-		outputRange: [1, 0.3, 0],
-		extrapolate: 'clamp',
-	});
-
-	const headerOpacity = scrollY.interpolate({
+	const cardOpacity = scrollY.interpolate({
 		inputRange: [0, SCROLL_DISTANCE * 0.8, SCROLL_DISTANCE],
-		outputRange: [1, 0.3, 0],
+		outputRange: [1, 0.5, 0],
 		extrapolate: 'clamp',
 	});
 
-	const overlayOpacity = scrollY.interpolate({
-		inputRange: [0, SCROLL_DISTANCE * 0.8],
-		outputRange: [0, 1],
-		extrapolate: 'clamp',
-	});
-
-	const contentPaddingTop = scrollY.interpolate({
+	const cardTranslateY = scrollY.interpolate({
 		inputRange: [0, SCROLL_DISTANCE],
-		outputRange: [spacing.md, 0],
+		outputRange: [0, -50],
 		extrapolate: 'clamp',
 	});
 
 	if (loadingVehicle) {
-		return <SkeletonHeaderDetail />;
+		return <SkeletonDetail />;
 	}
 
 	if (vehicleError) {
@@ -96,9 +85,7 @@ export default function VehicleDetailScreen() {
 	if (!currentVehicle) {
 		return (
 			<View style={[styles.container, styles.centered]}>
-				<Text style={styles.errorText}>
-					Conductor no encontrado
-				</Text>
+				<Text style={styles.errorText}>Vehículo no encontrado</Text>
 			</View>
 		);
 	}
@@ -107,81 +94,94 @@ export default function VehicleDetailScreen() {
 		<View style={styles.container}>
 			<StatusBar
 				barStyle="dark-content"
-				backgroundColor="transparent"
-				translucent={true}
+				backgroundColor={lightTheme.colors.background}
+				translucent={false}
 			/>
-			<Pressable
-				style={styles.editButton}
-				onPress={handleEditPress}
-			>
-				<SquarePen size={28} color={lightTheme.colors.onSurface} />
-			</Pressable>
-			<Animated.View
-				style={[
-					styles.header,
-					{
-						height: headerHeight,
-						opacity: headerOpacity,
-						backgroundColor: lightTheme.colors.primary,
-					}
-				]}
-			>
-				<Animated.View
-					style={[
-						styles.imageContainer,
-						{
-							transform: [{ scale: imageScale }],
-						}
-					]}
-				>
-					{currentVehicle.imageUrl ? (
-						<Animated.Image
-							source={{ uri: currentVehicle.imageUrl }}
-							style={[styles.vehicleImage, { opacity: headerOpacity }]}
-						/>
-					) : (
-						<Card
-							paddingX={0}
-							paddingY={0}
-							rounded={roundness.md}
-							shadow='none'
-							backgroundColor={`${lightTheme.colors.onPrimary}CC`}
-							style={{ marginTop: spacing.lg }}
-						>
-							<View style={styles.iconContainer}>
-								<IconPlaceholder icon={Truck} size={150} rounded={roundness.sm} borderWidth={6} />
-							</View>
-						</Card>
-					)}
-				</Animated.View>
-			</Animated.View>
 
-			<Animated.View
-				style={[
-					styles.backgroundOverlay,
-					{
-						opacity: overlayOpacity,
-						height: STATUS_BAR_HEIGHT + 55,
-					}
-				]}
-			/>
+			<View style={[styles.floatingButtonsContainer, { paddingTop: insets.top + spacing.sm }]}>
+				<ElevatedButton
+					backgroundColor={lightTheme.colors.primary}
+					icon={ArrowLeft}
+					iconSize={22}
+					iconColor={lightTheme.colors.onPrimary}
+					paddingX={spacing.sm}
+					paddingY={spacing.sm}
+					rounded={roundness.full}
+					shadow="large"
+					onPress={() => router.back()}
+				/>
+				<ElevatedButton
+					backgroundColor={lightTheme.colors.primary}
+					icon={SquarePen}
+					iconSize={22}
+					iconColor={lightTheme.colors.onPrimary}
+					paddingX={spacing.sm}
+					paddingY={spacing.sm}
+					rounded={roundness.full}
+					shadow="large"
+					onPress={handleEditPress}
+				/>
+			</View>
 
 			<Animated.ScrollView
 				style={styles.scrollView}
-				contentContainerStyle={styles.scrollViewContent}
+				contentContainerStyle={[
+					styles.scrollViewContent,
+					{ paddingTop: insets.top + 60 }
+				]}
 				showsVerticalScrollIndicator={false}
 				onScroll={Animated.event(
 					[{ nativeEvent: { contentOffset: { y: scrollY } } }],
-					{ useNativeDriver: false }
+					{ useNativeDriver: true }
 				)}
 				scrollEventThrottle={16}
-				bounces={false}
 			>
-				<View style={[styles.headerSpacer, { height: HEADER_HEIGHT + STATUS_BAR_HEIGHT }]} />
+				<Animated.View
+					style={[
+						styles.imageCardContainer,
+						{
+							opacity: cardOpacity,
+							transform: [
+								{ scale: cardScale },
+								{ translateY: cardTranslateY }
+							],
+						}
+					]}
+				>
+					<Card
+						paddingX={spacing.md}
+						paddingY={spacing.md}
+						rounded={roundness.sm}
+						shadow="medium"
+						backgroundColor={lightTheme.colors.surface}
+					>
+						{currentVehicle.imageUrl ? (
+							<Image
+								source={{ uri: currentVehicle.imageUrl }}
+								style={styles.vehicleImage}
+								resizeMode="cover"
+							/>
+						) : (
+							<View style={styles.iconContainer}>
+								<IconPlaceholder
+									icon={Truck}
+									size={150}
+									rounded={roundness.sm}
+									borderWidth={6}
+								/>
+							</View>
+						)}
+					</Card>
+				</Animated.View>
 
-				<Animated.View style={[styles.content, { paddingTop: contentPaddingTop }]}>
+				<View style={styles.content}>
 					<View style={styles.statusBadgeContainer}>
-						<StatusLabel status={currentVehicle.status} Icon={getVehicleStatusIcon(currentVehicle.status)} iconSize={20} textSize={typography.titleSmall} />
+						<StatusLabel
+							status={currentVehicle.status}
+							Icon={getVehicleStatusIcon(currentVehicle.status)}
+							iconSize={20}
+							textSize={typography.titleSmall}
+						/>
 					</View>
 
 					<Text style={styles.cardTitle}>Información del vehículo</Text>
@@ -189,17 +189,45 @@ export default function VehicleDetailScreen() {
 						paddingX={spacing.md}
 						paddingY={spacing.md}
 						rounded={roundness.sm}
-						shadow='none'
+						shadow="none"
 						backgroundColor={lightTheme.colors.surface}
 					>
 						<View style={styles.cardContent}>
-							{currentVehicle.plateNumber && <InfoRow label="Matrícula" labelFlex={2} valueFlex={3} value={currentVehicle.plateNumber} />}
+							{currentVehicle.plateNumber && (
+								<InfoRow
+									label="Matrícula"
+									labelFlex={2}
+									valueFlex={3}
+									value={currentVehicle.plateNumber}
+								/>
+							)}
 							<View style={styles.separator} />
-							{currentVehicle.vehicleBrand && <InfoRow label="Marca" labelFlex={2} valueFlex={3} value={currentVehicle.vehicleBrand} />}
+							{currentVehicle.vehicleBrand && (
+								<InfoRow
+									label="Marca"
+									labelFlex={2}
+									valueFlex={3}
+									value={currentVehicle.vehicleBrand}
+								/>
+							)}
 							<View style={styles.separator} />
-							{currentVehicle.vehicleModel && <InfoRow label="Modelo" labelFlex={2} valueFlex={3} value={currentVehicle.vehicleModel} />}
+							{currentVehicle.vehicleModel && (
+								<InfoRow
+									label="Modelo"
+									labelFlex={2}
+									valueFlex={3}
+									value={currentVehicle.vehicleModel}
+								/>
+							)}
 							<View style={styles.separator} />
-							{currentVehicle.vehicleType && <InfoRow label="Tipo" labelFlex={2} valueFlex={3} value={currentVehicle.vehicleType} />}
+							{currentVehicle.vehicleType && (
+								<InfoRow
+									label="Tipo"
+									labelFlex={2}
+									valueFlex={3}
+									value={currentVehicle.vehicleType}
+								/>
+							)}
 						</View>
 					</Card>
 
@@ -208,15 +236,36 @@ export default function VehicleDetailScreen() {
 						paddingX={spacing.md}
 						paddingY={spacing.md}
 						rounded={roundness.sm}
-						shadow='none'
+						shadow="none"
 						backgroundColor={lightTheme.colors.surface}
 					>
 						<View style={styles.cardContent}>
-							{currentVehicle.year && <InfoRow label="Año" labelFlex={2} valueFlex={3} value={currentVehicle.year.toString()} />}
+							{currentVehicle.year && (
+								<InfoRow
+									label="Año"
+									labelFlex={2}
+									valueFlex={3}
+									value={currentVehicle.year.toString()}
+								/>
+							)}
 							<View style={styles.separator} />
-							{currentVehicle.purchaseDate && <InfoRow label="Fecha de adquisición" labelFlex={2} valueFlex={3} value={formatISODate(currentVehicle.purchaseDate.toISOString())} />}
+							{currentVehicle.purchaseDate && (
+								<InfoRow
+									label="Fecha de adquisición"
+									labelFlex={2}
+									valueFlex={3}
+									value={formatISODate(currentVehicle.purchaseDate.toISOString())}
+								/>
+							)}
 							<View style={styles.separator} />
-							{currentVehicle.registrationDate && <InfoRow label="Fecha de registro" labelFlex={2} valueFlex={3} value={formatISODate(currentVehicle.registrationDate.toISOString())} />}
+							{currentVehicle.registrationDate && (
+								<InfoRow
+									label="Fecha de registro"
+									labelFlex={2}
+									valueFlex={3}
+									value={formatISODate(currentVehicle.registrationDate.toISOString())}
+								/>
+							)}
 						</View>
 					</Card>
 
@@ -234,10 +283,9 @@ export default function VehicleDetailScreen() {
 						paddingX={spacing.md}
 						paddingY={spacing.md}
 						rounded={roundness.sm}
-						shadow='none'
+						shadow="none"
 						backgroundColor={lightTheme.colors.surface}
 					>
-						{/* ! HARD CODED CONTENT ! */}
 						<View style={styles.cardContent}>
 							<Text style={styles.assignationText}>Sin incidencias ni mantenimientos</Text>
 						</View>
@@ -257,15 +305,14 @@ export default function VehicleDetailScreen() {
 						paddingX={spacing.md}
 						paddingY={spacing.md}
 						rounded={roundness.sm}
-						shadow='none'
+						shadow="none"
 						backgroundColor={lightTheme.colors.surface}
 					>
-						{/* ! HARD CODED CONTENT ! */}
 						<View style={styles.cardContent}>
 							<Text style={styles.assignationText}>Sin asignaciones previas</Text>
 						</View>
 					</Card>
-				</Animated.View>
+				</View>
 			</Animated.ScrollView>
 		</View>
 	);
@@ -280,71 +327,43 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
-	editButton: {
-		position: 'absolute',
-		right: spacing.md,
-		top: STATUS_BAR_HEIGHT + spacing.md,
-		zIndex: 1002,
-	},
-	header: {
+	floatingButtonsContainer: {
 		position: 'absolute',
 		top: 0,
 		left: 0,
 		right: 0,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		paddingHorizontal: spacing.md,
 		zIndex: 1000,
-		justifyContent: 'center',
-		alignItems: 'center',
-		paddingTop: STATUS_BAR_HEIGHT,
-	},
-	backgroundOverlay: {
-		position: 'absolute',
-		top: 0,
-		left: 0,
-		right: 0,
-		zIndex: 1001,
-		backgroundColor: lightTheme.colors.background,
-	},
-	imageContainer: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	vehicleImage: {
-		width: 300,
-		height: 180,
-		borderRadius: roundness.md,
-		marginTop: spacing.lg,
-	},
-	iconContainer: {
-		width: 180,
-		height: 180,
-		justifyContent: 'center',
-		alignItems: 'center',
 	},
 	scrollView: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
 	},
 	scrollViewContent: {
 		flexGrow: 1,
-		minHeight: SCREEN_HEIGHT - STATUS_BAR_HEIGHT + SCROLL_DISTANCE + 30, // Manually fix offset
 	},
-	headerSpacer: {
-		backgroundColor: 'transparent',
+	imageCardContainer: {
+		paddingHorizontal: spacing.md,
+		marginBottom: spacing.md,
+	},
+	vehicleImage: {
+		width: '100%',
+		height: CARD_HEIGHT,
+		borderRadius: roundness.xs,
+	},
+	iconContainer: {
+		width: '100%',
+		height: CARD_HEIGHT,
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	content: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
-		borderTopLeftRadius: spacing.md,
-		borderTopRightRadius: spacing.md,
 		paddingHorizontal: spacing.md,
 		paddingBottom: spacing.xl,
 		gap: spacing.md,
-	},
-	name: {
-		fontSize: typography.headlineLarge,
-		fontWeight: '700',
-		color: lightTheme.colors.onBackground,
 	},
 	statusBadgeContainer: {
 		width: '100%',
@@ -372,23 +391,7 @@ const styles = StyleSheet.create({
 	separator: {
 		height: 1,
 		backgroundColor: lightTheme.colors.outline,
-		opacity: 0.5
-	},
-	infoRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		paddingVertical: spacing.xs,
-	},
-	infoLabel: {
-		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
-	},
-	infoValue: {
-		fontSize: typography.bodyMedium,
-		fontWeight: '500',
-		color: lightTheme.colors.onSurface,
-		textAlign: 'right',
+		opacity: 0.5,
 	},
 	assignationText: {
 		fontSize: typography.bodyMedium,

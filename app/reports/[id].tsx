@@ -1,17 +1,17 @@
 import { Card } from '@/components/Card';
 import { Carousel } from '@/components/Carousel';
+import { ElevatedButton } from '@/components/ElevatedButton';
 import { InfoRow } from '@/components/InfoRow';
 import { LeafletMap } from '@/components/LeafletMap';
 import { SkeletonDetail } from '@/components/skeletons';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useReportsStore } from '@/stores/useReportsStore';
 import { router, useLocalSearchParams } from 'expo-router';
-import { SquarePen } from 'lucide-react-native';
+import { ArrowLeft, SquarePen } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {
 	Dimensions,
 	Image,
-	Pressable,
 	ScrollView,
 	StatusBar,
 	StyleSheet,
@@ -19,13 +19,12 @@ import {
 	TouchableOpacity,
 	View
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 44;
-
 
 export default function ReportDetailScreen() {
+	const insets = useSafeAreaInsets();
 	const { id } = useLocalSearchParams<{ id: string }>();
 
 	const currentReport = useReportsStore((state) => state.currentReport);
@@ -40,7 +39,6 @@ export default function ReportDetailScreen() {
 		if (id) {
 			fetchReportById(id as string);
 		}
-		// Clean up
 		return () => {
 			clearCurrentReport();
 		};
@@ -62,7 +60,6 @@ export default function ReportDetailScreen() {
 		setRead(!read);
 		// TODO: Update report in store
 	};
-
 
 	if (loadingReport) {
 		return <SkeletonDetail />;
@@ -87,24 +84,43 @@ export default function ReportDetailScreen() {
 	}
 
 	return (
-		<SafeAreaView style={styles.container} edges={['top']}>
-			<View style={{ width: '100%', height: 30, backgroundColor: lightTheme.colors.background }} />
-
+		<View style={styles.container}>
 			<StatusBar
 				barStyle="dark-content"
-				backgroundColor="transparent"
-				translucent={true}
+				backgroundColor={lightTheme.colors.background}
+				translucent={false}
 			/>
-			<Pressable
-				style={styles.editButton}
-				onPress={handleEditPress}
-			>
-				<SquarePen size={28} color={lightTheme.colors.onSurface} />
-			</Pressable>
+			<View style={[styles.floatingButtonsContainer, { paddingTop: insets.top + spacing.sm }]}>
+				<ElevatedButton
+					backgroundColor={lightTheme.colors.primary}
+					icon={ArrowLeft}
+					iconSize={22}
+					iconColor={lightTheme.colors.onPrimary}
+					paddingX={spacing.sm}
+					paddingY={spacing.sm}
+					rounded={roundness.full}
+					shadow="large"
+					onPress={() => router.back()}
+				/>
+				<ElevatedButton
+					backgroundColor={lightTheme.colors.primary}
+					icon={SquarePen}
+					iconSize={22}
+					iconColor={lightTheme.colors.onPrimary}
+					paddingX={spacing.sm}
+					paddingY={spacing.sm}
+					rounded={roundness.full}
+					shadow="large"
+					onPress={handleEditPress}
+				/>
+			</View>
 
 			<ScrollView
 				style={styles.scrollView}
-				contentContainerStyle={styles.scrollViewContent}
+				contentContainerStyle={[
+					styles.scrollViewContent,
+					{ paddingTop: insets.top + 60 }
+				]}
 				showsVerticalScrollIndicator={false}
 			>
 				<View style={styles.solvedStatusContainer}>
@@ -126,8 +142,9 @@ export default function ReportDetailScreen() {
 						</View>
 					</TouchableOpacity>
 				</View>
+
 				<View style={styles.content}>
-					<Text style={styles.cardTitle}>Información de la incicencia</Text>
+					<Text style={styles.cardTitle}>Información de la incidencia</Text>
 					<Card
 						paddingX={spacing.md}
 						paddingY={spacing.md}
@@ -213,7 +230,7 @@ export default function ReportDetailScreen() {
 					)}
 				</View>
 			</ScrollView>
-		</SafeAreaView>
+		</View>
 	);
 }
 
@@ -226,11 +243,16 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
-	editButton: {
+	floatingButtonsContainer: {
 		position: 'absolute',
-		right: spacing.md,
-		top: STATUS_BAR_HEIGHT + spacing.md,
-		zIndex: 1002,
+		top: 0,
+		left: 0,
+		right: 0,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		paddingHorizontal: spacing.md,
+		zIndex: 1000,
 	},
 	scrollView: {
 		flex: 1,
@@ -293,22 +315,6 @@ const styles = StyleSheet.create({
 		backgroundColor: lightTheme.colors.outline,
 		opacity: 0.5,
 	},
-	infoRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		paddingVertical: spacing.xs,
-	},
-	infoLabel: {
-		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
-	},
-	infoValue: {
-		fontSize: typography.bodyMedium,
-		fontWeight: '500',
-		color: lightTheme.colors.onSurface,
-		textAlign: 'right',
-	},
 	descriptionText: {
 		fontSize: typography.bodyLarge,
 		lineHeight: 24,
@@ -321,17 +327,5 @@ const styles = StyleSheet.create({
 	errorText: {
 		fontSize: typography.bodyLarge,
 		color: lightTheme.colors.error,
-	},
-	mapWrapper: {
-		marginHorizontal: spacing.md,
-		marginBottom: spacing.md,
-		borderRadius: roundness.sm,
-		overflow: 'hidden',
-		// Opcional: añadir sombra como el carrusel si lo deseas
-		shadowColor: '#000',
-		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.1,
-		shadowRadius: 4,
-		elevation: 3,
 	},
 });
