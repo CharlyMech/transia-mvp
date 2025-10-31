@@ -62,28 +62,26 @@ export default function LoginScreen() {
 	}, []);
 
 	const handleInputFocus = (inputY: number, isFirstInput: boolean) => {
-		// Only scroll once when focusing the first input
-		if (isFirstInput && !hasScrolledToForm) {
-			setTimeout(() => {
-				const formAreaOffset = inputY - 250;
-
-				scrollViewRef.current?.scrollTo({
-					y: Math.max(0, formAreaOffset),
-					animated: true,
-				});
-
-				setHasScrolledToForm(true);
-			}, 150);
-		} else if (!isFirstInput && hasScrolledToForm) {
-			setTimeout(() => {
-				const formAreaOffset = inputY - 100;
-
-				scrollViewRef.current?.scrollTo({
-					y: Math.max(0, formAreaOffset),
-					animated: true,
-				});
-			}, 150);
-		}
+		setTimeout(() => {
+			if (Platform.OS === 'android') {
+				scrollViewRef.current?.scrollToEnd({ animated: true });
+			} else {
+				if (isFirstInput && !hasScrolledToForm) {
+					const formAreaOffset = inputY - 250;
+					scrollViewRef.current?.scrollTo({
+						y: Math.max(0, formAreaOffset),
+						animated: true,
+					});
+					setHasScrolledToForm(true);
+				} else if (!isFirstInput && hasScrolledToForm) {
+					const formAreaOffset = inputY - 100;
+					scrollViewRef.current?.scrollTo({
+						y: Math.max(0, formAreaOffset),
+						animated: true,
+					});
+				}
+			}
+		}, Platform.OS === 'android' ? 300 : 150);
 	};
 
 	const handleLogin = async () => {
@@ -126,8 +124,8 @@ export default function LoginScreen() {
 		<SafeAreaView style={styles.container} edges={['top']}>
 			<KeyboardAvoidingView
 				style={styles.keyboardView}
-				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+				keyboardVerticalOffset={0}
 			>
 				<TouchableWithoutFeedback onPress={dismissKeyboard}>
 					<ScrollView
@@ -342,6 +340,7 @@ const styles = StyleSheet.create({
 		flexGrow: 1,
 		paddingHorizontal: spacing.lg,
 		paddingVertical: spacing.xl,
+		paddingBottom: Platform.OS === 'android' ? spacing.xl * 4 : spacing.xl,
 	},
 	header: {
 		flexDirection: 'column',
