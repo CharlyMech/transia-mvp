@@ -255,9 +255,9 @@ export default function DriversScreen() {
 		return labels[sort];
 	};
 
-	const animatedHeight = filterHeight.interpolate({
+	const animatedMaxHeight = filterHeight.interpolate({
 		inputRange: [0, 1],
-		outputRange: [0, 270],
+		outputRange: [0, 1000],
 		extrapolate: 'clamp',
 	});
 
@@ -326,7 +326,7 @@ export default function DriversScreen() {
 					style={[
 						styles.filtersContainer,
 						{
-							height: animatedHeight,
+							maxHeight: animatedMaxHeight,
 							opacity: animatedOpacity,
 						}
 					]}
