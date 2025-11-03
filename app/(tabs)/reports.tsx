@@ -536,40 +536,6 @@ export default function ReportsScreen() {
 								))}
 							</View>
 						</View>
-
-						{/* <View style={styles.filterSection}>
-							<View style={styles.sortOrderContainer}>
-								<Text style={styles.filterLabel}>Orden: {getSortLabel(sortBy)} - {sortOrder === 'asc' ? 'Ascendente' : 'Descendente'}</Text>
-								<Pressable onPress={toggleSortOrder} style={styles.sortOrderIcon}>
-									{sortOrder === 'asc' ? (
-										<ChevronsUp size={18} color={lightTheme.colors.primary} />
-									) : (
-										<ChevronsDown size={18} color={lightTheme.colors.primary} />
-									)}
-								</Pressable>
-							</View>
-							<View style={styles.sortOptionsContainer}>
-								{(['createdAt', 'readAt', 'closedAt'] as SortOption[]).map((option) => (
-									<Pressable
-										key={option}
-										style={[
-											styles.sortOptionChip,
-											sortBy === option && styles.sortOptionChipActive,
-										]}
-										onPress={() => setSortBy(option)}
-									>
-										<Text
-											style={[
-												styles.sortOptionText,
-												sortBy === option && styles.sortOptionTextActive,
-											]}
-										>
-											{getSortLabel(option)}
-										</Text>
-									</Pressable>
-								))}
-							</View>
-						</View> */}
 					</View>
 				</Animated.View>
 
