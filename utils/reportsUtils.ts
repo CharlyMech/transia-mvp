@@ -1,11 +1,14 @@
 import { ReportsTypes } from "@/constants/enums/ReportsTypes";
 import {
 	AlertTriangle,
+	BellDot,
+	CalendarClock,
 	CheckCheck,
 	ClipboardList,
-	Clock,
-	FileSearch,
+	FileClock,
 	HelpCircle,
+	MapPin,
+	MapPinOff,
 	Wrench,
 } from "lucide-react-native";
 
@@ -16,9 +19,9 @@ export function getReportTypeIcon(type: ReportsTypes) {
 		case ReportsTypes.MAINTENANCE:
 			return Wrench;
 		case ReportsTypes.CHECK:
-			return FileSearch;
-		case ReportsTypes.ITV:
 			return ClipboardList;
+		case ReportsTypes.ITV:
+			return CalendarClock;
 		case ReportsTypes.OTHER:
 			return HelpCircle;
 		default:
@@ -27,9 +30,13 @@ export function getReportTypeIcon(type: ReportsTypes) {
 }
 
 export function getReportReadStatusIcon(read: boolean) {
-	return read ? CheckCheck : Clock;
+	return read ? CheckCheck : BellDot;
 }
 
 export function getReportActiveStatusIcon(active: boolean) {
-	return active ? AlertTriangle : CheckCheck;
+	return active ? FileClock : CheckCheck;
+}
+
+export function getLocationIcon(hasLocation: boolean) {
+	return hasLocation ? MapPin : MapPinOff;
 }
