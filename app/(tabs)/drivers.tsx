@@ -249,7 +249,7 @@ export default function DriversScreen() {
 	const getSortLabel = (sort: SortOption): string => {
 		const labels: Record<SortOption, string> = {
 			name: 'Nombre',
-			registrationDate: 'Fecha de registro',
+			registrationDate: 'F. registro',
 			status: 'Estado',
 		};
 		return labels[sort];
@@ -275,7 +275,7 @@ export default function DriversScreen() {
 						<Search size={20} color={lightTheme.colors.onSurfaceVariant} />
 						<TextInput
 							style={styles.searchInput}
-							placeholder="Buscar por nombre, teléfono, DNI..."
+							placeholder="Buscar conductores..."
 							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
 							value={searchQuery}
 							onChangeText={setSearchQuery}
@@ -792,12 +792,6 @@ const styles = StyleSheet.create({
 		fontWeight: '500',
 		flex: 1,
 	},
-	sortOptionsOrderContainer: {
-		width: '100%',
-		flexDirection: 'row',
-		justifyContent: 'flex-start',
-		gap: spacing.xs,
-	},
 	sortOptionsContainer: {
 		width: '100%',
 		flexDirection: 'row',
@@ -817,7 +811,7 @@ const styles = StyleSheet.create({
 		borderColor: lightTheme.colors.outline,
 	},
 	sortOptionChipActive: {
-		backgroundColor: lightTheme.colors.primaryContainer,
+		backgroundColor: lightTheme.colors.secondaryContainer,
 		borderColor: lightTheme.colors.primary,
 	},
 	sortOptionText: {
@@ -828,7 +822,6 @@ const styles = StyleSheet.create({
 		color: lightTheme.colors.onSurface,
 	},
 	sortOptionTextActive: {
-		color: lightTheme.colors.primary,
 		fontWeight: '600',
 	},
 	sortOrderIcon: {
