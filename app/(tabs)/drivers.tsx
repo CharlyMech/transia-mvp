@@ -521,7 +521,7 @@ export default function DriversScreen() {
 												Icon={getDriverStatusIcon(item.status)}
 											/>
 										</View>
-										<Text style={styles.driverPhone}>{item.phone}</Text>
+										<Text style={styles.driverPhone}>Teléfono: {item.phone}</Text>
 										<View style={styles.driverFooter}>
 											<Text style={styles.driverDate}>
 												Registrado en: {item.registrationDate.toLocaleDateString()}
@@ -863,7 +863,7 @@ const styles = StyleSheet.create({
 	},
 	resultsInfo: {
 		paddingHorizontal: spacing.md,
-		paddingVertical: spacing.sm,
+		paddingBottom: spacing.sm,
 	},
 	resultsText: {
 		fontSize: typography.bodySmall,
