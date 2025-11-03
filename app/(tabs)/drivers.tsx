@@ -773,6 +773,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		flexWrap: 'wrap',
 		gap: spacing.xs,
+		justifyContent: 'space-between',
 	},
 	statusChip: {
 		flexDirection: 'row',
@@ -782,8 +783,9 @@ const styles = StyleSheet.create({
 		borderRadius: roundness.sm,
 		borderWidth: 1.5,
 		gap: spacing.xs,
-		minWidth: '48%',
-		flex: 1,
+		flexBasis: '49%',
+		flexGrow: 0,
+		flexShrink: 0,
 	},
 	statusChipText: {
 		fontSize: typography.bodyMedium,
