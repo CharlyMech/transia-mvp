@@ -1,9 +1,8 @@
 import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
-import type { Report } from "@/models/report";
-import { listReports } from "@/services/data/mock/reports";
+import { useReportsStore } from "@/stores/useReportsStore";
 import { usePathname, useRouter } from "expo-router";
 import {
-	Home,
+	LayoutDashboard,
 	MessageSquareWarning,
 	Settings as SettingsIcon,
 	SquareUserRound,
@@ -28,7 +27,7 @@ type RouteCfg = {
 const ROUTES: RouteCfg[] = [
 	{ key: "reports", path: "/(tabs)/reports", title: "Reportes", Icon: MessageSquareWarning },
 	{ key: "fleet", path: "/(tabs)/fleet", title: "Flota", Icon: Truck },
-	{ key: "home", path: "/(tabs)", title: "Inicio", Icon: Home },
+	{ key: "home", path: "/(tabs)", title: "Inicio", Icon: LayoutDashboard },
 	{ key: "drivers", path: "/(tabs)/drivers", title: "Choferes", Icon: SquareUserRound },
 	{ key: "settings", path: "/(tabs)/settings", title: "Ajustes", Icon: SettingsIcon },
 ];
@@ -61,15 +60,10 @@ export function BottomNavBar() {
 		});
 	};
 
-	const [reports, setReports] = useState<Report[]>([]);
-
-	useEffect(() => {
-		listReports()
-			.then(setReports)
-			.catch((err) => console.error("Error cargando drivers:", err));
-	}, []);
-
-	const unreadReports: number = reports.filter((report) => report.read === false).length;
+	// Get pending reports count from the store (active: true means pending)
+	const pendingReports = useReportsStore((state) =>
+		state.reports.filter((report) => report.active === true).length
+	);
 
 	useEffect(() => {
 		const info = tabsLayout[activeIndex];
@@ -80,7 +74,7 @@ export function BottomNavBar() {
 			readyRef.current = true;
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [activeIndex, tabsLayout]);
+	}, [activeIndex, tabsLayout, pendingReports]);
 
 	const pillStyle = useAnimatedStyle(() => ({
 		transform: [{ translateX: pillX.value }],
@@ -112,10 +106,10 @@ export function BottomNavBar() {
 						<View style={styles.tabInner}>
 							<View style={{ position: "relative" }}>
 								<IconComp size={22} color={color} />
-								{cfg.key === "reports" && unreadReports > 0 && (
+								{cfg.key === "reports" && pendingReports > 0 && (
 									<View style={styles.badge}>
 										<Text style={styles.badgeText}>
-											{unreadReports > 9 ? "9+" : unreadReports}
+											{pendingReports > 9 ? "9+" : pendingReports}
 										</Text>
 									</View>
 								)}
@@ -128,7 +122,7 @@ export function BottomNavBar() {
 				);
 			}),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[activeIndex, tabsLayout]
+		[activeIndex, tabsLayout, pendingReports]
 	);
 
 	return (

@@ -203,7 +203,10 @@ export default function ReportsScreen() {
 
 	const handleToggleActive = () => {
 		if (selectedReport) {
-			updateReport(selectedReport.id, { active: !selectedReport.active });
+			updateReport(selectedReport.id, {
+				active: !selectedReport.active,
+				closedAt: !selectedReport.active ? null : new Date()
+			});
 			handleCloseActionsModal();
 		}
 	};

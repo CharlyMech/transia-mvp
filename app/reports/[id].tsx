@@ -8,7 +8,7 @@ import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useReportsStore } from '@/stores/useReportsStore';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, SquarePen } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
 	Dimensions,
 	Image,
@@ -32,8 +32,7 @@ export default function ReportDetailScreen() {
 	const reportError = useReportsStore((state) => state.reportError);
 	const fetchReportById = useReportsStore((state) => state.fetchReportById);
 	const clearCurrentReport = useReportsStore((state) => state.clearCurrentReport);
-
-	const [read, setRead] = useState(false);
+	const updateReport = useReportsStore((state) => state.updateReport);
 
 	useEffect(() => {
 		if (id) {
@@ -50,15 +49,13 @@ export default function ReportDetailScreen() {
 		}
 	};
 
-	useEffect(() => {
+	const toggleSolvedStatus = () => {
 		if (currentReport) {
-			setRead(currentReport.read);
+			updateReport(currentReport.id, {
+				active: !currentReport.active,
+				closedAt: !currentReport.active ? null : new Date()
+			});
 		}
-	}, [currentReport]);
-
-	const toggleReadStatus = () => {
-		setRead(!read);
-		// TODO: Update report in store
 	};
 
 	if (loadingReport) {
@@ -126,7 +123,7 @@ export default function ReportDetailScreen() {
 				<View style={styles.solvedStatusContainer}>
 					<TouchableOpacity
 						style={styles.checkboxRow}
-						onPress={toggleReadStatus}
+						onPress={toggleSolvedStatus}
 						activeOpacity={0.7}
 					>
 						<Text style={styles.checkboxLabel}>
@@ -134,9 +131,9 @@ export default function ReportDetailScreen() {
 						</Text>
 						<View style={[
 							styles.checkbox,
-							read && styles.checkboxChecked
+							!currentReport.active && styles.checkboxChecked
 						]}>
-							{read && (
+							{!currentReport.active && (
 								<Text style={styles.checkmark}>✓</Text>
 							)}
 						</View>
