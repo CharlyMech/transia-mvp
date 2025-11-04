@@ -1,3 +1,5 @@
+import { TimeRange, TimeRegistration } from "@/models/timeRegistration";
+
 /**
  * From ISO string (ej: 2025-10-09T12:30:00Z) to dd/MM/yyyy HH:mm format
  */
@@ -104,4 +106,85 @@ export function isValidDate(date: any): boolean {
 	if (!date) return false;
 	const dateObj = date instanceof Date ? date : new Date(date);
 	return !isNaN(dateObj.getTime());
+}
+
+/**
+ * Calculate total hours from time ranges
+ * FIXED: Properly handle Date objects and strings, exclude ranges without endTime
+ */
+export function calculateTotalHours(ranges: TimeRange[]): number {
+	return ranges.reduce((total, range) => {
+		// Only count completed ranges (with endTime)
+		if (range.endTime) {
+			const startTime =
+				range.startTime instanceof Date
+					? range.startTime
+					: new Date(range.startTime);
+			const endTime =
+				range.endTime instanceof Date
+					? range.endTime
+					: new Date(range.endTime);
+
+			const diffMs = endTime.getTime() - startTime.getTime();
+			const hours = diffMs / (1000 * 60 * 60);
+			return total + hours;
+		}
+		return total;
+	}, 0);
+}
+
+/**
+ * Format hours to HH:MM format or Xh Ym format
+ */
+export function formatHours(
+	hours: number,
+	shortFormat: boolean = false
+): string {
+	const h = Math.floor(hours);
+	const m = Math.round((hours - h) * 60);
+
+	if (shortFormat) {
+		return `${h}h ${m}m`;
+	}
+
+	return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+/**
+ * Check if a time registration has an active range
+ * FIXED: Only check for ranges without endTime (removed isPaused check)
+ */
+export function hasActiveRange(registration: TimeRegistration): boolean {
+	return registration.timeRanges.some((range) => !range.endTime);
+}
+
+/**
+ * Calculate current working minutes including active range
+ * This is for real-time display during active work
+ */
+export function calculateCurrentMinutes(
+	ranges: TimeRange[],
+	currentTime: Date
+): number {
+	let totalMinutes = 0;
+
+	ranges.forEach((range) => {
+		const start =
+			range.startTime instanceof Date
+				? range.startTime
+				: new Date(range.startTime);
+
+		// For completed ranges, use endTime
+		// For active ranges (no endTime), use current time
+		const end = range.endTime
+			? range.endTime instanceof Date
+				? range.endTime
+				: new Date(range.endTime)
+			: currentTime;
+
+		const diffMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+		totalMinutes += diffMinutes;
+	});
+
+	return Math.floor(totalMinutes);
 }

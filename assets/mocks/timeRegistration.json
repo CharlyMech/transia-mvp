@@ -1,0 +1,115 @@
+[
+	{
+		"id": "550e8400-e29b-41d4-a716-446655440001",
+		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"date": "2025-11-03T00:00:00.000Z",
+		"timeRanges": [
+			{
+				"id": "550e8400-e29b-41d4-a716-446655440010",
+				"startTime": "2025-11-03T08:00:00.000Z",
+				"endTime": "2025-11-03T13:00:00.000Z",
+				"isPaused": false,
+				"pausedAt": null
+			},
+			{
+				"id": "550e8400-e29b-41d4-a716-446655440011",
+				"startTime": "2025-11-03T15:00:00.000Z",
+				"endTime": "2025-11-03T18:00:00.000Z",
+				"isPaused": false,
+				"pausedAt": null
+			}
+		],
+		"totalHours": 8,
+		"isActive": false,
+		"notes": "Jornada completa"
+	},
+	{
+		"id": "550e8400-e29b-41d4-a716-446655440002",
+		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"date": "2025-11-02T00:00:00.000Z",
+		"timeRanges": [
+			{
+				"id": "550e8400-e29b-41d4-a716-446655440012",
+				"startTime": "2025-11-02T07:30:00.000Z",
+				"endTime": "2025-11-02T12:00:00.000Z",
+				"isPaused": false,
+				"pausedAt": null
+			},
+			{
+				"id": "550e8400-e29b-41d4-a716-446655440013",
+				"startTime": "2025-11-02T13:00:00.000Z",
+				"endTime": "2025-11-02T16:30:00.000Z",
+				"isPaused": false,
+				"pausedAt": null
+			}
+		],
+		"totalHours": 8,
+		"isActive": false,
+		"notes": null
+	},
+	{
+		"id": "550e8400-e29b-41d4-a716-446655440003",
+		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"date": "2025-11-01T00:00:00.000Z",
+		"timeRanges": [
+			{
+				"id": "550e8400-e29b-41d4-a716-446655440014",
+				"startTime": "2025-11-01T08:00:00.000Z",
+				"endTime": "2025-11-01T14:00:00.000Z",
+				"isPaused": false,
+				"pausedAt": null
+			},
+			{
+				"id": "550e8400-e29b-41d4-a716-446655440015",
+				"startTime": "2025-11-01T15:00:00.000Z",
+				"endTime": "2025-11-01T19:00:00.000Z",
+				"isPaused": false,
+				"pausedAt": null
+			}
+		],
+		"totalHours": 10,
+		"isActive": false,
+		"notes": "Horas extra"
+	},
+	{
+		"id": "550e8400-e29b-41d4-a716-446655440004",
+		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"date": "2025-11-03T00:00:00.000Z",
+		"timeRanges": [
+			{
+				"id": "550e8400-e29b-41d4-a716-446655440016",
+				"startTime": "2025-11-03T09:00:00.000Z",
+				"endTime": "2025-11-03T14:00:00.000Z",
+				"isPaused": false,
+				"pausedAt": null
+			}
+		],
+		"totalHours": 5,
+		"isActive": false,
+		"notes": "Media jornada"
+	},
+	{
+		"id": "550e8400-e29b-41d4-a716-446655440005",
+		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"date": "2025-10-31T00:00:00.000Z",
+		"timeRanges": [
+			{
+				"id": "550e8400-e29b-41d4-a716-446655440017",
+				"startTime": "2025-10-31T08:00:00.000Z",
+				"endTime": "2025-10-31T12:30:00.000Z",
+				"isPaused": false,
+				"pausedAt": null
+			},
+			{
+				"id": "550e8400-e29b-41d4-a716-446655440018",
+				"startTime": "2025-10-31T14:00:00.000Z",
+				"endTime": "2025-10-31T18:00:00.000Z",
+				"isPaused": false,
+				"pausedAt": null
+			}
+		],
+		"totalHours": 8.5,
+		"isActive": false,
+		"notes": null
+	}
+]

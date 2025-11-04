@@ -1,9 +1,11 @@
+import { Card } from '@/components/Card';
 import { SkeletonHome } from '@/components/skeletons';
-import { lightTheme } from '@/constants/theme';
+import { TimeTracking } from '@/components/TimeTracking';
+import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useDriversStore } from '@/stores/useDriversStore';
 import { useFleetStore } from '@/stores/useFleetStore';
 import { useReportsStore } from '@/stores/useReportsStore';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
@@ -23,38 +25,60 @@ export default function HomeScreen() {
 	}
 
 	// Calculate stats
-	const unreadReports = reports.filter(r => !r.read).length;
+	const unreadReports = reports.filter((r) => !r.read).length;
 	const activeDrivers = drivers.length;
 	const activeVehicles = vehicles.length;
 
 	return (
 		<SafeAreaView style={styles.safeArea}>
-			<View style={styles.container}>
-				<Text style={styles.title}>Dashboard</Text>
-				<Text style={styles.text}>Bienvenido a Transia</Text>
-
-				<View style={styles.statsContainer}>
-					<View style={styles.statCard}>
-						<Text style={styles.statValue}>{reports.length}</Text>
-						<Text style={styles.statLabel}>Total Reportes</Text>
+			<ScrollView
+				style={styles.scrollView}
+				contentContainerStyle={styles.scrollContent}
+				showsVerticalScrollIndicator={false}
+			>
+				<View style={styles.container}>
+					<View style={styles.headerSection}>
+						<Text style={styles.title}>Dashboard</Text>
+						<Text style={styles.subtitle}>Bienvenido a Transia</Text>
 					</View>
 
-					<View style={styles.statCard}>
-						<Text style={styles.statValue}>{unreadReports}</Text>
-						<Text style={styles.statLabel}>Sin Leer</Text>
-					</View>
+					<Card
+						backgroundColor={lightTheme.colors.surface}
+						paddingX={spacing.sm}
+						paddingY={spacing.sm}
+						shadow="none"
+					>
+						<TimeTracking />
+					</Card>
 
-					<View style={styles.statCard}>
-						<Text style={styles.statValue}>{activeDrivers}</Text>
-						<Text style={styles.statLabel}>Conductores</Text>
-					</View>
+					{/* TEMPORARY CONTENT */}
+					<View style={styles.statsSection}>
+						<Text style={styles.sectionTitle}>Resumen</Text>
 
-					<View style={styles.statCard}>
-						<Text style={styles.statValue}>{activeVehicles}</Text>
-						<Text style={styles.statLabel}>Vehículos</Text>
+						<View style={styles.statsContainer}>
+							<View style={styles.statCard}>
+								<Text style={styles.statValue}>{reports.length}</Text>
+								<Text style={styles.statLabel}>Total Reportes</Text>
+							</View>
+
+							<View style={styles.statCard}>
+								<Text style={styles.statValue}>{unreadReports}</Text>
+								<Text style={styles.statLabel}>Sin Leer</Text>
+							</View>
+
+							<View style={styles.statCard}>
+								<Text style={styles.statValue}>{activeDrivers}</Text>
+								<Text style={styles.statLabel}>Conductores</Text>
+							</View>
+
+							<View style={styles.statCard}>
+								<Text style={styles.statValue}>{activeVehicles}</Text>
+								<Text style={styles.statLabel}>Vehículos</Text>
+							</View>
+						</View>
 					</View>
 				</View>
-			</View>
+			</ScrollView>
 		</SafeAreaView>
 	);
 }
@@ -64,47 +88,63 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: lightTheme.colors.background,
 	},
+	scrollView: {
+		flex: 1,
+	},
+	scrollContent: {
+		flexGrow: 1,
+	},
 	container: {
 		flex: 1,
 		backgroundColor: lightTheme.colors.background,
-		padding: 16,
+		padding: spacing.md,
+		gap: spacing.lg,
+	},
+	headerSection: {
+		gap: spacing.xs,
 	},
 	title: {
-		fontSize: 32,
-		fontWeight: 'bold',
+		fontSize: typography.displaySmall,
+		fontWeight: '700',
 		color: lightTheme.colors.onBackground,
-		marginBottom: 8,
 	},
-	text: {
-		fontSize: 16,
+	subtitle: {
+		fontSize: typography.bodyLarge,
 		color: lightTheme.colors.onSurfaceVariant,
-		marginBottom: 24,
+	},
+	statsSection: {
+		gap: spacing.md,
+	},
+	sectionTitle: {
+		fontSize: typography.titleLarge,
+		fontWeight: '600',
+		color: lightTheme.colors.onBackground,
 	},
 	statsContainer: {
 		flexDirection: 'row',
-		gap: 12,
+		gap: spacing.sm,
 		flexWrap: 'wrap',
 	},
 	statCard: {
 		flex: 1,
 		minWidth: 100,
 		backgroundColor: lightTheme.colors.surface,
-		padding: 16,
-		borderRadius: 12,
+		padding: spacing.md,
+		borderRadius: roundness.md,
 		shadowColor: '#000',
 		shadowOffset: { width: 0, height: 1 },
 		shadowOpacity: 0.05,
 		shadowRadius: 2,
 		elevation: 2,
+		gap: spacing.xs,
 	},
 	statValue: {
-		fontSize: 24,
-		fontWeight: 'bold',
+		fontSize: typography.headlineMedium,
+		fontWeight: '700',
 		color: lightTheme.colors.onSurface,
-		marginBottom: 4,
 	},
 	statLabel: {
-		fontSize: 14,
+		fontSize: typography.bodyMedium,
 		color: lightTheme.colors.onSurfaceVariant,
 	},
 });
