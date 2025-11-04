@@ -105,8 +105,6 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 				currentRegistration: null,
 			});
 			try {
-				await delay(1000);
-
 				// First check local store
 				const localReg = get().registrations.find((reg) => {
 					const regDate = new Date(reg.date);
