@@ -47,7 +47,7 @@ export default function DriverProfileScreen() {
 
 	const handleEditPress = () => {
 		if (id) {
-			router.push(`/drivers/edit/${id}` as any);
+			router.push(`/drivers/${id}/edit` as any);
 		}
 	};
 
@@ -274,7 +274,7 @@ export default function DriverProfileScreen() {
 							styles.cardTitleContainer,
 							pressed && { opacity: 0.8 },
 						]}
-						onPress={() => console.log('Accediendo al historial de incidencias y mantenimientos')}
+						onPress={() => router.push(`/drivers/${id}/time-registration`)}
 					>
 						<Text style={styles.cardTitle}>Registro horario</Text>
 						<ExternalLink size={16} strokeWidth={2.5} color={lightTheme.colors.onSurface} />

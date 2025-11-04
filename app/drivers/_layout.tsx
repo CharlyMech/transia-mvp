@@ -26,12 +26,6 @@ export default function DriversStack() {
 						headerShown: false,
 					}}
 				/>
-				<Stack.Screen
-					name="edit"
-					options={{
-						headerShown: false,
-					}}
-				/>
 			</Stack>
 		</View>
 	);
