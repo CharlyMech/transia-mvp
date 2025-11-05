@@ -7,10 +7,11 @@ import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTimeRegistrationsStore } from '@/stores/useTimeRegistrationStore';
 import { calculateCurrentMinutes, formatDateToDisplay } from '@/utils/dateUtils';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, Calendar, ChevronLeft, ChevronRight, Edit2, Pause, Play, Plus, Square, Trash2 } from 'lucide-react-native';
+import { ArrowLeft, Calendar, ChevronLeft, ChevronRight, Clock, Edit2, Pause, Play, Plus, Square, Trash2 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { LocaleConfig, Calendar as RNCalendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -42,6 +43,12 @@ export default function TimeRegistrationScreen() {
 	const [editStartTime, setEditStartTime] = useState('');
 	const [editEndTime, setEditEndTime] = useState('');
 	const [currentTime, setCurrentTime] = useState(new Date());
+
+	// Time picker states
+	const [showStartTimePicker, setShowStartTimePicker] = useState(false);
+	const [showEndTimePicker, setShowEndTimePicker] = useState(false);
+	const [startTimeDate, setStartTimeDate] = useState(new Date());
+	const [endTimeDate, setEndTimeDate] = useState(new Date());
 
 	const currentRegistration = useTimeRegistrationsStore((state) => state.currentRegistration);
 	const loadingRegistration = useTimeRegistrationsStore((state) => state.loadingRegistration);
@@ -145,9 +152,78 @@ export default function TimeRegistrationScreen() {
 	};
 
 	const handleAddRange = () => {
-		setEditStartTime('');
+		const now = new Date();
+		setStartTimeDate(now);
+		setEndTimeDate(now);
+		setEditStartTime(formatTime(now));
 		setEditEndTime('');
 		setShowAddModal(true);
+		// iOS: Open start time picker by default after a small delay to ensure modal is rendered
+		if (Platform.OS === 'ios') {
+			setTimeout(() => {
+				setShowStartTimePicker(true);
+			}, 100);
+		}
+	};
+
+	const handleStartTimeChange = (event: any, selectedTime?: Date) => {
+		// Handle dismiss/cancel
+		if (event.type === 'dismissed') {
+			setShowStartTimePicker(false);
+			return;
+		}
+
+		// CRITICAL FIX: Always update the state immediately when time changes
+		if (selectedTime) {
+			setStartTimeDate(selectedTime);
+			setEditStartTime(formatTime(selectedTime));
+		}
+
+		// On Android: Only close picker when user confirms (presses OK button)
+		// event.type will be 'set' when OK is pressed, but will be 'neutralButtonPressed' 
+		// or other values when just scrolling the time picker
+		if (Platform.OS === 'android' && event.type === 'set') {
+			setShowStartTimePicker(false);
+		}
+		// On iOS: Picker stays open, updates happen in real-time
+	};
+
+	const handleEndTimeChange = (event: any, selectedTime?: Date) => {
+		// Handle dismiss/cancel
+		if (event.type === 'dismissed') {
+			setShowEndTimePicker(false);
+			return;
+		}
+
+		// CRITICAL FIX: Always update the state immediately when time changes
+		if (selectedTime) {
+			setEndTimeDate(selectedTime);
+			setEditEndTime(formatTime(selectedTime));
+		}
+
+		// On Android: Only close picker when user confirms (presses OK button)
+		// event.type will be 'set' when OK is pressed, but will be 'neutralButtonPressed' 
+		// or other values when just scrolling the time picker
+		if (Platform.OS === 'android' && event.type === 'set') {
+			setShowEndTimePicker(false);
+		}
+		// On iOS: Picker stays open, updates happen in real-time
+	};
+
+	const openStartTimePicker = () => {
+		// iOS FIX: Close end time picker if it's open
+		if (showEndTimePicker) {
+			setShowEndTimePicker(false);
+		}
+		setShowStartTimePicker(true);
+	};
+
+	const openEndTimePicker = () => {
+		// iOS FIX: Close start time picker if it's open
+		if (showStartTimePicker) {
+			setShowStartTimePicker(false);
+		}
+		setShowEndTimePicker(true);
 	};
 
 	const handleSaveNewRange = () => {
@@ -181,6 +257,8 @@ export default function TimeRegistrationScreen() {
 		});
 
 		setShowAddModal(false);
+		setShowStartTimePicker(false);
+		setShowEndTimePicker(false);
 		setEditStartTime('');
 		setEditEndTime('');
 	};
@@ -191,9 +269,20 @@ export default function TimeRegistrationScreen() {
 		if (!range) return;
 
 		setSelectedRangeId(rangeId);
-		setEditStartTime(formatTime(new Date(range.startTime)));
-		setEditEndTime(range.endTime ? formatTime(new Date(range.endTime)) : '');
+		const startDate = new Date(range.startTime);
+		const endDate = range.endTime ? new Date(range.endTime) : new Date();
+
+		setStartTimeDate(startDate);
+		setEndTimeDate(endDate);
+		setEditStartTime(formatTime(startDate));
+		setEditEndTime(range.endTime ? formatTime(endDate) : '');
 		setShowEditModal(true);
+		// iOS: Open start time picker by default after a small delay to ensure modal is rendered
+		if (Platform.OS === 'ios') {
+			setTimeout(() => {
+				setShowStartTimePicker(true);
+			}, 100);
+		}
 	};
 
 	const handleSaveEdit = () => {
@@ -225,6 +314,8 @@ export default function TimeRegistrationScreen() {
 		});
 
 		setShowEditModal(false);
+		setShowStartTimePicker(false);
+		setShowEndTimePicker(false);
 		setSelectedRangeId(null);
 	};
 
@@ -314,7 +405,6 @@ export default function TimeRegistrationScreen() {
 				<View style={styles.content}>
 					<Text style={styles.title}>Registro horario</Text>
 
-					{/* Date Selector */}
 					<Card
 						paddingX={spacing.md}
 						paddingY={spacing.md}
@@ -362,7 +452,6 @@ export default function TimeRegistrationScreen() {
 						</View>
 					) : (
 						<>
-							{/* Circular Progress Chart with Buttons - COMBINED CARD */}
 							{isToday() && (
 								<Card
 									paddingX={spacing.sm}
@@ -377,35 +466,72 @@ export default function TimeRegistrationScreen() {
 										size={180}
 									/>
 
-									{/* Control Buttons - Now inside the same card */}
 									{isOwnProfile && (
 										<View style={styles.controlsContainer}>
 											{!hasActive ? (
-												<ElevatedButton
-													backgroundColor={lightTheme.colors.primary}
-													label="Iniciar jornada"
-													icon={Play}
-													iconSize={20}
-													iconColor={lightTheme.colors.onPrimary}
-													fontSize={typography.bodyLarge}
-													paddingX={spacing.lg}
-													paddingY={spacing.md}
-													rounded={roundness.sm}
-													shadow="none"
-													style={styles.controlButton}
-													onPress={handleStartWork}
-												/>
+												// Check if there are existing time ranges (paused state) or not (initial state)
+												currentRegistration && currentRegistration.timeRanges.length > 0 ? (
+													// Paused state - show gray "Reanudar" and red "Finalizar" buttons
+													<>
+														<ElevatedButton
+															backgroundColor="#9e9e9e"
+															label="Reanudar"
+															icon={Play}
+															iconSize={20}
+															iconColor="#FFFFFF"
+															fontSize={typography.bodyLarge}
+															textColor="#FFFFFF"
+															paddingX={spacing.lg}
+															paddingY={spacing.md}
+															rounded={roundness.sm}
+															shadow="none"
+															style={styles.controlButton}
+															onPress={handleResumeWork}
+														/>
+														<ElevatedButton
+															backgroundColor="#f5423e"
+															label="Finalizar"
+															icon={Square}
+															iconSize={20}
+															iconColor="#FFFFFF"
+															fontSize={typography.bodyLarge}
+															textColor="#FFFFFF"
+															paddingX={spacing.lg}
+															paddingY={spacing.md}
+															rounded={roundness.sm}
+															shadow="none"
+															style={styles.controlButton}
+															onPress={handleStopWorkRequest}
+														/>
+													</>
+												) : (
+													// Initial state - show "Iniciar jornada" button
+													<ElevatedButton
+														backgroundColor={lightTheme.colors.primary}
+														label="Iniciar jornada"
+														icon={Play}
+														iconSize={20}
+														iconColor={lightTheme.colors.onPrimary}
+														fontSize={typography.bodyLarge}
+														paddingX={spacing.lg}
+														paddingY={spacing.md}
+														rounded={roundness.sm}
+														shadow="none"
+														style={styles.controlButton}
+														onPress={handleStartWork}
+													/>
+												)
 											) : (
 												<>
-													{/* TODO -> Fix colors */}
+													{/* HARDCODED COLORS */}
 													<ElevatedButton
-														backgroundColor={lightTheme.colors.warning}
+														backgroundColor="#ffb332"
 														label="Pausar"
 														icon={Pause}
 														iconSize={20}
-														iconColor={lightTheme.colors.onWarning}
+														iconColor="#FFFFFF"
 														fontSize={typography.bodyLarge}
-														textColor={lightTheme.colors.onWarning}
+														textColor="#FFFFFF"
 														paddingX={spacing.lg}
 														paddingY={spacing.md}
 														rounded={roundness.sm}
@@ -414,13 +540,13 @@ export default function TimeRegistrationScreen() {
 														onPress={handlePauseWork}
 													/>
 													<ElevatedButton
-														backgroundColor={lightTheme.colors.error}
+														backgroundColor="#f5423e"
 														label="Finalizar"
 														icon={Square}
 														iconSize={20}
-														iconColor={lightTheme.colors.onError}
+														iconColor="#FFFFFF"
 														fontSize={typography.bodyLarge}
-														textColor={lightTheme.colors.onError}
+														textColor="#FFFFFF"
 														paddingX={spacing.lg}
 														paddingY={spacing.md}
 														rounded={roundness.sm}
@@ -432,31 +558,6 @@ export default function TimeRegistrationScreen() {
 											)}
 										</View>
 									)}
-								</Card>
-							)}
-
-							{/* Resume Button - Separate card when paused */}
-							{!hasActive && currentRegistration && currentRegistration.timeRanges.length > 0 && isToday() && isOwnProfile && (
-								<Card
-									paddingX={spacing.md}
-									paddingY={spacing.md}
-									rounded={roundness.sm}
-									shadow="none"
-									backgroundColor={lightTheme.colors.surface}
-								>
-									<ElevatedButton
-										backgroundColor={lightTheme.colors.primary}
-										label="Reanudar"
-										icon={Play}
-										iconSize={20}
-										iconColor={lightTheme.colors.onPrimary}
-										fontSize={typography.bodyLarge}
-										paddingX={spacing.lg}
-										paddingY={spacing.md}
-										rounded={roundness.sm}
-										shadow="none"
-										onPress={handleResumeWork}
-									/>
 								</Card>
 							)}
 
@@ -631,32 +732,62 @@ export default function TimeRegistrationScreen() {
 			{/* Add Range Modal */}
 			<ActionsModal
 				visible={showAddModal}
-				onClose={() => setShowAddModal(false)}
+				onClose={() => {
+					setShowAddModal(false);
+					setShowStartTimePicker(false);
+					setShowEndTimePicker(false);
+					setEditStartTime('');
+					setEditEndTime('');
+				}}
 				title="Agregar rango de tiempo"
 			>
 				<View style={styles.editModalContent}>
 					<View style={styles.inputGroup}>
 						<Text style={styles.inputLabel}>Hora de inicio</Text>
-						<TextInput
-							style={styles.input}
-							value={editStartTime}
-							onChangeText={setEditStartTime}
-							placeholder="HH:MM"
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
-							keyboardType="numbers-and-punctuation"
-						/>
+						<TouchableOpacity
+							style={styles.timePickerButton}
+							onPress={openStartTimePicker}
+						>
+							<Clock size={20} color={lightTheme.colors.onSurfaceVariant} />
+							<Text style={styles.timePickerText}>
+								{editStartTime || 'Seleccionar hora'}
+							</Text>
+						</TouchableOpacity>
+						{showStartTimePicker && (
+							<DateTimePicker
+								value={startTimeDate}
+								mode="time"
+								is24Hour={true}
+								display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+								onChange={handleStartTimeChange}
+								accentColor={lightTheme.colors.primary}
+								themeVariant="light"
+							/>
+						)}
 					</View>
 
 					<View style={styles.inputGroup}>
 						<Text style={styles.inputLabel}>Hora de fin (opcional)</Text>
-						<TextInput
-							style={styles.input}
-							value={editEndTime}
-							onChangeText={setEditEndTime}
-							placeholder="HH:MM"
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
-							keyboardType="numbers-and-punctuation"
-						/>
+						<TouchableOpacity
+							style={styles.timePickerButton}
+							onPress={openEndTimePicker}
+						>
+							<Clock size={20} color={lightTheme.colors.onSurfaceVariant} />
+							<Text style={styles.timePickerText}>
+								{editEndTime || 'Seleccionar hora'}
+							</Text>
+						</TouchableOpacity>
+						{showEndTimePicker && (
+							<DateTimePicker
+								value={endTimeDate}
+								mode="time"
+								is24Hour={true}
+								display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+								onChange={handleEndTimeChange}
+								accentColor={lightTheme.colors.primary}
+								themeVariant="light"
+							/>
+						)}
 					</View>
 
 					<ElevatedButton
@@ -675,32 +806,61 @@ export default function TimeRegistrationScreen() {
 			{/* Edit Modal */}
 			<ActionsModal
 				visible={showEditModal}
-				onClose={() => setShowEditModal(false)}
+				onClose={() => {
+					setShowEditModal(false);
+					setShowStartTimePicker(false);
+					setShowEndTimePicker(false);
+					setSelectedRangeId(null);
+				}}
 				title="Editar rango de tiempo"
 			>
 				<View style={styles.editModalContent}>
 					<View style={styles.inputGroup}>
 						<Text style={styles.inputLabel}>Hora de inicio</Text>
-						<TextInput
-							style={styles.input}
-							value={editStartTime}
-							onChangeText={setEditStartTime}
-							placeholder="HH:MM"
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
-							keyboardType="numbers-and-punctuation"
-						/>
+						<TouchableOpacity
+							style={styles.timePickerButton}
+							onPress={openStartTimePicker}
+						>
+							<Clock size={20} color={lightTheme.colors.onSurfaceVariant} />
+							<Text style={styles.timePickerText}>
+								{editStartTime || 'Seleccionar hora'}
+							</Text>
+						</TouchableOpacity>
+						{showStartTimePicker && (
+							<DateTimePicker
+								value={startTimeDate}
+								mode="time"
+								is24Hour={true}
+								display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+								onChange={handleStartTimeChange}
+								accentColor={lightTheme.colors.primary}
+								themeVariant="light"
+							/>
+						)}
 					</View>
 
 					<View style={styles.inputGroup}>
 						<Text style={styles.inputLabel}>Hora de fin</Text>
-						<TextInput
-							style={styles.input}
-							value={editEndTime}
-							onChangeText={setEditEndTime}
-							placeholder="HH:MM"
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
-							keyboardType="numbers-and-punctuation"
-						/>
+						<TouchableOpacity
+							style={styles.timePickerButton}
+							onPress={openEndTimePicker}
+						>
+							<Clock size={20} color={lightTheme.colors.onSurfaceVariant} />
+							<Text style={styles.timePickerText}>
+								{editEndTime || 'Seleccionar hora'}
+							</Text>
+						</TouchableOpacity>
+						{showEndTimePicker && (
+							<DateTimePicker
+								value={endTimeDate}
+								mode="time"
+								is24Hour={true}
+								display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+								onChange={handleEndTimeChange}
+								accentColor={lightTheme.colors.primary}
+								themeVariant="light"
+							/>
+						)}
 					</View>
 
 					<ElevatedButton
@@ -1026,6 +1186,22 @@ const styles = StyleSheet.create({
 		paddingVertical: spacing.sm,
 		fontSize: typography.bodyLarge,
 		color: lightTheme.colors.onSurface,
+	},
+	timePickerButton: {
+		backgroundColor: lightTheme.colors.surface,
+		borderWidth: 1,
+		borderColor: lightTheme.colors.outline,
+		borderRadius: roundness.sm,
+		paddingHorizontal: spacing.md,
+		paddingVertical: spacing.md,
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: spacing.sm,
+	},
+	timePickerText: {
+		fontSize: typography.bodyLarge,
+		color: lightTheme.colors.onSurface,
+		fontWeight: '500',
 	},
 	calendarWrapper: {
 		paddingVertical: spacing.xs,
