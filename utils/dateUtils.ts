@@ -1,3 +1,4 @@
+import { lightTheme } from "@/constants/theme";
 import { TimeRange, TimeRegistration } from "@/models/timeRegistration";
 
 /**
@@ -187,4 +188,31 @@ export function calculateCurrentMinutes(
 	});
 
 	return Math.floor(totalMinutes);
+}
+
+/**
+ * Calculate time diff to show right color indicator
+ */
+export function getTotalDayTimeColor(totalMinutes: number) {
+	const maxMinutes = 480;
+	const diff = Math.abs(totalMinutes - maxMinutes);
+
+	if (diff > 60) {
+		return {
+			container: lightTheme.colors.errorContainer,
+			text: lightTheme.colors.onErrorContainer,
+		};
+	}
+
+	if (diff > 0 && diff <= 60) {
+		return {
+			container: lightTheme.colors.warningContainer,
+			text: lightTheme.colors.onWarningContainer,
+		};
+	}
+
+	return {
+		container: lightTheme.colors.primaryContainer,
+		text: lightTheme.colors.onPrimaryContainer,
+	};
 }
