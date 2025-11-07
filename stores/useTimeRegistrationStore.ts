@@ -1,4 +1,8 @@
-import type { TimeRange, TimeRegistration } from "@/models/timeRegistration";
+import type {
+	Note,
+	TimeRange,
+	TimeRegistration,
+} from "@/models/timeRegistration";
 import { timeRegistrations as timeRegistrationsService } from "@/services/data";
 import { calculateTotalHours, hasActiveRange } from "@/utils/dateUtils";
 import * as Crypto from "expo-crypto";
@@ -36,7 +40,7 @@ interface TimeRegistrationsActions {
 	resumeWork: (driverId: string, date: Date) => Promise<void>;
 	endWork: (driverId: string, date: Date) => Promise<void>;
 
-	// CRUD operations
+	// CRUD operations for time ranges
 	addTimeRange: (
 		driverId: string,
 		date: Date,
@@ -48,7 +52,11 @@ interface TimeRegistrationsActions {
 		updates: Partial<TimeRange>
 	) => void;
 	deleteTimeRange: (registrationId: string, rangeId: string) => void;
-	updateRegistrationNotes: (registrationId: string, notes: string) => void;
+
+	// CRUD operations for notes
+	addNote: (registrationId: string, text: string) => void;
+	updateNote: (registrationId: string, noteId: string, text: string) => void;
+	deleteNote: (registrationId: string, noteId: string) => void;
 
 	// Active date management
 	setActiveDate: (date: Date) => void;
@@ -179,7 +187,7 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 					timeRanges: [newRange],
 					totalHours: 0,
 					isActive: true,
-					notes: undefined,
+					notes: [],
 				};
 
 				set((state) => ({
@@ -220,7 +228,6 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 				throw new Error("No se encontró un rango activo");
 			}
 
-			// CHANGED: End current range instead of marking as paused
 			const updatedRange = {
 				...activeRange,
 				endTime: new Date(),
@@ -254,7 +261,6 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 				throw new Error("No hay un registro de tiempo para reanudar");
 			}
 
-			// CHANGED: Just start a new range (same as startWork)
 			const newRange: TimeRange = {
 				id: Crypto.randomUUID(),
 				startTime: new Date(),
@@ -337,6 +343,7 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 					timeRanges: [newRange],
 					totalHours: calculateTotalHours([newRange]),
 					isActive: !newRange.endTime,
+					notes: [],
 				};
 
 				set((state) => ({
@@ -421,20 +428,92 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 			});
 		},
 
-		updateRegistrationNotes: (registrationId, notes) => {
+		// Note management actions
+		addNote: (registrationId: string, text: string) => {
 			set((state) => {
-				const updatedRegistrations = state.registrations.map((reg) =>
-					reg.id === registrationId ? { ...reg, notes } : reg
+				const registration = state.registrations.find(
+					(reg) => reg.id === registrationId
 				);
+				if (!registration) return state;
 
-				const updatedCurrentRegistration =
-					state.currentRegistration?.id === registrationId
-						? { ...state.currentRegistration, notes }
-						: state.currentRegistration;
+				const newNote: Note = {
+					id: Crypto.randomUUID(),
+					text,
+					createdAt: new Date(),
+				};
+
+				const updatedNotes = [...registration.notes, newNote];
+				const updatedRegistration = {
+					...registration,
+					notes: updatedNotes,
+				};
 
 				return {
-					registrations: updatedRegistrations,
-					currentRegistration: updatedCurrentRegistration,
+					registrations: state.registrations.map((reg) =>
+						reg.id === registrationId ? updatedRegistration : reg
+					),
+					currentRegistration:
+						state.currentRegistration?.id === registrationId
+							? updatedRegistration
+							: state.currentRegistration,
+				};
+			});
+		},
+
+		updateNote: (registrationId: string, noteId: string, text: string) => {
+			set((state) => {
+				const registration = state.registrations.find(
+					(reg) => reg.id === registrationId
+				);
+				if (!registration) return state;
+
+				const updatedNotes = registration.notes.map((note) =>
+					note.id === noteId
+						? { ...note, text, updatedAt: new Date() }
+						: note
+				);
+
+				const updatedRegistration = {
+					...registration,
+					notes: updatedNotes,
+				};
+
+				return {
+					registrations: state.registrations.map((reg) =>
+						reg.id === registrationId ? updatedRegistration : reg
+					),
+					currentRegistration:
+						state.currentRegistration?.id === registrationId
+							? updatedRegistration
+							: state.currentRegistration,
+				};
+			});
+		},
+
+		deleteNote: (registrationId: string, noteId: string) => {
+			set((state) => {
+				const registration = state.registrations.find(
+					(reg) => reg.id === registrationId
+				);
+				if (!registration) return state;
+
+				const updatedNotes = registration.notes.filter(
+					(note) => note.id !== noteId
+				);
+
+				const updatedRegistration = {
+					...registration,
+					notes: updatedNotes,
+				};
+
+				return {
+					registrations: state.registrations.map((reg) =>
+						reg.id === registrationId ? updatedRegistration : reg
+					),
+					currentRegistration:
+						state.currentRegistration?.id === registrationId
+							? updatedRegistration
+							: state.currentRegistration,
 				};
 			});
 		},

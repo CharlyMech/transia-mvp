@@ -1,115 +1,223 @@
 [
 	{
-		"id": "550e8400-e29b-41d4-a716-446655440001",
+		"id": "11111111-2222-4333-8444-555566667777",
 		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
-		"date": "2025-11-03T00:00:00.000Z",
+		"date": "2025-11-03",
 		"timeRanges": [
 			{
-				"id": "550e8400-e29b-41d4-a716-446655440010",
+				"id": "22222222-3333-4333-8444-666677778888",
 				"startTime": "2025-11-03T08:00:00.000Z",
-				"endTime": "2025-11-03T13:00:00.000Z",
-				"isPaused": false,
-				"pausedAt": null
-			},
-			{
-				"id": "550e8400-e29b-41d4-a716-446655440011",
-				"startTime": "2025-11-03T15:00:00.000Z",
-				"endTime": "2025-11-03T18:00:00.000Z",
+				"endTime": "2025-11-03T17:00:00.000Z",
 				"isPaused": false,
 				"pausedAt": null
 			}
 		],
-		"totalHours": 8,
+		"totalHours": 9,
 		"isActive": false,
-		"notes": "Jornada completa"
+		"notes": [
+			{
+				"id": "33333333-4444-4333-8444-777788889999",
+				"text": "Jornada estándar, sin incidencias.",
+				"createdAt": "2025-11-03T17:05:00.000Z"
+			}
+		]
 	},
 	{
-		"id": "550e8400-e29b-41d4-a716-446655440002",
+		"id": "44444444-5555-4333-8444-88889999aaaa",
 		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
-		"date": "2025-11-02T00:00:00.000Z",
+		"date": "2025-11-02",
 		"timeRanges": [
 			{
-				"id": "550e8400-e29b-41d4-a716-446655440012",
-				"startTime": "2025-11-02T07:30:00.000Z",
-				"endTime": "2025-11-02T12:00:00.000Z",
-				"isPaused": false,
-				"pausedAt": null
-			},
-			{
-				"id": "550e8400-e29b-41d4-a716-446655440013",
-				"startTime": "2025-11-02T13:00:00.000Z",
-				"endTime": "2025-11-02T16:30:00.000Z",
+				"id": "55555555-6666-4333-8444-9999aaaabbbb",
+				"startTime": "2025-11-02T09:00:00.000Z",
+				"endTime": "2025-11-02T18:30:00.000Z",
 				"isPaused": false,
 				"pausedAt": null
 			}
 		],
-		"totalHours": 8,
+		"totalHours": 9.5,
 		"isActive": false,
-		"notes": null
+		"notes": []
 	},
 	{
-		"id": "550e8400-e29b-41d4-a716-446655440003",
+		"id": "66666666-7777-4333-8444-aaaabbbbcccc",
 		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
-		"date": "2025-11-01T00:00:00.000Z",
+		"date": "2025-11-01",
 		"timeRanges": [
 			{
-				"id": "550e8400-e29b-41d4-a716-446655440014",
+				"id": "77777777-8888-4333-8444-bbbbccccdddd",
 				"startTime": "2025-11-01T08:00:00.000Z",
-				"endTime": "2025-11-01T14:00:00.000Z",
+				"endTime": "2025-11-01T20:15:00.000Z",
+				"isPaused": false,
+				"pausedAt": null
+			}
+		],
+		"totalHours": 12.25,
+		"isActive": false,
+		"notes": [
+			{
+				"id": "88888888-9999-4333-8444-ccccddddeeee",
+				"text": "Horas extras por reparto nocturno.",
+				"createdAt": "2025-11-01T20:20:00.000Z",
+				"updatedAt": "2025-11-02T09:00:00.000Z"
+			}
+		]
+	},
+	{
+		"id": "99999999-aaaa-4333-8444-ddddeeeeffff",
+		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"date": "2025-11-04",
+		"timeRanges": [
+			{
+				"id": "aaaaaaaa-bbbb-4333-8444-eeeefff00011",
+				"startTime": "2025-11-04T07:30:00.000Z",
+				"endTime": "2025-11-04T11:30:00.000Z",
 				"isPaused": false,
 				"pausedAt": null
 			},
 			{
-				"id": "550e8400-e29b-41d4-a716-446655440015",
-				"startTime": "2025-11-01T15:00:00.000Z",
-				"endTime": "2025-11-01T19:00:00.000Z",
+				"id": "bbbbbbbb-cccc-4333-8444-ffff00112233",
+				"startTime": "2025-11-04T13:00:00.000Z",
+				"endTime": "2025-11-04T17:45:00.000Z",
+				"isPaused": true,
+				"pausedAt": "2025-11-04T15:00:00.000Z"
+			}
+		],
+		"totalHours": 8.75,
+		"isActive": false,
+		"notes": [
+			{
+				"id": "cccccccc-dddd-4333-8444-001122334455",
+				"text": "Tarde con paradas múltiples; tráfico intenso.",
+				"createdAt": "2025-11-04T17:50:00.000Z"
+			}
+		]
+	},
+	{
+		"id": "dddddddd-eeee-4333-8444-112233445566",
+		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"date": "2025-11-05",
+		"timeRanges": [
+			{
+				"id": "eeeeeeee-ffff-4333-8444-223344556677",
+				"startTime": "2025-11-05T06:00:00.000Z",
+				"endTime": "2025-11-05T14:00:00.000Z",
 				"isPaused": false,
 				"pausedAt": null
 			}
 		],
-		"totalHours": 10,
+		"totalHours": 8,
 		"isActive": false,
-		"notes": "Horas extra"
-	},
-	{
-		"id": "550e8400-e29b-41d4-a716-446655440004",
-		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
-		"date": "2025-11-03T00:00:00.000Z",
-		"timeRanges": [
+		"notes": [
 			{
-				"id": "550e8400-e29b-41d4-a716-446655440016",
-				"startTime": "2025-11-03T09:00:00.000Z",
-				"endTime": "2025-11-03T14:00:00.000Z",
-				"isPaused": false,
-				"pausedAt": null
+				"id": "ffffffff-0000-4333-8444-334455667788",
+				"text": "Salida temprana para ruta larga.",
+				"createdAt": "2025-11-05T14:05:00.000Z"
+			},
+			{
+				"id": "01234567-89ab-4333-8444-445566778899",
+				"text": "Cliente pidió entrega urgente al final del turno.",
+				"createdAt": "2025-11-05T14:15:00.000Z"
 			}
-		],
-		"totalHours": 5,
-		"isActive": false,
-		"notes": "Media jornada"
+		]
 	},
 	{
-		"id": "550e8400-e29b-41d4-a716-446655440005",
+		"id": "12345678-9abc-4333-8444-5566778899aa",
 		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
-		"date": "2025-10-31T00:00:00.000Z",
+		"date": "2025-11-06",
 		"timeRanges": [
 			{
-				"id": "550e8400-e29b-41d4-a716-446655440017",
-				"startTime": "2025-10-31T08:00:00.000Z",
-				"endTime": "2025-10-31T12:30:00.000Z",
+				"id": "23456789-abcd-4333-8444-66778899aabb",
+				"startTime": "2025-11-06T12:00:00.000Z",
+				"endTime": "2025-11-06T15:00:00.000Z",
 				"isPaused": false,
 				"pausedAt": null
 			},
 			{
-				"id": "550e8400-e29b-41d4-a716-446655440018",
-				"startTime": "2025-10-31T14:00:00.000Z",
-				"endTime": "2025-10-31T18:00:00.000Z",
+				"id": "3456789a-bcde-4333-8444-778899aabbcc",
+				"startTime": "2025-11-06T16:30:00.000Z",
+				"endTime": "2025-11-06T20:00:00.000Z",
 				"isPaused": false,
 				"pausedAt": null
 			}
 		],
-		"totalHours": 8.5,
+		"totalHours": 6.5,
 		"isActive": false,
-		"notes": null
+		"notes": [
+			{
+				"id": "456789ab-cdef-4333-8444-8899aabbccdd",
+				"text": "Turno dividido por formación interna.",
+				"createdAt": "2025-11-06T20:05:00.000Z"
+			}
+		]
+	},
+	{
+		"id": "56789abc-def0-4333-8444-99aabbccdde0",
+		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"date": "2025-11-07",
+		"timeRanges": [
+			{
+				"id": "6789abcd-ef01-4333-8444-aabbccddeeff",
+				"startTime": "2025-11-07T08:00:00.000Z",
+				"endTime": null,
+				"isPaused": false,
+				"pausedAt": null
+			}
+		],
+		"totalHours": 0,
+		"isActive": true,
+		"notes": [
+			{
+				"id": "789abcde-f012-4333-8444-bbccddeeff00",
+				"text": "Registro abierto — pendiente de cierre.",
+				"createdAt": "2025-11-07T08:01:00.000Z"
+			}
+		]
+	},
+	{
+		"id": "89abcdef-0123-4333-8444-ccbbaaddffee",
+		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"date": "2025-10-31",
+		"timeRanges": [
+			{
+				"id": "9abcdef0-1234-4333-8444-ddccbbaa9988",
+				"startTime": "2025-10-31T22:00:00.000Z",
+				"endTime": "2025-11-01T06:00:00.000Z",
+				"isPaused": false,
+				"pausedAt": null
+			}
+		],
+		"totalHours": 8,
+		"isActive": false,
+		"notes": [
+			{
+				"id": "abcdef01-2345-4333-8444-eebbccdd0011",
+				"text": "Noche completa — turno internacional (cruce de día).",
+				"createdAt": "2025-11-01T06:10:00.000Z"
+			}
+		]
+	},
+	{
+		"id": "a1b2c3d4-e5f6-4333-8444-001122334455",
+		"driverId": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"date": "2025-11-08",
+		"timeRanges": [
+			{
+				"id": "b1c2d3e4-f506-4333-8444-112233445566",
+				"startTime": "2025-11-08T09:15:00.000Z",
+				"endTime": "2025-11-08T12:00:00.000Z",
+				"isPaused": false,
+				"pausedAt": null
+			}
+		],
+		"totalHours": 2.75,
+		"isActive": false,
+		"notes": [
+			{
+				"id": "c1d2e3f4-0607-4333-8444-223344556677",
+				"text": "Media jornada por cita médica.",
+				"createdAt": "2025-11-08T12:05:00.000Z"
+			}
+		]
 	}
 ]

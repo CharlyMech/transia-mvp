@@ -5,7 +5,16 @@ const VALIDATION_MESSAGES = {
 	date: "La fecha es obligatoria",
 	startTime: "La hora de inicio es obligatoria",
 	endTime: "La hora de fin debe ser posterior a la hora de inicio",
+	noteText: "El texto de la nota es obligatorio",
 };
+
+// Schema for a single note
+export const NoteSchema = z.object({
+	id: z.string().uuid(),
+	text: z.string().min(1, VALIDATION_MESSAGES.noteText),
+	createdAt: z.coerce.date(),
+	updatedAt: z.coerce.date().optional(),
+});
 
 // Schema for a single time range within a day
 export const TimeRangeSchema = z.object({
@@ -25,7 +34,7 @@ export const TimeRegistrationSchema = z
 		timeRanges: z.array(TimeRangeSchema).default([]),
 		totalHours: z.number().default(0),
 		isActive: z.boolean().default(false),
-		notes: z.string().optional().nullable(),
+		notes: z.array(NoteSchema).default([]),
 	})
 	.refine(
 		(data) => {
@@ -48,6 +57,13 @@ export const TimeRangeFormSchema = z.object({
 	endTime: z.string().optional(),
 });
 
+// Form schema for creating/editing notes
+export const NoteFormSchema = z.object({
+	text: z.string().min(1, VALIDATION_MESSAGES.noteText),
+});
+
+export type Note = z.infer<typeof NoteSchema>;
 export type TimeRange = z.infer<typeof TimeRangeSchema>;
 export type TimeRegistration = z.infer<typeof TimeRegistrationSchema>;
 export type TimeRangeFormData = z.infer<typeof TimeRangeFormSchema>;
+export type NoteFormData = z.infer<typeof NoteFormSchema>;
