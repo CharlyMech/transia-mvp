@@ -1,4 +1,5 @@
 import { ActionsModal } from '@/components/ActionsModal';
+import { AndroidTimePicker } from '@/components/AndroidTimePicker';
 import { Card } from '@/components/Card';
 import { CircularProgress } from '@/components/CircularProgress';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
@@ -6,12 +7,12 @@ import { ElevatedButton } from '@/components/ElevatedButton';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTimeRegistrationsStore } from '@/stores/useTimeRegistrationStore';
-import { calculateCurrentMinutes, formatDateToDisplay } from '@/utils/dateUtils';
+import { calculateCurrentMinutes, formatDateToDisplay, formatHours, getTotalDayTimeColor } from '@/utils/dateUtils';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, Calendar, ChevronLeft, ChevronRight, Clock, Edit2, Pause, Play, Plus, Square, Trash2 } from 'lucide-react-native';
+import { ArrowLeft, Calendar, ChevronLeft, ChevronRight, Clock, Edit2, MessageSquare, Pause, Play, Plus, Square, Trash2 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { LocaleConfig, Calendar as RNCalendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -61,11 +62,21 @@ export default function TimeRegistrationScreen() {
 	const deleteTimeRange = useTimeRegistrationsStore((state) => state.deleteTimeRange);
 	const updateTimeRange = useTimeRegistrationsStore((state) => state.updateTimeRange);
 	const addTimeRange = useTimeRegistrationsStore((state) => state.addTimeRange);
+	const addNote = useTimeRegistrationsStore((state) => state.addNote);
+	const updateNote = useTimeRegistrationsStore((state) => state.updateNote);
+	const deleteNote = useTimeRegistrationsStore((state) => state.deleteNote);
+
+	// Note modal states
+	const [showAddNoteModal, setShowAddNoteModal] = useState(false);
+	const [showEditNoteModal, setShowEditNoteModal] = useState(false);
+	const [showDeleteNoteModal, setShowDeleteNoteModal] = useState(false);
+	const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+	const [noteText, setNoteText] = useState('');
 
 	// Check if the selected driver is the logged user
 	const isOwnProfile = user?.id === id;
 
-	// Update current time every second for real-time tracking
+	// Update current time every second
 	useEffect(() => {
 		const interval = setInterval(() => {
 			setCurrentTime(new Date());
@@ -158,60 +169,61 @@ export default function TimeRegistrationScreen() {
 		setEditStartTime(formatTime(now));
 		setEditEndTime('');
 		setShowAddModal(true);
-		// iOS: Open start time picker by default after a small delay to ensure modal is rendered
-		if (Platform.OS === 'ios') {
-			setTimeout(() => {
-				setShowStartTimePicker(true);
-			}, 100);
-		}
+		setShowStartTimePicker(true);
 	};
 
 	const handleStartTimeChange = (event: any, selectedTime?: Date) => {
-		// Handle dismiss/cancel
-		if (event.type === 'dismissed') {
+		// Determine if user dismissed (Android/IOS)
+		const action = event?.type ?? event?.nativeEvent?.action;
+		const dismissed = action === 'dismissed' || action === 'dismiss';
+
+		if (dismissed) {
 			setShowStartTimePicker(false);
 			return;
 		}
 
-		// CRITICAL FIX: Always update the state immediately when time changes
-		if (selectedTime) {
-			setStartTimeDate(selectedTime);
-			setEditStartTime(formatTime(selectedTime));
+		// Get selected time or timestamp
+		let picked: Date | undefined = selectedTime;
+		if (!picked && event?.nativeEvent?.timestamp) {
+			picked = new Date(event.nativeEvent.timestamp);
 		}
 
-		// On Android: Only close picker when user confirms (presses OK button)
-		// event.type will be 'set' when OK is pressed, but will be 'neutralButtonPressed' 
-		// or other values when just scrolling the time picker
-		if (Platform.OS === 'android' && event.type === 'set') {
+		if (picked) {
+			setStartTimeDate(picked);
+			setEditStartTime(formatTime(picked));
+		}
+
+		// Close picker only when action is 'set' (OK). Keep open (spinner) on iOS.
+		if (Platform.OS === 'android' && (action === 'set' || action === 'dateSetAction')) {
 			setShowStartTimePicker(false);
 		}
-		// On iOS: Picker stays open, updates happen in real-time
 	};
 
 	const handleEndTimeChange = (event: any, selectedTime?: Date) => {
-		// Handle dismiss/cancel
-		if (event.type === 'dismissed') {
+		const action = event?.type ?? event?.nativeEvent?.action;
+		const dismissed = action === 'dismissed' || action === 'dismiss';
+
+		if (dismissed) {
 			setShowEndTimePicker(false);
 			return;
 		}
 
-		// CRITICAL FIX: Always update the state immediately when time changes
-		if (selectedTime) {
-			setEndTimeDate(selectedTime);
-			setEditEndTime(formatTime(selectedTime));
+		let picked: Date | undefined = selectedTime;
+		if (!picked && event?.nativeEvent?.timestamp) {
+			picked = new Date(event.nativeEvent.timestamp);
 		}
 
-		// On Android: Only close picker when user confirms (presses OK button)
-		// event.type will be 'set' when OK is pressed, but will be 'neutralButtonPressed' 
-		// or other values when just scrolling the time picker
-		if (Platform.OS === 'android' && event.type === 'set') {
+		if (picked) {
+			setEndTimeDate(picked);
+			setEditEndTime(formatTime(picked));
+		}
+
+		if (Platform.OS === 'android' && (action === 'set' || action === 'dateSetAction')) {
 			setShowEndTimePicker(false);
 		}
-		// On iOS: Picker stays open, updates happen in real-time
 	};
 
 	const openStartTimePicker = () => {
-		// iOS FIX: Close end time picker if it's open
 		if (showEndTimePicker) {
 			setShowEndTimePicker(false);
 		}
@@ -219,7 +231,6 @@ export default function TimeRegistrationScreen() {
 	};
 
 	const openEndTimePicker = () => {
-		// iOS FIX: Close start time picker if it's open
 		if (showStartTimePicker) {
 			setShowStartTimePicker(false);
 		}
@@ -237,6 +248,12 @@ export default function TimeRegistrationScreen() {
 		const startDate = new Date(selectedDate);
 		startDate.setHours(startHour, startMinute, 0, 0);
 
+		const now = new Date();
+		if (startDate > now) {
+			Alert.alert('Error', 'La hora de inicio no puede ser mayor a la hora actual');
+			return;
+		}
+
 		let endDate = null;
 		if (editEndTime) {
 			const [endHour, endMinute] = editEndTime.split(':').map(Number);
@@ -245,6 +262,11 @@ export default function TimeRegistrationScreen() {
 
 			if (endDate <= startDate) {
 				Alert.alert('Error', 'La hora de fin debe ser posterior a la hora de inicio');
+				return;
+			}
+
+			if (endDate > now) {
+				Alert.alert('Error', 'La hora de fin no puede ser mayor a la hora actual');
 				return;
 			}
 		}
@@ -296,6 +318,12 @@ export default function TimeRegistrationScreen() {
 		const startDate = new Date(range.startTime);
 		startDate.setHours(startHour, startMinute, 0, 0);
 
+		const now = new Date();
+		if (startDate > now) {
+			Alert.alert('Error', 'La hora de inicio no puede ser mayor a la hora actual');
+			return;
+		}
+
 		let endDate = null;
 		if (editEndTime) {
 			const [endHour, endMinute] = editEndTime.split(':').map(Number);
@@ -304,6 +332,11 @@ export default function TimeRegistrationScreen() {
 
 			if (endDate <= startDate) {
 				Alert.alert('Error', 'La hora de fin debe ser posterior a la hora de inicio');
+				return;
+			}
+
+			if (endDate > now) {
+				Alert.alert('Error', 'La hora de fin no puede ser mayor a la hora actual');
 				return;
 			}
 		}
@@ -329,6 +362,98 @@ export default function TimeRegistrationScreen() {
 		deleteTimeRange(currentRegistration.id, selectedRangeId);
 		setShowDeleteModal(false);
 		setSelectedRangeId(null);
+	};
+
+	const handleAddNote = () => {
+		console.log('=== handleAddNote called ===');
+		console.log('currentRegistration:', currentRegistration ? 'exists' : 'null');
+		console.log('noteText:', noteText);
+
+		if (!currentRegistration) {
+			console.log('ERROR: No current registration');
+			Alert.alert('Error', 'No hay un registro de tiempo seleccionado');
+			return;
+		}
+
+		const trimmedText = noteText.trim();
+		console.log('trimmedText:', trimmedText);
+		console.log('trimmedText.length:', trimmedText.length);
+
+		if (!trimmedText) {
+			console.log('ERROR: Empty text');
+			Alert.alert('Error', 'El texto de la nota no puede estar vacío');
+			return;
+		}
+
+		if (trimmedText.length > 500) {
+			console.log('ERROR: Text too long');
+			Alert.alert('Error', 'El texto de la nota no puede superar los 500 caracteres');
+			return;
+		}
+
+		try {
+			console.log('Calling addNote with:', currentRegistration.id, trimmedText);
+			addNote(currentRegistration.id, trimmedText);
+			console.log('Note added successfully');
+			setNoteText('');
+			setShowAddNoteModal(false);
+			Alert.alert('Éxito', 'Nota agregada correctamente');
+		} catch (error) {
+			console.error('ERROR adding note:', error);
+			Alert.alert('Error', error instanceof Error ? error.message : 'No se pudo añadir la nota');
+		}
+	};
+
+	const handleEditNote = () => {
+		if (!currentRegistration) {
+			Alert.alert('Error', 'No hay un registro de tiempo seleccionado');
+			return;
+		}
+
+		if (!selectedNoteId) {
+			Alert.alert('Error', 'No hay ninguna nota seleccionada');
+			return;
+		}
+
+		const trimmedText = noteText.trim();
+		if (!trimmedText) {
+			Alert.alert('Error', 'El texto de la nota no puede estar vacío');
+			return;
+		}
+
+		if (trimmedText.length > 500) {
+			Alert.alert('Error', 'El texto de la nota no puede superar los 500 caracteres');
+			return;
+		}
+
+		try {
+			updateNote(currentRegistration.id, selectedNoteId, trimmedText);
+			setNoteText('');
+			setSelectedNoteId(null);
+			setShowEditNoteModal(false);
+		} catch (error) {
+			Alert.alert('Error', error instanceof Error ? error.message : 'No se pudo actualizar la nota');
+		}
+	};
+
+	const handleDeleteNote = () => {
+		if (!currentRegistration) {
+			Alert.alert('Error', 'No hay un registro de tiempo seleccionado');
+			return;
+		}
+
+		if (!selectedNoteId) {
+			Alert.alert('Error', 'No hay ninguna nota seleccionada');
+			return;
+		}
+
+		try {
+			deleteNote(currentRegistration.id, selectedNoteId);
+			setSelectedNoteId(null);
+			setShowDeleteNoteModal(false);
+		} catch (error) {
+			Alert.alert('Error', error instanceof Error ? error.message : 'No se pudo eliminar la nota');
+		}
 	};
 
 	const isToday = () => {
@@ -452,35 +577,45 @@ export default function TimeRegistrationScreen() {
 						</View>
 					) : (
 						<>
-							{isToday() && (
-								<Card
-									paddingX={spacing.sm}
-									paddingY={spacing.sm}
-									rounded={roundness.sm}
-									shadow="small"
-									backgroundColor={lightTheme.colors.surface}
-								>
-									<CircularProgress
-										currentMinutes={currentMinutes}
-										targetMinutes={480}
-										size={180}
-									/>
+							<Card
+								paddingX={spacing.sm}
+								paddingY={spacing.sm}
+								rounded={roundness.sm}
+								shadow="small"
+								backgroundColor={lightTheme.colors.surface}
+							>
+								{
+									currentRegistration?.isActive ? (
+										<CircularProgress
+											currentMinutes={currentMinutes}
+											targetMinutes={480}
+											size={180}
+											circleColor={hasActive ? lightTheme.colors.primary : lightTheme.colors.statusInactive}
+										/>
+									) : (
+										<CircularProgress
+											currentMinutes={currentMinutes}
+											targetMinutes={480}
+											size={180}
+											circleColor={getTotalDayTimeColor(currentMinutes).container}
+										/>
+									)
+								}
 
-									{isOwnProfile && (
-										<View style={styles.controlsContainer}>
-											{!hasActive ? (
-												// Check if there are existing time ranges (paused state) or not (initial state)
-												currentRegistration && currentRegistration.timeRanges.length > 0 ? (
-													// Paused state - show gray "Reanudar" and red "Finalizar" buttons
+								{isToday() && (
+									<>
+										{isOwnProfile && currentRegistration?.isActive && (
+											<View style={styles.controlsContainer}>
+												{!hasActive ? (
 													<>
 														<ElevatedButton
-															backgroundColor="#9e9e9e"
+															backgroundColor={lightTheme.colors.statusInactive}
 															label="Reanudar"
 															icon={Play}
 															iconSize={20}
-															iconColor="#FFFFFF"
+															iconColor={lightTheme.colors.onStatusInactive}
 															fontSize={typography.bodyLarge}
-															textColor="#FFFFFF"
+															textColor={lightTheme.colors.onStatusInactive}
 															paddingX={spacing.lg}
 															paddingY={spacing.md}
 															rounded={roundness.sm}
@@ -489,13 +624,13 @@ export default function TimeRegistrationScreen() {
 															onPress={handleResumeWork}
 														/>
 														<ElevatedButton
-															backgroundColor="#f5423e"
+															backgroundColor={lightTheme.colors.statusBrokenDown}
 															label="Finalizar"
 															icon={Square}
 															iconSize={20}
-															iconColor="#FFFFFF"
+															iconColor={lightTheme.colors.onStatusBrokenDown}
 															fontSize={typography.bodyLarge}
-															textColor="#FFFFFF"
+															textColor={lightTheme.colors.onStatusBrokenDown}
 															paddingX={spacing.lg}
 															paddingY={spacing.md}
 															rounded={roundness.sm}
@@ -505,83 +640,96 @@ export default function TimeRegistrationScreen() {
 														/>
 													</>
 												) : (
-													// Initial state - show "Iniciar jornada" button
-													<ElevatedButton
-														backgroundColor={lightTheme.colors.primary}
-														label="Iniciar jornada"
-														icon={Play}
-														iconSize={20}
-														iconColor={lightTheme.colors.onPrimary}
-														fontSize={typography.bodyLarge}
-														paddingX={spacing.lg}
-														paddingY={spacing.md}
-														rounded={roundness.sm}
-														shadow="none"
-														style={styles.controlButton}
-														onPress={handleStartWork}
-													/>
-												)
-											) : (
-												<>
-													{/* HARDCODED COLORS */}
-													<ElevatedButton
-														backgroundColor="#ffb332"
-														label="Pausar"
-														icon={Pause}
-														iconSize={20}
-														iconColor="#FFFFFF"
-														fontSize={typography.bodyLarge}
-														textColor="#FFFFFF"
-														paddingX={spacing.lg}
-														paddingY={spacing.md}
-														rounded={roundness.sm}
-														shadow="none"
-														style={styles.controlButton}
-														onPress={handlePauseWork}
-													/>
-													<ElevatedButton
-														backgroundColor="#f5423e"
-														label="Finalizar"
-														icon={Square}
-														iconSize={20}
-														iconColor="#FFFFFF"
-														fontSize={typography.bodyLarge}
-														textColor="#FFFFFF"
-														paddingX={spacing.lg}
-														paddingY={spacing.md}
-														rounded={roundness.sm}
-														shadow="none"
-														style={styles.controlButton}
-														onPress={handleStopWorkRequest}
-													/>
-												</>
-											)}
-										</View>
-									)}
-								</Card>
+													<>
+														<ElevatedButton
+															backgroundColor={lightTheme.colors.warning}
+															label="Pausar"
+															icon={Pause}
+															iconSize={20}
+															iconColor={lightTheme.colors.onStatusInactive}
+															fontSize={typography.bodyLarge}
+															textColor={lightTheme.colors.onStatusInactive}
+															paddingX={spacing.lg}
+															paddingY={spacing.md}
+															rounded={roundness.sm}
+															shadow="none"
+															style={styles.controlButton}
+															onPress={handlePauseWork}
+														/>
+														<ElevatedButton
+															backgroundColor={lightTheme.colors.statusBrokenDown}
+															label="Finalizar"
+															icon={Square}
+															iconSize={20}
+															iconColor={lightTheme.colors.onStatusBrokenDown}
+															fontSize={typography.bodyLarge}
+															textColor={lightTheme.colors.onStatusBrokenDown}
+															paddingX={spacing.lg}
+															paddingY={spacing.md}
+															rounded={roundness.sm}
+															shadow="none"
+															style={styles.controlButton}
+															onPress={handleStopWorkRequest}
+														/>
+													</>
+												)}
+											</View>
+										)}
+
+										{isOwnProfile && (!currentRegistration || currentRegistration.timeRanges.length === 0) && (
+											<View style={styles.controlsContainer}>
+												<ElevatedButton
+													backgroundColor={lightTheme.colors.primary}
+													label="Iniciar jornada"
+													icon={Play}
+													iconSize={20}
+													iconColor={lightTheme.colors.onPrimary}
+													fontSize={typography.bodyLarge}
+													paddingX={spacing.lg}
+													paddingY={spacing.md}
+													rounded={roundness.sm}
+													shadow="none"
+													style={styles.controlButton}
+													onPress={handleStartWork}
+												/>
+											</View>
+										)}
+									</>
+								)}
+							</Card>
+
+							{(!isToday() || (isToday() && currentRegistration && !currentRegistration.isActive)) && (
+								(() => {
+									const totalMinutes = currentRegistration
+										? Math.floor(currentRegistration.totalHours * 60)
+										: 0;
+									const colors = getTotalDayTimeColor(totalMinutes);
+									return (
+										<Card
+											paddingX={spacing.lg}
+											paddingY={spacing.md}
+											rounded={roundness.sm}
+											shadow="none"
+											backgroundColor={colors.container}
+										>
+											<View style={styles.totalHoursContainer}>
+												<Clock size={24} color={colors.text} />
+												<Text style={[styles.totalHoursLabel, { color: colors.text }]}>Total:</Text>
+												<Text style={[styles.totalHoursValue, { color: colors.text }]}>
+													{currentRegistration ? formatHours(currentRegistration.totalHours, true) : '0h 0m'}
+												</Text>
+											</View>
+										</Card>
+									)
+								})()
 							)}
 
-							{/* Total Hours Summary */}
-							{/* <Card
-								paddingX={spacing.lg}
-								paddingY={spacing.md}
-								rounded={roundness.sm}
-								shadow="none"
-								backgroundColor={lightTheme.colors.primaryContainer}
-							>
-								<View style={styles.totalHoursContainer}>
-									<Clock size={24} color={lightTheme.colors.onPrimaryContainer} />
-									<Text style={styles.totalHoursLabel}>Total:</Text>
-									<Text style={styles.totalHoursValue}>
-										{currentRegistration ? formatHours(currentRegistration.totalHours, true) : '0h 0m'}
-									</Text>
-								</View>
-							</Card> */}
-
-							{/* Time Ranges List */}
 							<View>
 								<View style={styles.sectionHeader}>
-									<Text style={styles.sectionTitle}>Rangos de tiempo</Text>
+									<View style={styles.sectionHeaderTitle}>
+										<Clock size={18} color={lightTheme.colors.onSurfaceVariant} />
+										<Text style={styles.sectionTitle}>Rangos de tiempo</Text>
+									</View>
 									{isOwnProfile && (
 										<TouchableOpacity onPress={handleAddRange} style={styles.addButton}>
 											<Plus size={20} color={lightTheme.colors.primary} />
@@ -611,22 +759,6 @@ export default function TimeRegistrationScreen() {
 											backgroundColor={lightTheme.colors.surface}
 											style={styles.rangeCard}
 										>
-											<View style={styles.rangeHeader}>
-												<Text style={styles.rangeNumber}>Rango {index + 1}</Text>
-												<View style={styles.rangeBadges}>
-													{!range.endTime && (
-														<View style={styles.activeBadge}>
-															<Text style={styles.activeText}>Activo</Text>
-														</View>
-													)}
-													{range.endTime && (
-														<View style={styles.completedBadge}>
-															<Text style={styles.completedText}>Completado</Text>
-														</View>
-													)}
-												</View>
-											</View>
-
 											<View style={styles.rangeContent}>
 												<View style={styles.rangeTimeRow}>
 													<Text style={styles.rangeLabel}>Inicio:</Text>
@@ -635,7 +767,7 @@ export default function TimeRegistrationScreen() {
 
 												<View style={styles.rangeTimeRow}>
 													<Text style={styles.rangeLabel}>Fin:</Text>
-													<Text style={styles.rangeValue}>
+													<Text style={[styles.rangeValue, range.endTime ? {} : styles.rangeValueActive]}>
 														{range.endTime ? formatTime(new Date(range.endTime)) : 'En curso'}
 													</Text>
 												</View>
@@ -674,25 +806,97 @@ export default function TimeRegistrationScreen() {
 								)}
 							</View>
 
-							{/* Notes Section */}
-							{currentRegistration?.notes && (
-								<Card
-									paddingX={spacing.md}
-									paddingY={spacing.md}
-									rounded={roundness.sm}
-									shadow="none"
-									backgroundColor={lightTheme.colors.surface}
-								>
-									<Text style={styles.sectionTitle}>Notas</Text>
-									<Text style={styles.notesText}>{currentRegistration.notes}</Text>
-								</Card>
-							)}
+							<View>
+								<View style={styles.sectionHeader}>
+									<View style={styles.sectionHeaderTitle}>
+										<MessageSquare size={18} color={lightTheme.colors.onSurfaceVariant} />
+										<Text style={styles.sectionTitle}>Notas</Text>
+									</View>
+									{isOwnProfile && currentRegistration && (
+										<TouchableOpacity onPress={() => {
+											setNoteText('');
+											setShowAddNoteModal(true);
+										}} style={styles.addButton}>
+											<Plus size={20} color={lightTheme.colors.primary} />
+											<Text style={styles.addButtonText}>Agregar</Text>
+										</TouchableOpacity>
+									)}
+								</View>
+
+								{!currentRegistration || currentRegistration.notes.length === 0 ? (
+									<Card
+										paddingX={spacing.lg}
+										paddingY={spacing.xl}
+										rounded={roundness.sm}
+										shadow="none"
+										backgroundColor={lightTheme.colors.surface}
+									>
+										<Text style={styles.emptyText}>No hay notas registradas</Text>
+									</Card>
+								) : (
+									currentRegistration.notes.map((note) => (
+										<Card
+											key={note.id}
+											paddingX={spacing.md}
+											paddingY={spacing.md}
+											rounded={roundness.sm}
+											shadow="none"
+											backgroundColor={lightTheme.colors.surface}
+											style={styles.rangeCard}
+										>
+											<View style={styles.noteContent}>
+												<View style={styles.noteHeader}>
+													<Text style={styles.noteDate}>
+														{new Date(note.createdAt).toLocaleDateString('es-ES', {
+															day: '2-digit',
+															month: 'short',
+															year: 'numeric',
+															hour: '2-digit',
+															minute: '2-digit'
+														})}
+													</Text>
+													{note.updatedAt && (
+														<Text style={styles.noteUpdated}>(editada)</Text>
+													)}
+												</View>
+												<Text style={styles.noteText}>{note.text}</Text>
+
+												{isOwnProfile && (
+													<View style={styles.rangeActions}>
+														<TouchableOpacity
+															style={styles.actionButton}
+															onPress={() => {
+																setSelectedNoteId(note.id);
+																setNoteText(note.text);
+																setShowEditNoteModal(true);
+															}}
+														>
+															<Edit2 size={18} color={lightTheme.colors.primary} />
+															<Text style={styles.editText}>Editar</Text>
+														</TouchableOpacity>
+
+														<TouchableOpacity
+															style={styles.actionButton}
+															onPress={() => {
+																setSelectedNoteId(note.id);
+																setShowDeleteNoteModal(true);
+															}}
+														>
+															<Trash2 size={18} color={lightTheme.colors.error} />
+															<Text style={styles.deleteText}>Eliminar</Text>
+														</TouchableOpacity>
+													</View>
+												)}
+											</View>
+										</Card>
+									))
+								)}
+							</View>
 						</>
 					)}
 				</View>
 			</ScrollView>
 
-			{/* Calendar Modal */}
 			<ActionsModal
 				visible={showCalendarModal}
 				onClose={() => setShowCalendarModal(false)}
@@ -729,7 +933,6 @@ export default function TimeRegistrationScreen() {
 				</View>
 			</ActionsModal>
 
-			{/* Add Range Modal */}
 			<ActionsModal
 				visible={showAddModal}
 				onClose={() => {
@@ -754,15 +957,32 @@ export default function TimeRegistrationScreen() {
 							</Text>
 						</TouchableOpacity>
 						{showStartTimePicker && (
-							<DateTimePicker
-								value={startTimeDate}
-								mode="time"
-								is24Hour={true}
-								display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-								onChange={handleStartTimeChange}
-								accentColor={lightTheme.colors.primary}
-								themeVariant="light"
-							/>
+							Platform.OS === 'ios' ? (
+								<DateTimePicker
+									value={startTimeDate}
+									mode="time"
+									is24Hour={true}
+									display="spinner"
+									onChange={handleStartTimeChange}
+									accentColor={lightTheme.colors.primary}
+									themeVariant="light"
+								/>
+							) : (
+								<AndroidTimePicker
+									visible={true}
+									value={startTimeDate}
+									onChange={(d) => {
+										setStartTimeDate(d);
+										setEditStartTime(formatTime(d));
+									}}
+									onConfirm={() => {
+										setShowStartTimePicker(false);
+									}}
+									onCancel={() => {
+										setShowStartTimePicker(false);
+									}}
+								/>
+							)
 						)}
 					</View>
 
@@ -778,15 +998,32 @@ export default function TimeRegistrationScreen() {
 							</Text>
 						</TouchableOpacity>
 						{showEndTimePicker && (
-							<DateTimePicker
-								value={endTimeDate}
-								mode="time"
-								is24Hour={true}
-								display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-								onChange={handleEndTimeChange}
-								accentColor={lightTheme.colors.primary}
-								themeVariant="light"
-							/>
+							Platform.OS === 'ios' ? (
+								<DateTimePicker
+									value={endTimeDate}
+									mode="time"
+									is24Hour={true}
+									display="spinner"
+									onChange={handleEndTimeChange}
+									accentColor={lightTheme.colors.primary}
+									themeVariant="light"
+								/>
+							) : (
+								<AndroidTimePicker
+									visible={true}
+									value={endTimeDate}
+									onChange={(d) => {
+										setEndTimeDate(d);
+										setEditEndTime(formatTime(d));
+									}}
+									onConfirm={() => {
+										setShowEndTimePicker(false);
+									}}
+									onCancel={() => {
+										setShowEndTimePicker(false);
+									}}
+								/>
+							)
 						)}
 					</View>
 
@@ -803,7 +1040,6 @@ export default function TimeRegistrationScreen() {
 				</View>
 			</ActionsModal>
 
-			{/* Edit Modal */}
 			<ActionsModal
 				visible={showEditModal}
 				onClose={() => {
@@ -827,15 +1063,32 @@ export default function TimeRegistrationScreen() {
 							</Text>
 						</TouchableOpacity>
 						{showStartTimePicker && (
-							<DateTimePicker
-								value={startTimeDate}
-								mode="time"
-								is24Hour={true}
-								display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-								onChange={handleStartTimeChange}
-								accentColor={lightTheme.colors.primary}
-								themeVariant="light"
-							/>
+							Platform.OS === 'ios' ? (
+								<DateTimePicker
+									value={startTimeDate}
+									mode="time"
+									is24Hour={true}
+									display="spinner"
+									onChange={handleStartTimeChange}
+									accentColor={lightTheme.colors.primary}
+									themeVariant="light"
+								/>
+							) : (
+								<AndroidTimePicker
+									visible={true}
+									value={startTimeDate}
+									onChange={(d) => {
+										setStartTimeDate(d);
+										setEditStartTime(formatTime(d));
+									}}
+									onConfirm={() => {
+										setShowStartTimePicker(false);
+									}}
+									onCancel={() => {
+										setShowStartTimePicker(false);
+									}}
+								/>
+							)
 						)}
 					</View>
 
@@ -851,15 +1104,32 @@ export default function TimeRegistrationScreen() {
 							</Text>
 						</TouchableOpacity>
 						{showEndTimePicker && (
-							<DateTimePicker
-								value={endTimeDate}
-								mode="time"
-								is24Hour={true}
-								display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-								onChange={handleEndTimeChange}
-								accentColor={lightTheme.colors.primary}
-								themeVariant="light"
-							/>
+							Platform.OS === 'ios' ? (
+								<DateTimePicker
+									value={endTimeDate}
+									mode="time"
+									is24Hour={true}
+									display="spinner"
+									onChange={handleEndTimeChange}
+									accentColor={lightTheme.colors.primary}
+									themeVariant="light"
+								/>
+							) : (
+								<AndroidTimePicker
+									visible={true}
+									value={endTimeDate}
+									onChange={(d) => {
+										setEndTimeDate(d);
+										setEditEndTime(formatTime(d));
+									}}
+									onConfirm={() => {
+										setShowEndTimePicker(false);
+									}}
+									onCancel={() => {
+										setShowEndTimePicker(false);
+									}}
+								/>
+							)
 						)}
 					</View>
 
@@ -876,7 +1146,6 @@ export default function TimeRegistrationScreen() {
 				</View>
 			</ActionsModal>
 
-			{/* Delete Confirmation Modal */}
 			<ConfirmationModal
 				visible={showDeleteModal}
 				onClose={() => setShowDeleteModal(false)}
@@ -887,7 +1156,6 @@ export default function TimeRegistrationScreen() {
 				cancelText="Cancelar"
 			/>
 
-			{/* Stop Work Confirmation Modal */}
 			<ConfirmationModal
 				visible={showStopModal}
 				onClose={() => setShowStopModal(false)}
@@ -895,6 +1163,110 @@ export default function TimeRegistrationScreen() {
 				title="Finalizar jornada"
 				message="¿Estás seguro de que quieres finalizar la jornada laboral? Podrás editar los rangos manualmente después."
 				confirmText="Finalizar"
+				cancelText="Cancelar"
+			/>
+
+			<ActionsModal
+				visible={showAddNoteModal}
+				onClose={() => {
+					setShowAddNoteModal(false);
+					setNoteText('');
+				}}
+				title="Agregar nota"
+			>
+				<View style={styles.editModalContent}>
+					<View style={styles.inputGroup}>
+						<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+							<Text style={styles.inputLabel}>Texto de la nota</Text>
+							<Text style={[
+								styles.inputLabel,
+								{ fontSize: typography.labelMedium, color: noteText.length > 500 ? lightTheme.colors.error : lightTheme.colors.onSurfaceVariant }
+							]}>
+								{noteText.length}/500
+							</Text>
+						</View>
+						<TextInput
+							style={[styles.input, styles.noteInput]}
+							value={noteText}
+							onChangeText={setNoteText}
+							placeholder="Escribe aquí tu nota..."
+							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+							multiline
+							numberOfLines={4}
+							textAlignVertical="top"
+							maxLength={500}
+						/>
+					</View>
+
+					<ElevatedButton
+						backgroundColor={lightTheme.colors.primary}
+						label="Agregar"
+						fontSize={typography.bodyLarge}
+						paddingX={spacing.lg}
+						paddingY={spacing.md}
+						rounded={roundness.sm}
+						shadow="none"
+						onPress={handleAddNote}
+					/>
+				</View>
+			</ActionsModal>
+
+			<ActionsModal
+				visible={showEditNoteModal}
+				onClose={() => {
+					setShowEditNoteModal(false);
+					setNoteText('');
+					setSelectedNoteId(null);
+				}}
+				title="Editar nota"
+			>
+				<View style={styles.editModalContent}>
+					<View style={styles.inputGroup}>
+						<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+							<Text style={styles.inputLabel}>Texto de la nota</Text>
+							<Text style={[
+								styles.inputLabel,
+								{ fontSize: typography.labelMedium, color: noteText.length > 500 ? lightTheme.colors.error : lightTheme.colors.onSurfaceVariant }
+							]}>
+								{noteText.length}/500
+							</Text>
+						</View>
+						<TextInput
+							style={[styles.input, styles.noteInput]}
+							value={noteText}
+							onChangeText={setNoteText}
+							placeholder="Escribe aquí tu nota..."
+							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+							multiline
+							numberOfLines={4}
+							textAlignVertical="top"
+							maxLength={500}
+						/>
+					</View>
+
+					<ElevatedButton
+						backgroundColor={lightTheme.colors.primary}
+						label="Guardar cambios"
+						fontSize={typography.bodyLarge}
+						paddingX={spacing.lg}
+						paddingY={spacing.md}
+						rounded={roundness.sm}
+						shadow="none"
+						onPress={handleEditNote}
+					/>
+				</View>
+			</ActionsModal>
+
+			<ConfirmationModal
+				visible={showDeleteNoteModal}
+				onClose={() => {
+					setShowDeleteNoteModal(false);
+					setSelectedNoteId(null);
+				}}
+				onConfirm={handleDeleteNote}
+				title="Eliminar nota"
+				message="¿Estás seguro de que quieres eliminar esta nota? Esta acción no se puede deshacer."
+				confirmText="Eliminar"
 				cancelText="Cancelar"
 			/>
 		</View>
@@ -1025,18 +1397,21 @@ const styles = StyleSheet.create({
 	totalHoursLabel: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '500',
-		color: lightTheme.colors.onPrimaryContainer,
 	},
 	totalHoursValue: {
 		fontSize: typography.headlineSmall,
 		fontWeight: '700',
-		color: lightTheme.colors.onPrimaryContainer,
 	},
 	sectionHeader: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		marginBottom: spacing.sm,
+	},
+	sectionHeaderTitle: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: spacing.xs,
 	},
 	sectionTitle: {
 		fontSize: typography.titleMedium,
@@ -1118,6 +1493,10 @@ const styles = StyleSheet.create({
 		fontWeight: '500',
 		color: lightTheme.colors.onSurface,
 	},
+	rangeValueActive: {
+		fontWeight: '700',
+		color: lightTheme.colors.primary,
+	},
 	rangeSeparator: {
 		height: 1,
 		backgroundColor: lightTheme.colors.outline,
@@ -1160,6 +1539,34 @@ const styles = StyleSheet.create({
 		fontWeight: '600',
 		color: lightTheme.colors.error,
 	},
+	noteContent: {
+		gap: spacing.sm,
+	},
+	noteHeader: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: spacing.xs,
+		marginBottom: spacing.xs,
+	},
+	noteDate: {
+		fontSize: typography.labelMedium,
+		color: lightTheme.colors.onSurfaceVariant,
+		flex: 1,
+	},
+	noteUpdated: {
+		fontSize: typography.labelSmall,
+		color: lightTheme.colors.onSurfaceVariant,
+		fontStyle: 'italic',
+	},
+	noteText: {
+		fontSize: typography.bodyMedium,
+		color: lightTheme.colors.onSurface,
+		lineHeight: 22,
+	},
+	noteInput: {
+		minHeight: 100,
+		paddingTop: spacing.sm,
+	},
 	notesText: {
 		fontSize: typography.bodyMedium,
 		color: lightTheme.colors.onSurface,
@@ -1194,6 +1601,7 @@ const styles = StyleSheet.create({
 		borderRadius: roundness.sm,
 		paddingHorizontal: spacing.md,
 		paddingVertical: spacing.md,
+		marginBottom: spacing.sm,
 		flexDirection: 'row',
 		alignItems: 'center',
 		gap: spacing.sm,

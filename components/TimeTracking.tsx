@@ -1,8 +1,8 @@
 import { IconBadge } from '@/components/IconBadge';
-import { lightTheme, spacing, typography } from '@/constants/theme';
+import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTimeRegistrationsStore } from '@/stores/useTimeRegistrationStore';
-import { calculateCurrentMinutes } from '@/utils/dateUtils';
+import { calculateCurrentMinutes, getTotalDayTimeColor } from '@/utils/dateUtils';
 import { router } from 'expo-router';
 import { ChevronRight, Clock, Info } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
@@ -48,8 +48,43 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 		return currentRegistration.timeRanges.find((range) => !range.endTime);
 	};
 
+	const getStatusInfo = () => {
+		if (!currentRegistration) {
+			return {
+				label: 'Sin registro',
+				color: lightTheme.colors.onSurface,
+				backgroundColor: `${lightTheme.colors.outline}50`,
+			};
+		}
+
+		const activeRange = getActiveRange();
+
+		if (activeRange) {
+			return {
+				label: 'Jornada en curso',
+				color: lightTheme.colors.onPrimary,
+				backgroundColor: lightTheme.colors.primary,
+			};
+		}
+
+		if (currentRegistration.isActive) {
+			return {
+				label: 'Jornada pausada',
+				color: lightTheme.colors.onPrimary,
+				backgroundColor: `${lightTheme.colors.primary}80`, // 50% opacity
+			};
+		}
+
+		const endedColors = getTotalDayTimeColor(currentMinutes);
+
+		return {
+			label: 'Jornada finalizada',
+			color: endedColors.text,
+			backgroundColor: endedColors.container,
+		};
+	};
+
 	const getCurrentTimeText = () => {
-		// TODO -> Fix active logic with data -> paused time registration status
 		if (!currentRegistration) return '';
 		if (isActive) {
 			if (currentMinutes > 0 && currentMinutes < targetMinutes) {
@@ -86,6 +121,23 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 	const targetMinutes = 480; // 8 hours
 	const activeRange = getActiveRange();
 	const isActive = !!activeRange;
+	const isPaused = !activeRange && currentRegistration?.isActive;
+	const isFinished = currentRegistration && !currentRegistration.isActive;
+	const statusInfo = getStatusInfo();
+
+	let circleColor: string;
+
+	if (!currentRegistration || currentMinutes === 0) {
+		circleColor = lightTheme.colors.outline;
+	} else if (isActive) {
+		circleColor = lightTheme.colors.primary;
+	} else if (isPaused) {
+		circleColor = `${lightTheme.colors.primary}80`;
+	} else if (isFinished) {
+		circleColor = getTotalDayTimeColor(currentMinutes).container;
+	} else {
+		circleColor = lightTheme.colors.outline;
+	}
 
 	// Calculate progress for mini chart
 	const progress = Math.min(currentMinutes / targetMinutes, 1);
@@ -106,7 +158,6 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 						</View>
 					) : (
 						<>
-							{/* Mini circular progress */}
 							<View style={styles.chartContainer}>
 								<Svg width={size} height={size}>
 									{/* Background circle */}
@@ -124,7 +175,7 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 										cx={size / 2}
 										cy={size / 2}
 										r={radius}
-										stroke={lightTheme.colors.primary}
+										stroke={circleColor}
 										strokeWidth={strokeWidth}
 										fill="none"
 										strokeDasharray={`${circumference} ${circumference}`}
@@ -146,12 +197,19 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 									<IconBadge color={lightTheme.colors.primary} size={20} Icon={Clock} badgeSize={10} badgeColor={lightTheme.colors.primary} BadgeIcon={Info} />
 									<Text style={styles.title}>Registro de hoy</Text>
 								</View>
+
+								{/* Status badge */}
+								<View style={[styles.statusBadge, { backgroundColor: statusInfo.backgroundColor }]}>
+									<Text style={[styles.statusBadgeText, { color: statusInfo.color }]}>
+										{statusInfo.label}
+									</Text>
+								</View>
+
 								<View style={[styles.row, { flex: 1, width: '100%', }]}>
 									<Text style={styles.remainingText}>
 										{getCurrentTimeText()}
 									</Text>
 								</View>
-								{/* TODO -> Add buttonsfeature */}
 							</View>
 
 							<View style={styles.chevronIndicator}>
@@ -245,5 +303,15 @@ const styles = StyleSheet.create({
 	remainingText: {
 		fontSize: typography.bodyMedium,
 		color: lightTheme.colors.onSurfaceVariant,
+	},
+	statusBadge: {
+		paddingHorizontal: spacing.sm,
+		paddingVertical: spacing.xs,
+		borderRadius: roundness.sm,
+		alignSelf: 'flex-start',
+	},
+	statusBadgeText: {
+		fontSize: typography.labelSmall,
+		fontWeight: '600',
 	},
 });

@@ -243,7 +243,7 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 				...currentRegistration,
 				timeRanges: updatedRanges,
 				totalHours: calculateTotalHours(updatedRanges),
-				isActive: false, // No active range now
+				isActive: true, // Mantener activo porque está pausado, no finalizado
 			};
 
 			set((state) => ({
@@ -287,31 +287,31 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 		endWork: async (driverId: string, date: Date) => {
 			const { currentRegistration } = get();
 
-			if (!currentRegistration || !hasActiveRange(currentRegistration)) {
-				throw new Error(
-					"No hay un registro de tiempo activo para finalizar"
-				);
+			if (!currentRegistration) {
+				throw new Error("No hay un registro de tiempo para finalizar");
 			}
 
+			// Si hay un rango activo (sin endTime), cerrarlo primero
 			const activeRange = currentRegistration.timeRanges.find(
 				(range) => !range.endTime
 			);
 
-			if (!activeRange) {
-				throw new Error("No se encontró un rango activo");
+			let updatedRanges = currentRegistration.timeRanges;
+
+			if (activeRange) {
+				const updatedRange = {
+					...activeRange,
+					endTime: new Date(),
+					isPaused: false,
+					pausedAt: null,
+				};
+
+				updatedRanges = currentRegistration.timeRanges.map((range) =>
+					range.id === activeRange.id ? updatedRange : range
+				);
 			}
 
-			const updatedRange = {
-				...activeRange,
-				endTime: new Date(),
-				isPaused: false,
-				pausedAt: null,
-			};
-
-			const updatedRanges = currentRegistration.timeRanges.map((range) =>
-				range.id === activeRange.id ? updatedRange : range
-			);
-
+			// Finalizar la jornada (marcar isActive como false)
 			const updatedRegistration = {
 				...currentRegistration,
 				timeRanges: updatedRanges,

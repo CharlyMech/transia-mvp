@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
 		backgroundColor: lightTheme.colors.surface,
 		padding: spacing.md,
 		borderRadius: roundness.md,
-		shadowColor: '#000',
+		shadowColor: lightTheme.colors.shadow,
 		shadowOffset: { width: 0, height: 1 },
 		shadowOpacity: 0.05,
 		shadowRadius: 2,

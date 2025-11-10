@@ -24,7 +24,7 @@ export const lightTheme = {
 		errorContainer: "#ffdad6",
 		onErrorContainer: "#93000a",
 
-		warning: "#f59e0b",
+		warning: "#ffb332",
 		onWarning: "#4d2c00",
 		warningContainer: "#ffe0b2",
 		onWarningContainer: "#663c00",
@@ -34,7 +34,11 @@ export const lightTheme = {
 		statusActiveContainer: "#E6F4EA",
 
 		statusInactive: "#5F6368",
+		onStatusInactive: "#FFFFFF",
 		statusInactiveContainer: "#ECEFF1",
+
+		statusOnService: "#4CAF50",
+		onStatusOnService: "#FFFFFF",
 
 		statusMaintenance: "#F57C00",
 		statusMaintenanceContainer: "#FFE0B2",
@@ -43,6 +47,7 @@ export const lightTheme = {
 		statusHolidaysContainer: "#E3F2FD",
 
 		statusBrokenDown: "#D32F2F",
+		onStatusBrokenDown: "#FFFFFF",
 		statusBrokenDownContainer: "#FFE3E3",
 		statusSickLeave: "#D32F2F",
 		statusSickLeaveContainer: "#FFE3E3",

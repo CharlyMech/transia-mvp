@@ -192,27 +192,91 @@ export function calculateCurrentMinutes(
 
 /**
  * Calculate time diff to show right color indicator
+ * Returns green for differences <= 59 minutes (within acceptable range)
+ * Returns red for differences >= 60 minutes (outside acceptable range)
  */
 export function getTotalDayTimeColor(totalMinutes: number) {
-	const maxMinutes = 480;
-	const diff = Math.abs(totalMinutes - maxMinutes);
+	const maxMinutes = 480; // 8 horas
+	const diff = totalMinutes - maxMinutes;
 
-	if (diff > 60) {
+	if (Math.abs(diff) <= 59) {
 		return {
-			container: lightTheme.colors.errorContainer,
-			text: lightTheme.colors.onErrorContainer,
+			container: lightTheme.colors.warning,
+			text: lightTheme.colors.onWarning,
 		};
 	}
 
-	if (diff > 0 && diff <= 60) {
+	if (Math.abs(diff) >= 60) {
 		return {
-			container: lightTheme.colors.warningContainer,
-			text: lightTheme.colors.onWarningContainer,
+			container: lightTheme.colors.error,
+			text: lightTheme.colors.onError,
 		};
 	}
 
 	return {
-		container: lightTheme.colors.primaryContainer,
-		text: lightTheme.colors.onPrimaryContainer,
+		container: lightTheme.colors.primary,
+		text: lightTheme.colors.onPrimary,
+	};
+}
+
+/**
+ * Check if a date is today
+ */
+export function isToday(date: Date): boolean {
+	const today = getToday();
+	const checkDate = new Date(date);
+	checkDate.setHours(0, 0, 0, 0);
+	return today.getTime() === checkDate.getTime();
+}
+
+/**
+ * Get end of day for a given date (23:59:59.999)
+ */
+export function getEndOfDay(date: Date): Date {
+	const endOfDay = new Date(date);
+	endOfDay.setHours(23, 59, 59, 999);
+	return endOfDay;
+}
+
+/**
+ * Auto-close active ranges that belong to past days
+ * Returns updated registration with closed ranges
+ */
+export function autoCloseOldActiveRanges(
+	registration: TimeRegistration
+): TimeRegistration {
+	const registrationDate = new Date(registration.date);
+	registrationDate.setHours(0, 0, 0, 0);
+
+	// Only process if registration is not from today
+	if (isToday(registrationDate)) {
+		return registration;
+	}
+
+	let hasChanges = false;
+	const updatedRanges = registration.timeRanges.map((range) => {
+		// If range has no endTime (active) and registration is from a past day
+		if (!range.endTime) {
+			hasChanges = true;
+			// Close it at end of that day (23:59:59)
+			return {
+				...range,
+				endTime: getEndOfDay(registrationDate),
+				isPaused: false,
+				pausedAt: null,
+			};
+		}
+		return range;
+	});
+
+	if (!hasChanges) {
+		return registration;
+	}
+
+	return {
+		...registration,
+		timeRanges: updatedRanges,
+		totalHours: calculateTotalHours(updatedRanges),
+		isActive: false, // No longer active since all ranges are closed
 	};
 }
