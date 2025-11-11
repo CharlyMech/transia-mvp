@@ -5,8 +5,10 @@ import { InfoRow } from '@/components/InfoRow';
 import { SkeletonDetail } from '@/components/skeletons';
 import { StatusLabel } from '@/components/StatusLabel';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useDriversStore } from '@/stores/useDriversStore';
-import { formatDateToDisplay } from '@/utils/dateUtils';
+import { useTimeRegistrationsStore } from '@/stores/useTimeRegistrationStore';
+import { calculateCurrentMinutes, formatDateToDisplay, getTotalDayTimeColor } from '@/utils/dateUtils';
 import { getDriverStatusIcon } from '@/utils/driversUtils';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, ExternalLink, SquarePen, UserRound } from 'lucide-react-native';
@@ -30,20 +32,30 @@ export default function DriverProfileScreen() {
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const scrollY = useRef(new Animated.Value(0)).current;
 
+	const user = useAuthStore((state) => state.user);
 	const currentDriver = useDriversStore((state) => state.currentDriver);
 	const loadingDriver = useDriversStore((state) => state.loadingDriver);
 	const driverError = useDriversStore((state) => state.driverError);
 	const fetchDriverById = useDriversStore((state) => state.fetchDriverById);
 	const clearCurrentDriver = useDriversStore((state) => state.clearCurrentDriver);
+	const fetchRegistrationsByDriver = useTimeRegistrationsStore((state) => state.fetchRegistrationsByDriver);
+	const clearCurrentRegistration = useTimeRegistrationsStore((state) => state.clearCurrentRegistration);
+	const registrations = useTimeRegistrationsStore((state) => state.registrations);
+
+	// Role-based access control
+	const canViewSensitiveData = user?.role === 'admin' || user?.role === 'manager';
+	const isOwnProfile = user?.id === id;
 
 	useEffect(() => {
 		if (id) {
 			fetchDriverById(id as string);
+			fetchRegistrationsByDriver(id as string);
 		}
 		return () => {
 			clearCurrentDriver();
+			clearCurrentRegistration();
 		};
-	}, [id, fetchDriverById, clearCurrentDriver]);
+	}, [id, fetchDriverById, clearCurrentDriver, fetchRegistrationsByDriver, clearCurrentRegistration]);
 
 	const handleEditPress = () => {
 		if (id) {
@@ -51,7 +63,6 @@ export default function DriverProfileScreen() {
 		}
 	};
 
-	// Animaciones para la card
 	const cardScale = scrollY.interpolate({
 		inputRange: [0, SCROLL_DISTANCE],
 		outputRange: [1, 0.3],
@@ -189,6 +200,7 @@ export default function DriverProfileScreen() {
 							{currentDriver.name} {currentDriver.surnames || ''}
 						</Text>
 					</View>
+					<Text style={styles.registrationDate}>Registrado en: {formatDateToDisplay(currentDriver.registrationDate)}</Text>
 
 					<Text style={styles.cardTitle}>Información de contacto</Text>
 					<Card
@@ -237,6 +249,13 @@ export default function DriverProfileScreen() {
 						backgroundColor={lightTheme.colors.surface}
 					>
 						<View style={styles.cardContent}>
+							<InfoRow
+								label="DNI/NIE"
+								labelFlex={2}
+								valueFlex={3}
+								value={currentDriver.personId}
+							/>
+							<View style={styles.separator} />
 							{currentDriver.licenseNumber && (
 								<InfoRow
 									label="Licencia"
@@ -252,93 +271,148 @@ export default function DriverProfileScreen() {
 								valueFlex={3}
 								value={formatDateToDisplay(currentDriver.birthDate)}
 							/>
-							<View style={styles.separator} />
-							<InfoRow
-								label="Fecha de registro"
-								labelFlex={2}
-								valueFlex={3}
-								value={formatDateToDisplay(currentDriver.registrationDate)}
-							/>
-							<View style={styles.separator} />
-							<InfoRow
-								label="DNI/NIE"
-								labelFlex={2}
-								valueFlex={3}
-								value={currentDriver.personId}
-							/>
 						</View>
 					</Card>
 
-					<Pressable
-						style={({ pressed }) => [
-							styles.cardTitleContainer,
-							pressed && { opacity: 0.8 },
-						]}
-						onPress={() => router.push(`/drivers/${id}/time-registration`)}
-					>
-						<Text style={styles.cardTitle}>Registro horario</Text>
-						<ExternalLink size={16} strokeWidth={2.5} color={lightTheme.colors.onSurface} />
-					</Pressable>
-					<Card
-						paddingX={spacing.md}
-						paddingY={spacing.md}
-						rounded={roundness.sm}
-						shadow="none"
-						backgroundColor={lightTheme.colors.surface}
-					>
-						<View style={styles.cardContent}>
-							<Text style={styles.assignationText}>Sin registros horarios</Text>
-						</View>
-					</Card>
+					{(canViewSensitiveData || isOwnProfile) && (
+						<Pressable
+							style={({ pressed }) => [
+								pressed && { opacity: 0.8 },
+							]}
+							onPress={() => {
+								router.push({
+									pathname: `/drivers/${id}/time-history` as any
+								});
+							}}
+						>
+							<View
+								style={[styles.cardTitleContainer, { marginBottom: spacing.md }]}
+							>
+								<Text style={styles.cardTitle}>Registro horario</Text>
+								<ExternalLink size={16} strokeWidth={2.5} color={lightTheme.colors.onSurface} />
+							</View>
+							<Card
+								paddingX={spacing.md}
+								paddingY={spacing.md}
+								rounded={roundness.sm}
+								shadow="none"
+								backgroundColor={lightTheme.colors.surface}
+							>
+								<View style={styles.cardContent}>
+									{(!registrations || registrations.length === 0) ? (
+										<Text style={styles.assignationText}>Sin registros horarios</Text>
+									) : (
+										<>
+											{/* Cabecera simple */}
+											<View style={[styles.tableRow, styles.tableHeader]}>
+												<Text style={[styles.cell, styles.headerText]}>Fecha</Text>
+												<Text style={[styles.cell, styles.headerText]}>Total</Text>
+											</View>
 
-					<Pressable
-						style={({ pressed }) => [
-							styles.cardTitleContainer,
-							pressed && { opacity: 0.8 },
-						]}
-						onPress={() => console.log('Accediendo al historial de asignaciones')}
-					>
-						<Text style={styles.cardTitle}>Asignaciones recientes</Text>
-						<ExternalLink size={16} strokeWidth={2.5} color={lightTheme.colors.onSurface} />
-					</Pressable>
-					<Card
-						paddingX={spacing.md}
-						paddingY={spacing.md}
-						rounded={roundness.sm}
-						shadow="none"
-						backgroundColor={lightTheme.colors.surface}
-					>
-						<View style={styles.cardContent}>
-							<Text style={styles.assignationText}>Sin asignaciones previas</Text>
-						</View>
-					</Card>
+											{(() => {
+												const sorted = [...registrations].sort((a, b) => {
+													const dateA = new Date(a.date).getTime() || 0;
+													const dateB = new Date(b.date).getTime() || 0;
+													return dateB - dateA;
+												});
 
-					<Pressable
-						style={({ pressed }) => [
-							styles.cardTitleContainer,
-							pressed && { opacity: 0.8 },
-						]}
-						onPress={() => console.log('Accediendo al historial de incidencias y mantenimientos')}
-					>
-						<Text style={styles.cardTitle}>Incidencias relacionadas</Text>
-						<ExternalLink size={16} strokeWidth={2.5} color={lightTheme.colors.onSurface} />
-					</Pressable>
-					<Card
-						paddingX={spacing.md}
-						paddingY={spacing.md}
-						rounded={roundness.sm}
-						shadow="none"
-						backgroundColor={lightTheme.colors.surface}
-					>
-						<View style={styles.cardContent}>
-							<Text style={styles.assignationText}>Sin incidencias ni mantenimientos</Text>
-						</View>
-					</Card>
+												const lastFive = sorted.slice(0, 5);
+												const formatMinutes = (totalMinutes: number) => {
+													if (totalMinutes <= 0 || isNaN(totalMinutes)) return '-';
+													const hh = Math.floor(totalMinutes / 60);
+													const mm = totalMinutes % 60;
+													return `${hh}h ${mm}m`;
+												};
 
-					{/* TODO -> assigned vehicle & assign new vehicle */}
+												return lastFive.map((reg) => {
+													const dateLabel = formatDateToDisplay(reg.date);
+													const ranges = Array.isArray(reg.timeRanges) ? reg.timeRanges : [];
+
+													const totalMinutes = calculateCurrentMinutes(ranges, new Date());
+
+													const totalColorObj = getTotalDayTimeColor(totalMinutes);
+
+													return (
+														<View key={reg.id ?? `${dateLabel}`} style={styles.tableRow}>
+															<Text style={styles.cell}>{dateLabel}</Text>
+															<View style={{
+																backgroundColor: totalColorObj.container,
+																borderRadius: roundness.xs,
+																paddingHorizontal: spacing.xs,
+																paddingVertical: spacing.xs,
+																alignItems: 'center',
+																minWidth: 120,
+																maxWidth: 120,
+															}}>
+																<Text style={[styles.cell, { color: totalColorObj.text }]}>{formatMinutes(totalMinutes)}</Text>
+															</View>
+														</View>
+													);
+												});
+											})()}
+										</>
+									)}
+								</View>
+							</Card>
+						</Pressable>
+					)}
+
+					{canViewSensitiveData && (
+						// TODO -> assigned vehicles
+						<>
+							<Pressable
+								style={({ pressed }) => [
+									styles.cardTitleContainer,
+									pressed && { opacity: 0.8 },
+								]}
+								onPress={() => console.log('Accediendo al historial de asignaciones')}
+							>
+								<Text style={styles.cardTitle}>Asignaciones recientes</Text>
+								<ExternalLink size={16} strokeWidth={2.5} color={lightTheme.colors.onSurface} />
+							</Pressable>
+							<Card
+								paddingX={spacing.md}
+								paddingY={spacing.md}
+								rounded={roundness.sm}
+								shadow="none"
+								backgroundColor={lightTheme.colors.surface}
+							>
+								<View style={styles.cardContent}>
+									<Text style={styles.assignationText}>Sin asignaciones previas</Text>
+								</View>
+							</Card>
+						</>
+					)}
+
+					{(canViewSensitiveData || isOwnProfile) && (
+						// TODO -> incidents & maintenances
+						<>
+							<Pressable
+								style={({ pressed }) => [
+									styles.cardTitleContainer,
+									pressed && { opacity: 0.8 },
+								]}
+								onPress={() => console.log('Accediendo al historial de incidencias y mantenimientos')}
+							>
+								<Text style={styles.cardTitle}>Incidencias relacionadas</Text>
+								<ExternalLink size={16} strokeWidth={2.5} color={lightTheme.colors.onSurface} />
+							</Pressable>
+							<Card
+								paddingX={spacing.md}
+								paddingY={spacing.md}
+								rounded={roundness.sm}
+								shadow="none"
+								backgroundColor={lightTheme.colors.surface}
+							>
+								<View style={styles.cardContent}>
+									<Text style={styles.assignationText}>Sin incidencias ni mantenimientos</Text>
+								</View>
+							</Card>
+						</>
+					)}
 				</View>
-			</Animated.ScrollView>
-		</View>
+			</Animated.ScrollView >
+		</View >
 	);
 }
 
@@ -393,7 +467,6 @@ const styles = StyleSheet.create({
 		fontSize: typography.headlineLarge,
 		fontWeight: '700',
 		color: lightTheme.colors.onBackground,
-		marginBottom: spacing.sm,
 	},
 	statusBadgeContainer: {
 		width: '100%',
@@ -401,6 +474,14 @@ const styles = StyleSheet.create({
 		justifyContent: 'flex-end',
 		alignItems: 'center',
 		backgroundColor: 'transparent',
+		marginBottom: spacing.xs,
+	},
+	registrationDate: {
+		fontSize: typography.bodyMedium,
+		fontWeight: '500',
+		fontStyle: 'italic',
+		color: `${lightTheme.colors.onSurface}80`,
+		textAlign: 'left',
 		marginBottom: spacing.xs,
 	},
 	cardTitleContainer: {
@@ -429,6 +510,32 @@ const styles = StyleSheet.create({
 		height: 1,
 		backgroundColor: lightTheme.colors.outline,
 		opacity: 0.5,
+	},
+	tableHeader: {
+		borderBottomWidth: 1,
+		borderBottomColor: lightTheme.colors.outline,
+		paddingBottom: spacing.xs,
+		marginBottom: spacing.xs,
+	},
+	tableRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		paddingVertical: spacing.xs,
+		gap: spacing.sm,
+		// si quieres líneas separadoras entre filas:
+		borderBottomWidth: 1,
+		borderBottomColor: `${lightTheme.colors.outline}33`, // ligera transparencia
+	},
+	cell: {
+		flex: 1,
+		fontSize: typography.bodyMedium,
+		color: lightTheme.colors.onSurface,
+		textAlign: 'left',
+	},
+	headerText: {
+		fontWeight: '600',
+		color: lightTheme.colors.onSurfaceVariant,
 	},
 	errorText: {
 		fontSize: typography.bodyLarge,

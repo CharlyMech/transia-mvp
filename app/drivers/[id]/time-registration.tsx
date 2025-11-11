@@ -31,10 +31,26 @@ LocaleConfig.defaultLocale = 'es';
 
 export default function TimeRegistrationScreen() {
 	const insets = useSafeAreaInsets();
-	const { id } = useLocalSearchParams<{ id: string }>();
+	const { id, date } = useLocalSearchParams<{ id: string; date?: string }>();
 	const user = useAuthStore((state) => state.user);
 
-	const [selectedDate, setSelectedDate] = useState(new Date());
+	// Initialize selectedDate from URL param if provided, otherwise use today
+	const [selectedDate, setSelectedDate] = useState(() => {
+		if (date) {
+			// Handle YYYY-MM-DD format to avoid timezone issues
+			const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+			if (isoDatePattern.test(date)) {
+				const [year, month, day] = date.split('-').map(Number);
+				return new Date(year, month - 1, day);
+			}
+			// Fallback to standard parsing
+			const parsedDate = new Date(date);
+			if (!isNaN(parsedDate.getTime())) {
+				return parsedDate;
+			}
+		}
+		return new Date();
+	});
 	const [showCalendarModal, setShowCalendarModal] = useState(false);
 	const [showEditModal, setShowEditModal] = useState(false);
 	const [showAddModal, setShowAddModal] = useState(false);
@@ -75,6 +91,16 @@ export default function TimeRegistrationScreen() {
 
 	// Check if the selected driver is the logged user
 	const isOwnProfile = user?.id === id;
+
+	// Update selectedDate when date param changes
+	useEffect(() => {
+		if (date) {
+			const parsedDate = new Date(date);
+			if (!isNaN(parsedDate.getTime())) {
+				setSelectedDate(parsedDate);
+			}
+		}
+	}, [date]);
 
 	// Update current time every second
 	useEffect(() => {

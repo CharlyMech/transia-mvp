@@ -192,30 +192,34 @@ export function calculateCurrentMinutes(
 
 /**
  * Calculate time diff to show right color indicator
- * Returns green for differences <= 59 minutes (within acceptable range)
- * Returns red for differences >= 60 minutes (outside acceptable range)
+ * - Green (success): within ±15 minutes of expected (465-495 minutes)
+ * - Orange (warning): within ±59 minutes of expected (421-464 or 496-539 minutes)
+ * - Red (error): more than 60 minutes difference (<421 or >539 minutes)
  */
 export function getTotalDayTimeColor(totalMinutes: number) {
-	const maxMinutes = 480; // 8 horas
-	const diff = totalMinutes - maxMinutes;
+	const expectedMinutes = 480; // 8 hours
+	const diff = Math.abs(totalMinutes - expectedMinutes);
 
-	if (Math.abs(diff) <= 59) {
+	// Perfect range: ±15 minutes (green)
+	if (diff <= 15) {
+		return {
+			container: lightTheme.colors.success,
+			text: lightTheme.colors.onSuccess,
+		};
+	}
+
+	// Acceptable range: ±59 minutes (orange/warning)
+	if (diff <= 59) {
 		return {
 			container: lightTheme.colors.warning,
 			text: lightTheme.colors.onWarning,
 		};
 	}
 
-	if (Math.abs(diff) >= 60) {
-		return {
-			container: lightTheme.colors.error,
-			text: lightTheme.colors.onError,
-		};
-	}
-
+	// Outside acceptable range: ±60+ minutes (red/error)
 	return {
-		container: lightTheme.colors.primary,
-		text: lightTheme.colors.onPrimary,
+		container: lightTheme.colors.error,
+		text: lightTheme.colors.onError,
 	};
 }
 

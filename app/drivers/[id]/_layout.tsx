@@ -10,6 +10,7 @@ export default function DriverIdLayout() {
 		>
 			<Stack.Screen name="index" />
 			<Stack.Screen name="time-registration" />
+			<Stack.Screen name="time-history" />
 			<Stack.Screen name="edit" />
 		</Stack>
 	);

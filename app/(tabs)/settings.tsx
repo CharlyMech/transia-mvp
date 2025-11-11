@@ -94,6 +94,7 @@ export default function SettingsScreen() {
 					>
 						<View style={styles.cardContent}>
 							<Pressable
+								// TODO
 								// onPress={() => router.push("/settings/change-password")}
 								style={({ pressed }) => [
 									styles.rowContainer,
@@ -109,6 +110,7 @@ export default function SettingsScreen() {
 							</Pressable>
 							<View style={styles.separator} />
 							<Pressable
+								// TODO
 								// onPress={() => router.push("/settings/about")}
 								style={({ pressed }) => [
 									styles.rowContainer,
@@ -118,6 +120,21 @@ export default function SettingsScreen() {
 								{({ pressed }) => (
 									<View style={styles.row}>
 										<Text style={styles.rowText}>Solicitar ausencia o vacaciones</Text>
+										<ChevronRight size={20} style={styles.rowIcon} />
+									</View>
+								)}
+							</Pressable>
+							<View style={styles.separator} />
+							<Pressable
+								onPress={() => router.push(`/drivers/${user?.id}/time-history`)}
+								style={({ pressed }) => [
+									styles.rowContainer,
+									pressed && styles.rowPressed,
+								]}
+							>
+								{({ pressed }) => (
+									<View style={styles.row}>
+										<Text style={styles.rowText}>Acceder a mi historial horario</Text>
 										<ChevronRight size={20} style={styles.rowIcon} />
 									</View>
 								)}
