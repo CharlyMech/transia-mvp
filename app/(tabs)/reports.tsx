@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { BellDot, Check, CheckCheck, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, ExternalLink, EyeOff, FileClock, MapPin, MapPinOff, Plus, Search, Trash2, TriangleAlert, X } from 'lucide-react-native';
+import { Check, CheckCheck, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, ExternalLink, EyeOff, FileClock, MapPin, MapPinOff, Plus, Search, Trash2, TriangleAlert, X } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Animated, Easing, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,7 +16,7 @@ import { useActionsModal } from '@/hooks/useActionsModal';
 import { useReportsStore } from '@/stores/useReportsStore';
 import { getReportActiveStatusIcon, getReportTypeIcon } from '@/utils/reportsUtils';
 
-type SortOption = 'createdAt' | 'readAt' | 'closedAt';
+type SortOption = 'createdAt' | 'closedAt';
 type SortOrder = 'asc' | 'desc';
 
 
@@ -35,7 +35,6 @@ export default function ReportsScreen() {
 	const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
 	const [filterHasLocation, setFilterHasLocation] = useState<boolean | null>(null);
 	const [filterTitles, setFilterTitles] = useState<Set<string>>(new Set());
-	const [filterRead, setFilterRead] = useState<boolean | null>(null);
 	const [filterActive, setFilterActive] = useState<boolean | null>(null);
 	const [sortBy, setSortBy] = useState<SortOption>('createdAt');
 	const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
@@ -107,7 +106,7 @@ export default function ReportsScreen() {
 		} else {
 			setIsSearching(false);
 		}
-	}, [searchQuery, filterHasLocation, filterTitles, filterRead, filterActive, sortBy, sortOrder]);
+	}, [searchQuery, filterHasLocation, filterTitles, filterActive, sortBy, sortOrder]);
 
 	// Filter and sort reports
 	const filteredReports = useMemo(() => {
@@ -141,11 +140,6 @@ export default function ReportsScreen() {
 			result = result.filter((report) => filterTitles.has(report.title));
 		}
 
-		// Apply read filter
-		if (filterRead !== null) {
-			result = result.filter((report) => report.read === filterRead);
-		}
-
 		// Apply active filter
 		if (filterActive !== null) {
 			result = result.filter((report) => report.active === filterActive);
@@ -159,11 +153,6 @@ export default function ReportsScreen() {
 				case 'createdAt':
 					comparison = a.createdAt.getTime() - b.createdAt.getTime();
 					break;
-				case 'readAt':
-					const aReadAt = a.readAt?.getTime() || 0;
-					const bReadAt = b.readAt?.getTime() || 0;
-					comparison = aReadAt - bReadAt;
-					break;
 				case 'closedAt':
 					const aClosedAt = a.closedAt?.getTime() || 0;
 					const bClosedAt = b.closedAt?.getTime() || 0;
@@ -175,7 +164,7 @@ export default function ReportsScreen() {
 		});
 
 		return result;
-	}, [reports, searchQuery, filterHasLocation, filterTitles, filterRead, filterActive, sortBy, sortOrder]);
+	}, [reports, searchQuery, filterHasLocation, filterTitles, filterActive, sortBy, sortOrder]);
 
 	const handleLongPress = (report: typeof reports[0]) => {
 		setSelectedReport(report);
@@ -235,7 +224,6 @@ export default function ReportsScreen() {
 	const getSortLabel = (sort: SortOption): string => {
 		const labels: Record<SortOption, string> = {
 			createdAt: 'F. Creación',
-			readAt: 'F. Lectura',
 			closedAt: 'F. Cierre',
 		};
 		return labels[sort];
@@ -361,50 +349,6 @@ export default function ReportsScreen() {
 						</View>
 
 						<View style={styles.filterSection}>
-							<Text style={styles.filterLabel}>Estado de lectura</Text>
-							<View style={styles.statusChipsGrid}>
-								<Pressable
-									style={[
-										styles.statusChip,
-										{
-											backgroundColor: filterRead === true ? lightTheme.colors.secondaryContainer : lightTheme.colors.surface,
-											borderColor: filterRead === true ? lightTheme.colors.primary : lightTheme.colors.outline,
-										},
-									]}
-									onPress={() => setFilterRead(filterRead === true ? null : true)}
-								>
-									<CheckCheck size={16} color={lightTheme.colors.onSurface} />
-									<Text
-										style={[
-											styles.statusChipText,
-										]}
-									>
-										Leído
-									</Text>
-								</Pressable>
-								<Pressable
-									style={[
-										styles.statusChip,
-										{
-											backgroundColor: filterRead === false ? lightTheme.colors.secondaryContainer : lightTheme.colors.surface,
-											borderColor: filterRead === false ? lightTheme.colors.primary : lightTheme.colors.outline,
-										},
-									]}
-									onPress={() => setFilterRead(filterRead === false ? null : false)}
-								>
-									<BellDot size={16} color={lightTheme.colors.onSurface} />
-									<Text
-										style={[
-											styles.statusChipText,
-										]}
-									>
-										No leído
-									</Text>
-								</Pressable>
-							</View>
-						</View>
-
-						<View style={styles.filterSection}>
 							<Text style={styles.filterLabel}>Estado</Text>
 							<View style={styles.statusChipsGrid}>
 								<Pressable
@@ -518,7 +462,7 @@ export default function ReportsScreen() {
 								</Pressable>
 							</View>
 							<View style={styles.sortOptionsContainer}>
-								{(['createdAt', 'readAt', 'closedAt'] as SortOption[]).map((option) => (
+								{(['createdAt', 'closedAt'] as SortOption[]).map((option) => (
 									<Pressable
 										key={option}
 										style={[
