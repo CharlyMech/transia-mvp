@@ -8,9 +8,22 @@
     "scheme": "transiamvp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#e0e0e0"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.charlymech.transiamvp",
+      "splash": {
+        "image": "./assets/images/splash-icon.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#e0e0e0",
+        "dark": {
+          "backgroundColor": "#000000"
+        }
+      },
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "La aplicación necesita acceso a tus fotos para seleccionar una imagen de perfil.",
         "NSCameraUsageDescription": "La aplicación necesita acceso a tu cámara para tomar fotos de perfil.",
@@ -21,7 +34,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#e0e0e0",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -50,7 +63,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#e0e0e0",
           "dark": {
             "backgroundColor": "#000000"
           }
