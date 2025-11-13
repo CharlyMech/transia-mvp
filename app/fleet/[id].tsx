@@ -6,7 +6,7 @@ import { SkeletonDetail } from '@/components/skeletons';
 import { StatusLabel } from '@/components/StatusLabel';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useFleetStore } from '@/stores/useFleetStore';
-import { formatISODate } from '@/utils/dateUtils';
+import { formatDateToDisplay, formatISODate } from '@/utils/dateUtils';
 import { getVehicleStatusIcon } from '@/utils/fleetUtils';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, ExternalLink, SquarePen, Truck } from 'lucide-react-native';
@@ -183,6 +183,7 @@ export default function VehicleDetailScreen() {
 							textSize={typography.titleSmall}
 						/>
 					</View>
+					<Text style={styles.registrationDate}>Registrado en: {formatDateToDisplay(currentVehicle.registrationDate)}</Text>
 
 					<Text style={styles.cardTitle}>Información del vehículo</Text>
 					<Card
@@ -255,15 +256,6 @@ export default function VehicleDetailScreen() {
 									labelFlex={2}
 									valueFlex={3}
 									value={formatISODate(currentVehicle.purchaseDate.toISOString())}
-								/>
-							)}
-							<View style={styles.separator} />
-							{currentVehicle.registrationDate && (
-								<InfoRow
-									label="Fecha de registro"
-									labelFlex={2}
-									valueFlex={3}
-									value={formatISODate(currentVehicle.registrationDate.toISOString())}
 								/>
 							)}
 						</View>
@@ -371,6 +363,14 @@ const styles = StyleSheet.create({
 		justifyContent: 'flex-end',
 		alignItems: 'center',
 		backgroundColor: 'transparent',
+		marginBottom: spacing.xs,
+	},
+	registrationDate: {
+		fontSize: typography.bodyMedium,
+		fontWeight: '500',
+		fontStyle: 'italic',
+		color: `${lightTheme.colors.onSurface}80`,
+		textAlign: 'left',
 		marginBottom: spacing.xs,
 	},
 	cardTitleContainer: {

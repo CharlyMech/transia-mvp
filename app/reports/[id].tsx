@@ -5,10 +5,12 @@ import { InfoRow } from '@/components/InfoRow';
 import { LeafletMap } from '@/components/LeafletMap';
 import { SkeletonDetail } from '@/components/skeletons';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { useDriversStore } from '@/stores/useDriversStore';
+import { useFleetStore } from '@/stores/useFleetStore';
 import { useReportsStore } from '@/stores/useReportsStore';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, SquarePen } from 'lucide-react-native';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
 	Dimensions,
 	Image,
@@ -33,6 +35,36 @@ export default function ReportDetailScreen() {
 	const fetchReportById = useReportsStore((state) => state.fetchReportById);
 	const clearCurrentReport = useReportsStore((state) => state.clearCurrentReport);
 	const updateReport = useReportsStore((state) => state.updateReport);
+
+	const drivers = useDriversStore((state) => state.drivers);
+	const vehicles = useFleetStore((state) => state.vehicles);
+
+	// Get full driver and vehicle info
+	const driver = useMemo(() =>
+		currentReport ? drivers.find(d => d.id === currentReport.driverId) : null,
+		[drivers, currentReport]
+	);
+
+	const vehicle = useMemo(() =>
+		currentReport ? vehicles.find(v => v.id === currentReport.vehicleId) : null,
+		[vehicles, currentReport]
+	);
+
+	// Format driver name
+	const driverFullName = useMemo(() => {
+		if (driver) {
+			return `${driver.name} ${driver.surnames}`.trim();
+		}
+		return currentReport?.driverId || 'Desconocido';
+	}, [driver, currentReport]);
+
+	// Format vehicle info
+	const vehicleInfo = useMemo(() => {
+		if (vehicle) {
+			return `${vehicle.plateNumber} - ${vehicle.vehicleBrand} ${vehicle.vehicleModel}`;
+		}
+		return currentReport?.vehicleId || 'Desconocido';
+	}, [vehicle, currentReport]);
 
 	useEffect(() => {
 		if (id) {
@@ -161,15 +193,27 @@ export default function ReportDetailScreen() {
 								label="Vehículo"
 								labelFlex={2}
 								valueFlex={3}
-								value={currentReport.vehicleId}
+								value={vehicleInfo}
 							/>
 							<View style={styles.separator} />
 							<InfoRow
 								label="Conductor"
 								labelFlex={2}
 								valueFlex={3}
-								value={currentReport.driverId}
+								value={driverFullName}
 							/>
+							{driver?.phone && (
+								// TODO -> Link to directly call the driver
+								<>
+									<View style={styles.separator} />
+									<InfoRow
+										label="Teléfono"
+										labelFlex={2}
+										valueFlex={3}
+										value={driver.phone}
+									/>
+								</>
+							)}
 						</View>
 					</Card>
 
@@ -185,6 +229,23 @@ export default function ReportDetailScreen() {
 							>
 								<Text style={styles.descriptionText}>
 									{currentReport.description}
+								</Text>
+							</Card>
+						</>
+					)}
+
+					{currentReport.reporterComment && (
+						<>
+							<Text style={styles.cardTitle}>Respuesta</Text>
+							<Card
+								paddingX={spacing.md}
+								paddingY={spacing.md}
+								rounded={roundness.sm}
+								shadow='none'
+								backgroundColor={lightTheme.colors.surface}
+							>
+								<Text style={styles.descriptionText}>
+									{currentReport.reporterComment}
 								</Text>
 							</Card>
 						</>

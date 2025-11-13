@@ -17,7 +17,6 @@ import {
 	Image,
 	Platform,
 	Pressable,
-	ScrollView,
 	StyleSheet,
 	Text,
 	TextInput,
@@ -60,9 +59,7 @@ export function VehicleForm({
 	const [errors, setErrors] = useState<Partial<Record<keyof VehicleFormData, string>>>({});
 	const [showImageOptions, setShowImageOptions] = useState(false);
 	const [showVehicleTypePicker, setShowVehicleTypePicker] = useState(false);
-	const [showRegistrationDatePicker, setShowRegistrationDatePicker] = useState(false);
 	const [showPurchaseDatePicker, setShowPurchaseDatePicker] = useState(false);
-	const [tempRegistrationDate, setTempRegistrationDate] = useState<Date>(parseDate(initialData?.registrationDate));
 	const [tempPurchaseDate, setTempPurchaseDate] = useState<Date>(parseDate(initialData?.purchaseDate));
 
 	// Check if form has changes
@@ -84,31 +81,6 @@ export function VehicleForm({
 				delete newErrors[field];
 				return newErrors;
 			});
-		}
-	};
-
-	const handleRegistrationDateChange = (event: any, selectedDate?: Date) => {
-		if (Platform.OS === 'android') {
-			setShowRegistrationDatePicker(false);
-			if (selectedDate && event.type === 'set') {
-				const localDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
-				const dateString = formatDateToISO(localDate);
-				const newData = { ...formData, registrationDate: dateString };
-				setFormData(newData);
-				checkForChanges(newData);
-
-				if (errors.registrationDate) {
-					setErrors(prev => {
-						const newErrors = { ...prev };
-						delete newErrors.registrationDate;
-						return newErrors;
-					});
-				}
-			}
-		} else {
-			if (selectedDate) {
-				setTempRegistrationDate(selectedDate);
-			}
 		}
 	};
 
@@ -134,23 +106,6 @@ export function VehicleForm({
 			if (selectedDate) {
 				setTempPurchaseDate(selectedDate);
 			}
-		}
-	};
-
-	const handleIOSRegistrationDateConfirm = () => {
-		const localDate = new Date(tempRegistrationDate.getFullYear(), tempRegistrationDate.getMonth(), tempRegistrationDate.getDate());
-		const dateString = formatDateToISO(localDate);
-		const newData = { ...formData, registrationDate: dateString };
-		setFormData(newData);
-		checkForChanges(newData);
-		setShowRegistrationDatePicker(false);
-
-		if (errors.registrationDate) {
-			setErrors(prev => {
-				const newErrors = { ...prev };
-				delete newErrors.registrationDate;
-				return newErrors;
-			});
 		}
 	};
 
@@ -188,8 +143,17 @@ export function VehicleForm({
 
 	const handleSubmit = () => {
 		try {
+			// Prepare data with automatic registration date if not in edit mode
 			const { imageUrl, ...dataToValidate } = formData;
-			const validatedData = VehicleFormSchema.parse(dataToValidate);
+
+			// If registrationDate is empty, set it to current date (for new vehicles)
+			const dataWithRegistration = {
+				...dataToValidate,
+				registrationDate: dataToValidate.registrationDate || formatDateToISO(new Date()),
+				year: Number(dataToValidate.year), // Ensure year is a number
+			};
+
+			const validatedData = VehicleFormSchema.parse(dataWithRegistration);
 			setErrors({});
 			onSubmit({ ...validatedData, imageUrl: formData.imageUrl });
 		} catch (error) {
@@ -345,7 +309,7 @@ export function VehicleForm({
 				title="Seleccionar tipo de vehículo"
 				animationType="fade"
 			>
-				<ScrollView style={styles.vehicleTypePickerContent}>
+				<View style={styles.vehicleTypePickerContent}>
 					{Object.values(VehicleTypes).map((type) => (
 						<TouchableOpacity
 							key={type}
@@ -363,33 +327,11 @@ export function VehicleForm({
 							</Text>
 						</TouchableOpacity>
 					))}
-				</ScrollView>
+				</View>
 			</ActionsModal>
 
 			<View style={styles.section}>
 				<Text style={styles.sectionTitle}>Fechas</Text>
-
-				<View style={styles.inputContainer}>
-					<Text style={styles.label}>Fecha de registro *</Text>
-					<TouchableOpacity
-						style={[styles.input, styles.dateInput, errors.registrationDate && styles.inputError]}
-						onPress={() => {
-							setTempRegistrationDate(parseDate(formData.registrationDate));
-							setShowRegistrationDatePicker(true);
-						}}
-					>
-						<Text style={[
-							styles.dateText,
-							!formData.registrationDate && styles.placeholderText
-						]}>
-							{formData.registrationDate
-								? formatDateToDisplay(formData.registrationDate)
-								: 'Selecciona una fecha'}
-						</Text>
-						<Calendar size={20} color={lightTheme.colors.onSurfaceVariant} />
-					</TouchableOpacity>
-					{errors.registrationDate && <Text style={styles.errorText}>{errors.registrationDate}</Text>}
-				</View>
 
 				<View style={styles.inputContainer}>
 					<Text style={styles.label}>Fecha de compra</Text>
@@ -417,19 +359,6 @@ export function VehicleForm({
 
 			{Platform.OS === 'ios' && (
 				<IOSDatePickerModal
-					visible={showRegistrationDatePicker}
-					value={tempRegistrationDate}
-					onChange={handleRegistrationDateChange}
-					onConfirm={handleIOSRegistrationDateConfirm}
-					onCancel={() => setShowRegistrationDatePicker(false)}
-					minimumDate={new Date(1900, 0, 1)}
-					maximumDate={new Date()}
-					title="Fecha de Registro"
-				/>
-			)}
-
-			{Platform.OS === 'ios' && (
-				<IOSDatePickerModal
 					visible={showPurchaseDatePicker}
 					value={tempPurchaseDate}
 					onChange={handlePurchaseDateChange}
@@ -438,20 +367,6 @@ export function VehicleForm({
 					minimumDate={new Date(1900, 0, 1)}
 					maximumDate={new Date()}
 					title="Fecha de Compra"
-				/>
-			)}
-
-			{Platform.OS === 'android' && showRegistrationDatePicker && (
-				<DateTimePicker
-					value={parseDate(formData.registrationDate)}
-					mode="date"
-					locale="es-ES"
-					display="default"
-					onChange={handleRegistrationDateChange}
-					maximumDate={new Date()}
-					minimumDate={new Date(1900, 0, 1)}
-					accentColor={lightTheme.colors.primary}
-					textColor={lightTheme.colors.onSurface}
 				/>
 			)}
 
@@ -588,19 +503,19 @@ const styles = StyleSheet.create({
 		marginTop: spacing.xs,
 	},
 	vehicleTypePickerContent: {
-		maxHeight: 300,
+		flexDirection: 'column',
+		justifyContent: 'center',
+		alignItems: 'center',
+		gap: spacing.sm,
 	},
 	vehicleTypeOption: {
+		width: '100%',
 		padding: spacing.md,
 		borderRadius: roundness.sm,
 		backgroundColor: lightTheme.colors.background,
-		marginBottom: spacing.xs,
-		borderWidth: 1,
-		borderColor: lightTheme.colors.outline,
 	},
 	vehicleTypeOptionActive: {
 		backgroundColor: lightTheme.colors.primaryContainer,
-		borderColor: lightTheme.colors.primary,
 	},
 	vehicleTypeOptionText: {
 		fontSize: typography.bodyLarge,
@@ -608,7 +523,6 @@ const styles = StyleSheet.create({
 		fontWeight: '500',
 	},
 	vehicleTypeOptionTextActive: {
-		color: lightTheme.colors.onPrimaryContainer,
 		fontWeight: '600',
 	},
 	yearPickerContent: {

@@ -91,7 +91,7 @@ export function Accordion({
 					<View style={styles.headerRight}>
 						{rightContent}
 						<Animated.View style={chevronAnimatedStyle}>
-							<ChevronDown size={24} strokeWidth={2.5} color={lightTheme.colors.onSurface} />
+							<ChevronDown size={24} color={lightTheme.colors.onSurface} />
 						</Animated.View>
 					</View>
 				</Pressable>

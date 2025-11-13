@@ -31,7 +31,9 @@ export const VehicleSchema = z.object({
 		.min(1, VALIDATION_MESSAGES.plateNumber)
 		.regex(PLATE_REGEX, VALIDATION_MESSAGES.plateNumber)
 		.transform((val) => val.toUpperCase()),
-	registrationDate: ISODate,
+	registrationDate: ISODate.default(
+		() => new Date().toISOString().split("T")[0]
+	),
 	purchaseDate: ISODate.optional(),
 	status: z.nativeEnum(VehicleStatus),
 	imageUrl: z.string().nullable().optional(),
@@ -52,7 +54,10 @@ export const VehicleFormSchema = z.object({
 		.min(1, VALIDATION_MESSAGES.plateNumber)
 		.regex(PLATE_REGEX, VALIDATION_MESSAGES.plateNumber)
 		.transform((val) => val.toUpperCase()),
-	registrationDate: z.string().min(1, VALIDATION_MESSAGES.registrationDate),
+	registrationDate: z
+		.string()
+		.min(1, VALIDATION_MESSAGES.registrationDate)
+		.default(() => new Date().toISOString().split("T")[0]),
 	purchaseDate: z.string().optional().or(z.literal("")),
 	status: z.nativeEnum(VehicleStatus).default(VehicleStatus.ACTIVE),
 	imageUrl: z.string().nullable().optional(),

@@ -26,6 +26,12 @@ export default function NewReportScreen() {
 	const user = useAuthStore((state) => state.user);
 	const vehicles = useFleetStore((state) => state.vehicles);
 
+	// TODO -> Implement vehicle selection or auto-assign current one
+	// const currentVehicle = useMemo(() =>
+	// 	// vehicles.find(v => v.id === vehicleId),
+	// 	// [vehicles, vehicleId]
+	// );
+
 	const insets = useSafeAreaInsets();
 
 	useEffect(() => {

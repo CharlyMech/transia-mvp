@@ -17,6 +17,7 @@ interface TimeRegistrationsState {
 
 	// Current registration (for selected date)
 	currentRegistration: TimeRegistration | null;
+	todayRegistration: TimeRegistration | null;
 	loadingRegistration: boolean;
 	registrationError: string | null;
 
@@ -32,6 +33,7 @@ interface TimeRegistrationsActions {
 		driverId: string,
 		date: Date
 	) => Promise<void>;
+	fetchTodayRegistration: (driverId: string) => Promise<void>;
 	clearCurrentRegistration: () => void;
 
 	// Time tracking operations
@@ -60,12 +62,25 @@ interface TimeRegistrationsActions {
 
 	// Active date management
 	setActiveDate: (date: Date) => void;
+
+	// Helper functions
+	autoCloseOpenRangesForPastDay: (
+		registration: TimeRegistration | null
+	) => TimeRegistration | null;
 }
 
 type TimeRegistrationsStore = TimeRegistrationsState & TimeRegistrationsActions;
 
 // Helper function to add delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const isToday = (date: Date): boolean => {
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+	const compareDate = new Date(date);
+	compareDate.setHours(0, 0, 0, 0);
+	return today.getTime() === compareDate.getTime();
+};
 
 export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 	(set, get) => ({
@@ -76,6 +91,7 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 		initialized: false,
 
 		currentRegistration: null,
+		todayRegistration: null,
 		loadingRegistration: false,
 		registrationError: null,
 
@@ -113,7 +129,6 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 				currentRegistration: null,
 			});
 			try {
-				// First check local store
 				const localReg = get().registrations.find((reg) => {
 					const regDate = new Date(reg.date);
 					regDate.setHours(0, 0, 0, 0);
@@ -126,26 +141,79 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 				});
 
 				if (localReg) {
+					// Auto-close open ranges for past days
+					const processedReg =
+						get().autoCloseOpenRangesForPastDay(localReg);
 					set({
-						currentRegistration: localReg,
+						currentRegistration: processedReg,
 						loadingRegistration: false,
 					});
 					return;
 				}
 
-				// If not found locally, fetch from service
 				const fetchedReg =
 					await timeRegistrationsService.getTimeRegistrationByDriverAndDate(
 						driverId,
 						date
 					);
 
+				// Auto-close open ranges for past days
+				const processedReg =
+					get().autoCloseOpenRangesForPastDay(fetchedReg);
+
 				set({
-					currentRegistration: fetchedReg,
+					currentRegistration: processedReg,
 					loadingRegistration: false,
 				});
 			} catch (error) {
 				console.error("Error fetching registration:", error);
+				set({
+					registrationError:
+						error instanceof Error ? error.message : "Error desconocido",
+					loadingRegistration: false,
+				});
+			}
+		},
+
+		fetchTodayRegistration: async (driverId: string) => {
+			set({
+				loadingRegistration: true,
+				registrationError: null,
+			});
+
+			try {
+				const today = new Date();
+				today.setHours(0, 0, 0, 0);
+
+				const localReg = get().registrations.find((reg) => {
+					const regDate = new Date(reg.date);
+					regDate.setHours(0, 0, 0, 0);
+					return (
+						reg.driverId === driverId &&
+						regDate.getTime() === today.getTime()
+					);
+				});
+
+				if (localReg) {
+					set({
+						todayRegistration: localReg,
+						loadingRegistration: false,
+					});
+					return;
+				}
+
+				const fetchedReg =
+					await timeRegistrationsService.getTimeRegistrationByDriverAndDate(
+						driverId,
+						new Date()
+					);
+
+				set({
+					todayRegistration: fetchedReg,
+					loadingRegistration: false,
+				});
+			} catch (error) {
+				console.error("Error fetching today's registration:", error);
 				set({
 					registrationError:
 						error instanceof Error ? error.message : "Error desconocido",
@@ -193,6 +261,9 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 				set((state) => ({
 					registrations: [...state.registrations, newRegistration],
 					currentRegistration: newRegistration,
+					todayRegistration: isToday(date)
+						? newRegistration
+						: state.todayRegistration,
 					activeDriverId: driverId,
 				}));
 			} else {
@@ -208,6 +279,9 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 						reg.id === currentRegistration.id ? updatedRegistration : reg
 					),
 					currentRegistration: updatedRegistration,
+					todayRegistration: isToday(date)
+						? updatedRegistration
+						: state.todayRegistration,
 					activeDriverId: driverId,
 				}));
 			}
@@ -251,6 +325,9 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 					reg.id === currentRegistration.id ? updatedRegistration : reg
 				),
 				currentRegistration: updatedRegistration,
+				todayRegistration: isToday(date)
+					? updatedRegistration
+					: state.todayRegistration,
 			}));
 		},
 
@@ -280,6 +357,9 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 					reg.id === currentRegistration.id ? updatedRegistration : reg
 				),
 				currentRegistration: updatedRegistration,
+				todayRegistration: isToday(date)
+					? updatedRegistration
+					: state.todayRegistration,
 				activeDriverId: driverId,
 			}));
 		},
@@ -324,6 +404,9 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 					reg.id === currentRegistration.id ? updatedRegistration : reg
 				),
 				currentRegistration: updatedRegistration,
+				todayRegistration: isToday(date)
+					? updatedRegistration
+					: state.todayRegistration,
 				activeDriverId: null,
 			}));
 		},
@@ -349,6 +432,9 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 				set((state) => ({
 					registrations: [...state.registrations, newRegistration],
 					currentRegistration: newRegistration,
+					todayRegistration: isToday(date)
+						? newRegistration
+						: state.todayRegistration,
 				}));
 			} else {
 				const updatedRanges = [...currentRegistration.timeRanges, newRange];
@@ -364,6 +450,9 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 						reg.id === currentRegistration.id ? updatedRegistration : reg
 					),
 					currentRegistration: updatedRegistration,
+					todayRegistration: isToday(date)
+						? updatedRegistration
+						: state.todayRegistration,
 				}));
 			}
 		},
@@ -379,12 +468,19 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 					range.id === rangeId ? { ...range, ...updates } : range
 				);
 
+				// Preserve the finalized state - only recalculate isActive if it was previously true
+				const newIsActive = registration.isActive
+					? updatedRanges.some((r) => !r.endTime)
+					: false;
+
 				const updatedRegistration = {
 					...registration,
 					timeRanges: updatedRanges,
 					totalHours: calculateTotalHours(updatedRanges),
-					isActive: updatedRanges.some((r) => !r.endTime),
+					isActive: newIsActive,
 				};
+
+				const isTodayRegistration = isToday(registration.date);
 
 				return {
 					registrations: state.registrations.map((reg) =>
@@ -394,6 +490,11 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 						state.currentRegistration?.id === registrationId
 							? updatedRegistration
 							: state.currentRegistration,
+					todayRegistration:
+						isTodayRegistration &&
+						state.todayRegistration?.id === registrationId
+							? updatedRegistration
+							: state.todayRegistration,
 				};
 			});
 		},
@@ -409,12 +510,19 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 					(range) => range.id !== rangeId
 				);
 
+				// Preserve the finalized state - only recalculate isActive if it was previously true
+				const newIsActive = registration.isActive
+					? updatedRanges.some((r) => !r.endTime)
+					: false;
+
 				const updatedRegistration = {
 					...registration,
 					timeRanges: updatedRanges,
 					totalHours: calculateTotalHours(updatedRanges),
-					isActive: updatedRanges.some((r) => !r.endTime),
+					isActive: newIsActive,
 				};
+
+				const isTodayRegistration = isToday(registration.date);
 
 				return {
 					registrations: state.registrations.map((reg) =>
@@ -424,6 +532,11 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 						state.currentRegistration?.id === registrationId
 							? updatedRegistration
 							: state.currentRegistration,
+					todayRegistration:
+						isTodayRegistration &&
+						state.todayRegistration?.id === registrationId
+							? updatedRegistration
+							: state.todayRegistration,
 				};
 			});
 		},
@@ -448,6 +561,8 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 					notes: updatedNotes,
 				};
 
+				const isTodayRegistration = isToday(registration.date);
+
 				return {
 					registrations: state.registrations.map((reg) =>
 						reg.id === registrationId ? updatedRegistration : reg
@@ -456,6 +571,11 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 						state.currentRegistration?.id === registrationId
 							? updatedRegistration
 							: state.currentRegistration,
+					todayRegistration:
+						isTodayRegistration &&
+						state.todayRegistration?.id === registrationId
+							? updatedRegistration
+							: state.todayRegistration,
 				};
 			});
 		},
@@ -478,6 +598,8 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 					notes: updatedNotes,
 				};
 
+				const isTodayRegistration = isToday(registration.date);
+
 				return {
 					registrations: state.registrations.map((reg) =>
 						reg.id === registrationId ? updatedRegistration : reg
@@ -486,6 +608,11 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 						state.currentRegistration?.id === registrationId
 							? updatedRegistration
 							: state.currentRegistration,
+					todayRegistration:
+						isTodayRegistration &&
+						state.todayRegistration?.id === registrationId
+							? updatedRegistration
+							: state.todayRegistration,
 				};
 			});
 		},
@@ -506,6 +633,8 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 					notes: updatedNotes,
 				};
 
+				const isTodayRegistration = isToday(registration.date);
+
 				return {
 					registrations: state.registrations.map((reg) =>
 						reg.id === registrationId ? updatedRegistration : reg
@@ -514,12 +643,67 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 						state.currentRegistration?.id === registrationId
 							? updatedRegistration
 							: state.currentRegistration,
+					todayRegistration:
+						isTodayRegistration &&
+						state.todayRegistration?.id === registrationId
+							? updatedRegistration
+							: state.todayRegistration,
 				};
 			});
 		},
 
 		setActiveDate: (date: Date) => {
 			set({ activeDate: date });
+		},
+
+		autoCloseOpenRangesForPastDay: (
+			registration: TimeRegistration | null
+		) => {
+			// Handle null case
+			if (!registration) {
+				return null;
+			}
+
+			// Check if the registration date is in the past (not today)
+			const regDate = new Date(registration.date);
+			regDate.setHours(0, 0, 0, 0);
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+
+			// If it's today, return as is
+			if (regDate.getTime() >= today.getTime()) {
+				return registration;
+			}
+
+			// It's a past day - check for open ranges
+			const hasOpenRange = registration.timeRanges.some((r) => !r.endTime);
+
+			if (!hasOpenRange) {
+				return registration;
+			}
+
+			// Close all open ranges at 23:59 of that day and finalize the workday
+			const endOfDay = new Date(regDate);
+			endOfDay.setHours(23, 59, 59, 999);
+
+			const updatedRanges = registration.timeRanges.map((range) => {
+				if (!range.endTime) {
+					return {
+						...range,
+						endTime: endOfDay,
+						isPaused: false,
+						pausedAt: null,
+					};
+				}
+				return range;
+			});
+
+			return {
+				...registration,
+				timeRanges: updatedRanges,
+				totalHours: calculateTotalHours(updatedRanges),
+				isActive: false, // Finalize the workday
+			};
 		},
 	})
 );

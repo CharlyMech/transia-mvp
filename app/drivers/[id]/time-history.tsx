@@ -8,7 +8,7 @@ import { useDriversStore } from '@/stores/useDriversStore';
 import { useTimeRegistrationsStore } from '@/stores/useTimeRegistrationStore';
 import { calculateCurrentMinutes, formatDateToDisplay, getTotalDayTimeColor } from '@/utils/dateUtils';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, Calendar, ChevronRight } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight } from 'lucide-react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
 	Alert,
@@ -79,33 +79,118 @@ export default function TimeHistoryScreen() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [id, canViewHistory, isOwnProfile]);
 
-	// Group registrations by month and year
-	const groupedRegistrations: GroupedRegistrations[] = useMemo(() => {
-		if (!registrations || registrations.length === 0) return [];
+	// Helper function to calculate minutes with auto-close for past days
+	const calculateMinutesWithAutoClose = (registration: any): number => {
+		const ranges = Array.isArray(registration.timeRanges) ? registration.timeRanges : [];
 
-		const groups: { [key: string]: any[] } = {};
+		// Get registration date
+		const regDate = new Date(registration.date);
+		regDate.setHours(0, 0, 0, 0);
 
-		registrations.forEach((reg) => {
-			const date = new Date(reg.date);
-			const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+		// Get today's date
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
 
-			if (!groups[monthYear]) {
-				groups[monthYear] = [];
+		// If it's today, calculate with current time
+		if (regDate.getTime() >= today.getTime()) {
+			return calculateCurrentMinutes(ranges, new Date());
+		}
+
+		// For past days, check if there are open ranges
+		const hasOpenRange = ranges.some((r: any) => !r.endTime);
+
+		if (!hasOpenRange) {
+			// No open ranges, calculate normally
+			return calculateCurrentMinutes(ranges, new Date());
+		}
+
+		// Close open ranges at 23:59 of that day
+		const endOfDay = new Date(regDate);
+		endOfDay.setHours(23, 59, 59, 999);
+
+		const closedRanges = ranges.map((range: any) => {
+			if (!range.endTime) {
+				return {
+					...range,
+					endTime: endOfDay,
+				};
 			}
-			groups[monthYear].push(reg);
+			return range;
 		});
 
-		// Convert to array and sort by date (most recent first)
-		const groupedArray = Object.entries(groups).map(([monthYear, regs]) => {
-			const [year, month] = monthYear.split('-');
-			const monthNames = [
-				'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-				'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-			];
-			const displayName = `${monthNames[parseInt(month) - 1]} ${year}`;
+		return calculateCurrentMinutes(closedRanges, new Date());
+	};
+
+	// Group registrations by month and year - Generate ALL months from registration date to today
+	const groupedRegistrations: GroupedRegistrations[] = useMemo(() => {
+		if (!currentDriver) return [];
+
+		// Get driver's registration date
+		const driverRegDate = new Date(currentDriver.registrationDate);
+		driverRegDate.setHours(0, 0, 0, 0);
+
+		// Get current date
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+
+		// Helper function to count business days in a month range
+		const countBusinessDays = (startDate: Date, endDate: Date): number => {
+			let count = 0;
+			const current = new Date(startDate);
+
+			while (current <= endDate) {
+				const dayOfWeek = current.getDay();
+				// 0 = Sunday, 6 = Saturday
+				if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+					count++;
+				}
+				current.setDate(current.getDate() + 1);
+			}
+
+			return count;
+		};
+
+		// Group existing registrations by monthYear
+		const registrationsByMonth: { [key: string]: any[] } = {};
+
+		if (registrations && registrations.length > 0) {
+			registrations.forEach((reg) => {
+				const regDate = new Date(reg.date);
+				regDate.setHours(0, 0, 0, 0);
+
+				// Only include registrations from registration date onwards
+				if (regDate >= driverRegDate) {
+					const monthYear = `${regDate.getFullYear()}-${String(regDate.getMonth() + 1).padStart(2, '0')}`;
+
+					if (!registrationsByMonth[monthYear]) {
+						registrationsByMonth[monthYear] = [];
+					}
+					registrationsByMonth[monthYear].push(reg);
+				}
+			});
+		}
+
+		// Generate all months from registration date to current month
+		const allMonths: GroupedRegistrations[] = [];
+		const current = new Date(driverRegDate.getFullYear(), driverRegDate.getMonth(), 1);
+		const endMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+		const monthNames = [
+			'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+			'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+		];
+
+		while (current <= endMonth) {
+			const year = current.getFullYear();
+			const month = current.getMonth() + 1;
+			const monthYear = `${year}-${String(month).padStart(2, '0')}`;
+			const displayName = `${monthNames[month - 1]} ${year}`;
+
+			// Get registrations for this month (if any)
+			const monthRegs = registrationsByMonth[monthYear] || [];
 
 			// Sort registrations within the month by date (most recent first)
-			const sortedRegs = regs.sort((a, b) => {
+			const sortedRegs = monthRegs.sort((a, b) => {
 				const dateA = new Date(a.date).getTime();
 				const dateB = new Date(b.date).getTime();
 				return dateB - dateA;
@@ -113,25 +198,44 @@ export default function TimeHistoryScreen() {
 
 			// Calculate total minutes for the month
 			const totalMinutes = sortedRegs.reduce((sum, reg) => {
-				const ranges = Array.isArray(reg.timeRanges) ? reg.timeRanges : [];
-				return sum + calculateCurrentMinutes(ranges, new Date());
+				return sum + calculateMinutesWithAutoClose(reg);
 			}, 0);
 
-			// Calculate expected minutes (8 hours per day with registration)
-			const expectedMinutes = sortedRegs.length * 480;
+			// Calculate expected minutes based on business days
+			const monthStart = new Date(year, month - 1, 1);
+			const monthEnd = new Date(year, month, 0); // Last day of the month
 
-			return {
+			// Determine the actual start date for this month
+			let actualStartDate = monthStart;
+			if (monthStart < driverRegDate) {
+				actualStartDate = driverRegDate;
+			}
+
+			// Determine the actual end date for this month (don't count future days)
+			let actualEndDate = monthEnd;
+			if (monthEnd > today) {
+				actualEndDate = today;
+			}
+
+			// Count business days from the actual start date to the actual end date
+			const businessDays = countBusinessDays(actualStartDate, actualEndDate);
+			const expectedMinutes = businessDays * 480; // 8 hours per business day
+
+			allMonths.push({
 				monthYear,
 				displayName,
 				registrations: sortedRegs,
 				totalMinutes,
 				expectedMinutes
-			};
-		});
+			});
+
+			// Move to next month
+			current.setMonth(current.getMonth() + 1);
+		}
 
 		// Sort by month-year (most recent first)
-		return groupedArray.sort((a, b) => b.monthYear.localeCompare(a.monthYear));
-	}, [registrations]);
+		return allMonths.sort((a, b) => b.monthYear.localeCompare(a.monthYear));
+	}, [registrations, currentDriver]);
 
 	const toggleMonth = (monthYear: string) => {
 		setExpandedMonths((prev) => {
@@ -170,20 +274,6 @@ export default function TimeHistoryScreen() {
 		return lightTheme.colors.error;
 	};
 
-	// Calculate total statistics
-	// const totalStats = useMemo(() => {
-	// 	const totalMinutes = groupedRegistrations.reduce((sum, group) => sum + group.totalMinutes, 0);
-	// 	const totalExpectedMinutes = groupedRegistrations.reduce((sum, group) => sum + group.expectedMinutes, 0);
-
-	// 	return {
-	// 		totalDays: registrations.length,
-	// 		totalMonths: groupedRegistrations.length,
-	// 		totalHours: formatMinutes(totalMinutes),
-	// 		expectedHours: formatMinutes(totalExpectedMinutes),
-	// 		variance: totalMinutes - totalExpectedMinutes,
-	// 	};
-	// }, [groupedRegistrations, registrations.length]);
-
 	if (loadingDriver || loading) {
 		return <SkeletonDetail />;
 	}
@@ -221,8 +311,8 @@ export default function TimeHistoryScreen() {
 				translucent={false}
 			/>
 
-			{/* Header */}
-			<View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
+			{/* Floating Back Button - Positioned absolutely over content */}
+			<View style={[styles.floatingButtonContainer, { paddingTop: insets.top + spacing.sm }]}>
 				<ElevatedButton
 					backgroundColor={lightTheme.colors.primary}
 					icon={ArrowLeft}
@@ -238,7 +328,13 @@ export default function TimeHistoryScreen() {
 
 			<ScrollView
 				style={styles.scrollView}
-				contentContainerStyle={styles.scrollViewContent}
+				contentContainerStyle={[
+					styles.scrollViewContent,
+					{
+						paddingTop: insets.top + 60,
+						paddingBottom: insets.bottom + spacing.xl
+					}
+				]}
 				showsVerticalScrollIndicator={false}
 			>
 				{/* Driver Info */}
@@ -251,111 +347,49 @@ export default function TimeHistoryScreen() {
 					</Text>
 				</View>
 
-				{/* Empty State */}
-				{groupedRegistrations.length === 0 ? (
-					<Card
-						paddingX={spacing.md}
-						paddingY={spacing.xl}
-						rounded={roundness.sm}
-						shadow="none"
-						backgroundColor={lightTheme.colors.surface}
-					>
-						<View style={styles.emptyState}>
-							<Calendar size={48} color={lightTheme.colors.onSurfaceVariant} />
-							<Text style={styles.emptyStateText}>
-								No hay registros horarios disponibles
-							</Text>
-						</View>
-					</Card>
-				) : (
-					<>
-						{/* Summary Card - Table Style */}
-						{/* ??? TODO ??? */}
-						{/* <Card
-							paddingX={spacing.md}
-							paddingY={spacing.md}
-							rounded={roundness.sm}
-							shadow="small"
-							backgroundColor={lightTheme.colors.surface}
+				{/* Grouped Registrations with Accordion */}
+				{groupedRegistrations.map((group) => {
+					const isExpanded = expandedMonths.has(group.monthYear);
+					const varianceColor = getMonthVarianceColor(group.totalMinutes, group.expectedMinutes);
+
+					return (
+						<Accordion
+							key={group.monthYear}
+							title={group.displayName}
+							subtitle={`${group.registrations.length} ${group.registrations.length === 1 ? 'día' : 'días'}`}
+							isExpanded={isExpanded}
+							onToggle={() => toggleMonth(group.monthYear)}
+							headerStyle={styles.accordionHeader}
+							contentStyle={styles.accordionContent}
+							titleStyle={styles.monthTitle}
+							subtitleStyle={styles.monthSubtitle}
+							rightContent={
+								<View style={styles.monthStats}>
+									<Text style={[styles.monthTotal, { color: varianceColor }]}>
+										{formatMinutes(group.totalMinutes)}
+									</Text>
+									<Text style={styles.monthExpected}>
+										de {formatMinutes(group.expectedMinutes)}
+									</Text>
+								</View>
+							}
 						>
-							<Text style={styles.summaryTitle}>Resumen General</Text>
-
-							<View style={[styles.summaryTableRow, styles.summaryTableHeader]}>
-								<Text style={styles.summaryTableHeaderText}>Concepto</Text>
-								<Text style={[styles.summaryTableHeaderText, { textAlign: 'right' }]}>Valor</Text>
-							</View>
-
-							<View style={styles.summaryTableRow}>
-								<Text style={styles.summaryTableLabel}>Total de días registrados</Text>
-								<Text style={styles.summaryTableValue}>{totalStats.totalDays}</Text>
-							</View>
-
-							<View style={styles.summaryTableRow}>
-								<Text style={styles.summaryTableLabel}>Meses con registros</Text>
-								<Text style={styles.summaryTableValue}>{totalStats.totalMonths}</Text>
-							</View>
-
-							<View style={styles.summaryTableRow}>
-								<Text style={styles.summaryTableLabel}>Total horas trabajadas</Text>
-								<Text style={styles.summaryTableValue}>{totalStats.totalHours}</Text>
-							</View>
-
-							<View style={styles.summaryTableRow}>
-								<Text style={styles.summaryTableLabel}>Total horas esperadas</Text>
-								<Text style={styles.summaryTableValue}>{totalStats.expectedHours}</Text>
-							</View>
-
-							<View style={[styles.summaryTableRow, styles.summaryTableRowLast]}>
-								<Text style={[styles.summaryTableLabel, { fontWeight: '600' }]}>Diferencia</Text>
-								<Text style={[
-									styles.summaryTableValue,
-									{
-										fontWeight: '700',
-										color: totalStats.variance >= 0
-											? lightTheme.colors.success
-											: lightTheme.colors.error
-									}
-								]}>
-									{totalStats.variance >= 0 ? '+' : ''}{formatMinutes(Math.abs(totalStats.variance))}
-								</Text>
-							</View>
-						</Card> */}
-
-						{/* Grouped Registrations with Accordion */}
-						{groupedRegistrations.map((group) => {
-							const isExpanded = expandedMonths.has(group.monthYear);
-							const varianceColor = getMonthVarianceColor(group.totalMinutes, group.expectedMinutes);
-
-							return (
-								<Accordion
-									key={group.monthYear}
-									title={group.displayName}
-									subtitle={`${group.registrations.length} ${group.registrations.length === 1 ? 'día' : 'días'}`}
-									isExpanded={isExpanded}
-									onToggle={() => toggleMonth(group.monthYear)}
-									headerStyle={styles.accordionHeader}
-									contentStyle={styles.accordionContent}
-									titleStyle={styles.monthTitle}
-									subtitleStyle={styles.monthSubtitle}
-									rightContent={
-										<View style={styles.monthStats}>
-											<Text style={[styles.monthTotal, { color: varianceColor }]}>
-												{formatMinutes(group.totalMinutes)}
-											</Text>
-											<Text style={styles.monthExpected}>
-												de {formatMinutes(group.expectedMinutes)}
-											</Text>
-										</View>
-									}
-								>
-									<View style={styles.separator} />
-									<Card
-										paddingX={spacing.md}
-										paddingY={spacing.md}
-										rounded={0}
-										shadow="none"
-										backgroundColor={lightTheme.colors.surface}
-									>
+							<View style={styles.separator} />
+							<Card
+								paddingX={spacing.md}
+								paddingY={spacing.md}
+								rounded={0}
+								shadow="none"
+								backgroundColor={lightTheme.colors.surface}
+							>
+								{group.registrations.length === 0 ? (
+									<View style={styles.emptyMonthState}>
+										<Text style={styles.emptyMonthText}>
+											No hay registros para este mes
+										</Text>
+									</View>
+								) : (
+									<>
 										{/* Table Header */}
 										<View style={[styles.tableRow, styles.tableHeader]}>
 											<Text style={[styles.cellDate, styles.headerText]}>Fecha</Text>
@@ -365,8 +399,7 @@ export default function TimeHistoryScreen() {
 										{/* Registrations */}
 										{group.registrations.map((reg) => {
 											const dateLabel = formatDateToDisplay(reg.date);
-											const ranges = Array.isArray(reg.timeRanges) ? reg.timeRanges : [];
-											const totalMinutes = calculateCurrentMinutes(ranges, new Date());
+											const totalMinutes = calculateMinutesWithAutoClose(reg);
 											const colorInfo = getTotalDayTimeColor(totalMinutes);
 
 											return (
@@ -400,12 +433,12 @@ export default function TimeHistoryScreen() {
 												</Pressable>
 											);
 										})}
-									</Card>
-								</Accordion>
-							);
-						})}
-					</>
-				)}
+									</>
+								)}
+							</Card>
+						</Accordion>
+					);
+				})}
 			</ScrollView>
 		</View>
 	);
@@ -420,17 +453,17 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
-	header: {
+	floatingButtonContainer: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		right: 0,
 		flexDirection: 'row',
-		justifyContent: 'space-between',
+		justifyContent: 'flex-start',
 		alignItems: 'center',
 		paddingHorizontal: spacing.md,
+		zIndex: 1000,
 		backgroundColor: 'transparent',
-	},
-	headerTitle: {
-		fontSize: typography.titleLarge,
-		fontWeight: '600',
-		color: lightTheme.colors.onBackground,
 	},
 	scrollView: {
 		flex: 1,
@@ -452,57 +485,14 @@ const styles = StyleSheet.create({
 		fontSize: typography.bodyLarge,
 		color: lightTheme.colors.onSurfaceVariant,
 	},
-	emptyState: {
+	emptyMonthState: {
+		paddingVertical: spacing.lg,
 		alignItems: 'center',
-		gap: spacing.md,
 	},
-	emptyStateText: {
-		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurfaceVariant,
-		textAlign: 'center',
-		fontStyle: 'italic',
-	},
-	summaryTitle: {
-		fontSize: typography.titleMedium,
-		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
-		marginBottom: spacing.md,
-	},
-	summaryTableRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		paddingVertical: spacing.sm,
-		borderBottomWidth: 1,
-		borderBottomColor: lightTheme.colors.outlineVariant,
-	},
-	summaryTableRowLast: {
-		borderBottomWidth: 0,
-		paddingTop: spacing.md,
-		borderTopWidth: 2,
-		borderTopColor: lightTheme.colors.outline,
-	},
-	summaryTableHeader: {
-		borderBottomWidth: 2,
-		borderBottomColor: lightTheme.colors.outline,
-		paddingBottom: spacing.xs,
-		marginBottom: spacing.xs,
-	},
-	summaryTableHeaderText: {
-		fontSize: typography.labelLarge,
-		fontWeight: '700',
-		color: lightTheme.colors.onSurface,
-		textTransform: 'uppercase',
-		letterSpacing: 0.5,
-	},
-	summaryTableLabel: {
+	emptyMonthText: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurface,
-	},
-	summaryTableValue: {
-		fontSize: typography.bodyLarge,
-		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: lightTheme.colors.onSurfaceVariant,
+		fontStyle: 'italic',
 	},
 	accordionHeader: {
 		backgroundColor: lightTheme.colors.surface,

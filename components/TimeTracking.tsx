@@ -15,11 +15,13 @@ interface TimeTrackingProps {
 
 export function TimeTracking({ onPress }: TimeTrackingProps) {
 	const user = useAuthStore((state) => state.user);
-	const currentRegistration = useTimeRegistrationsStore((state) => state.currentRegistration);
+	const todayRegistration = useTimeRegistrationsStore((state) => state.todayRegistration);
+	const fetchTodayRegistration = useTimeRegistrationsStore((state) => state.fetchTodayRegistration);
+	// const currentRegistration = useTimeRegistrationsStore((state) => state.currentRegistration);
 	const loadingRegistration = useTimeRegistrationsStore((state) => state.loadingRegistration);
-	const fetchRegistrationByDriverAndDate = useTimeRegistrationsStore(
-		(state) => state.fetchRegistrationByDriverAndDate
-	);
+	// const fetchRegistrationByDriverAndDate = useTimeRegistrationsStore(
+	// 	(state) => state.fetchRegistrationByDriverAndDate
+	// );
 
 	const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -33,23 +35,23 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 
 	useEffect(() => {
 		if (user?.id) {
-			fetchRegistrationByDriverAndDate(user.id, new Date());
+			fetchTodayRegistration(user.id);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user?.id]);
 
 	const getCurrentMinutes = () => {
-		if (!currentRegistration) return 0;
-		return calculateCurrentMinutes(currentRegistration.timeRanges, currentTime);
+		if (!todayRegistration) return 0;
+		return calculateCurrentMinutes(todayRegistration.timeRanges, currentTime);
 	};
 
 	const getActiveRange = () => {
-		if (!currentRegistration) return null;
-		return currentRegistration.timeRanges.find((range) => !range.endTime);
+		if (!todayRegistration) return null;
+		return todayRegistration.timeRanges.find((range) => !range.endTime);
 	};
 
 	const getStatusInfo = () => {
-		if (!currentRegistration) {
+		if (!todayRegistration) {
 			return {
 				label: 'Sin registro',
 				color: lightTheme.colors.onSurface,
@@ -67,7 +69,7 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 			};
 		}
 
-		if (currentRegistration.isActive) {
+		if (todayRegistration.isActive) {
 			return {
 				label: 'Jornada pausada',
 				color: lightTheme.colors.onPrimary,
@@ -85,7 +87,7 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 	};
 
 	const getCurrentTimeText = () => {
-		if (!currentRegistration) return '';
+		if (!todayRegistration) return '';
 		if (isActive) {
 			if (currentMinutes > 0 && currentMinutes < targetMinutes) {
 				return `Quedan ${formatTime(targetMinutes - currentMinutes)}`;
@@ -121,13 +123,13 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 	const targetMinutes = 480; // 8 hours
 	const activeRange = getActiveRange();
 	const isActive = !!activeRange;
-	const isPaused = !activeRange && currentRegistration?.isActive;
-	const isFinished = currentRegistration && !currentRegistration.isActive;
+	const isPaused = !activeRange && todayRegistration?.isActive;
+	const isFinished = todayRegistration && !todayRegistration.isActive;
 	const statusInfo = getStatusInfo();
 
 	let circleColor: string;
 
-	if (!currentRegistration || currentMinutes === 0) {
+	if (!todayRegistration || currentMinutes === 0) {
 		circleColor = lightTheme.colors.outline;
 	} else if (isActive) {
 		circleColor = lightTheme.colors.primary;

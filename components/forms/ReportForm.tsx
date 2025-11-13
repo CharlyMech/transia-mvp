@@ -6,13 +6,14 @@ import { useLocation } from '@/hooks/useLocation';
 import type { Location, ReportFormData } from '@/models/report';
 import { ReportFormSchema } from '@/models/report';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { Camera, ChevronDown, Image as ImageIcon, MapPinOff, User, X } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import { useDriversStore } from '@/stores/useDriversStore';
+import { useFleetStore } from '@/stores/useFleetStore';
+import { Camera, ChevronDown, Image as ImageIcon, MapPinOff, Truck, User, X } from 'lucide-react-native';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
 	ActivityIndicator,
 	Image,
 	Pressable,
-	ScrollView,
 	StyleSheet,
 	Text,
 	TextInput,
@@ -23,14 +24,14 @@ import { LeafletMap } from '../LeafletMap';
 
 type ReportFormProps = {
 	initialData?: Partial<ReportFormData> & { images?: string[] };
-	driverId: string; // ID del conductor que crea/edita el reporte
-	vehicleInfo?: string; // Información del camión (ej: "Volvo FH16 - ABC123")
-	driverName?: string; // Nombre del conductor para mostrar
+	driverId: string;
+	vehicleInfo?: string;
+	driverName?: string;
 	onSubmit: (data: ReportFormData & { images: string[] }) => void;
 	onFormChange?: (hasChanges: boolean) => void;
 	submitLabel?: string;
 	loading?: boolean;
-	isEditMode?: boolean; // Flag para indicar si estamos editando
+	isEditMode?: boolean;
 };
 
 type FormDataWithImages = ReportFormData & { images: string[] };
@@ -47,7 +48,32 @@ export function ReportForm({
 	isEditMode = false
 }: ReportFormProps) {
 	const { user } = useAuthStore();
+	const drivers = useDriversStore((state) => state.drivers);
+	const vehicles = useFleetStore((state) => state.vehicles);
 
+	const driver = useMemo(() =>
+		drivers.find(d => d.id === driverId),
+		[drivers, driverId]
+	);
+
+	const vehicle = useMemo(() =>
+		vehicles.find(v => v.id === initialData?.vehicleId),
+		[vehicles, initialData?.vehicleId]
+	);
+
+	const fullDriverName = useMemo(() => {
+		if (driver) {
+			return `${driver.name} ${driver.surnames}`.trim();
+		}
+		return driverName;
+	}, [driver, driverName]);
+
+	const fullVehicleInfo = useMemo(() => {
+		if (vehicle) {
+			return `${vehicle.plateNumber} - ${vehicle.vehicleBrand} ${vehicle.vehicleModel}`;
+		}
+		return vehicleInfo;
+	}, [vehicle, vehicleInfo]);
 
 	const { pickImage, takePhoto, loading: imageLoading } = useImagePicker();
 	const { location: currentLocation, loading: locationLoading, requestLocation } = useLocation();
@@ -205,7 +231,7 @@ export function ReportForm({
 				title="Seleccionar tipo de reporte"
 				animationType="fade"
 			>
-				<ScrollView style={styles.reportTypePickerContent}>
+				<View style={styles.reportTypePickerContent}>
 					{Object.values(ReportsTypes).map((type) => (
 						<TouchableOpacity
 							key={type}
@@ -223,33 +249,30 @@ export function ReportForm({
 							</Text>
 						</TouchableOpacity>
 					))}
-				</ScrollView>
+				</View>
 			</ActionsModal>
 
-			{isEditMode && (driverName || vehicleInfo) && (
+			{isEditMode && (
 				<View style={styles.section}>
 					<Text style={styles.sectionTitle}>Información del Reporte</Text>
 
 					<View style={styles.infoDisplayContainer}>
-						{driverName && (
-							<View style={styles.infoRow}>
-								<User size={20} color={lightTheme.colors.primary} />
-								<View style={styles.infoContent}>
-									<Text style={styles.infoLabel}>Conductor</Text>
-									<Text style={styles.infoValue}>{driverName}</Text>
-								</View>
+						<View style={styles.infoRow}>
+							<User size={24} color={lightTheme.colors.primary} />
+							<View style={styles.infoContent}>
+								<Text style={styles.infoLabel}>Conductor</Text>
+								<Text style={styles.infoValue}>{fullDriverName}</Text>
 							</View>
-						)}
+						</View>
 
-						{vehicleInfo && (
-							<View style={styles.infoRow}>
-								<Text style={styles.truckIcon}>🚛</Text>
-								<View style={styles.infoContent}>
-									<Text style={styles.infoLabel}>Vehículo</Text>
-									<Text style={styles.infoValue}>{vehicleInfo}</Text>
-								</View>
+						{/* TODO -> Allow to change the vehicle */}
+						<View style={styles.infoRow}>
+							<Truck size={24} color={lightTheme.colors.primary} />
+							<View style={styles.infoContent}>
+								<Text style={styles.infoLabel}>Vehículo</Text>
+								<Text style={styles.infoValue}>{fullVehicleInfo}</Text>
 							</View>
-						)}
+						</View>
 					</View>
 				</View>
 			)}
@@ -488,19 +511,19 @@ const styles = StyleSheet.create({
 		marginTop: spacing.xs,
 	},
 	reportTypePickerContent: {
-		maxHeight: 300,
+		flexDirection: 'column',
+		justifyContent: 'center',
+		alignItems: 'center',
+		gap: spacing.sm,
 	},
 	reportTypeOption: {
+		width: '100%',
 		padding: spacing.md,
 		borderRadius: roundness.sm,
 		backgroundColor: lightTheme.colors.background,
-		marginBottom: spacing.xs,
-		borderWidth: 1,
-		borderColor: lightTheme.colors.outline,
 	},
 	reportTypeOptionActive: {
 		backgroundColor: lightTheme.colors.primaryContainer,
-		borderColor: lightTheme.colors.primary,
 	},
 	reportTypeOptionText: {
 		fontSize: typography.bodyLarge,
@@ -508,15 +531,12 @@ const styles = StyleSheet.create({
 		fontWeight: '500',
 	},
 	reportTypeOptionTextActive: {
-		color: lightTheme.colors.onPrimaryContainer,
 		fontWeight: '600',
 	},
 	infoDisplayContainer: {
 		backgroundColor: lightTheme.colors.surface,
 		borderRadius: roundness.sm,
 		padding: spacing.md,
-		borderWidth: 1,
-		borderColor: lightTheme.colors.outline,
 		gap: spacing.md,
 	},
 	infoRow: {

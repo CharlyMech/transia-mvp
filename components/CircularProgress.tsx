@@ -20,16 +20,18 @@ export function CircularProgress({
 	size = 160,
 	strokeWidth = 20,
 	circleColor,
-	backgroundCircleColor = `${lightTheme.colors.outline}50`,
+	backgroundCircleColor = `${lightTheme.colors.outline}30`,
 	textColor = lightTheme.colors.onSurface,
 	remainingTextColor = lightTheme.colors.onSurfaceVariant,
 }: CircularProgressProps) {
-	const radius = (size - strokeWidth) / 2;
-	const circumference = radius * 2 * Math.PI;
+	const baseRadius = (size - strokeWidth) / 2;
+	const circumference = baseRadius * 2 * Math.PI;
 
-	// Allow progress to exceed 100%
+	// Calculate progress (can exceed 100%)
 	const progress = currentMinutes / targetMinutes;
-	const strokeDashoffset = circumference - (Math.min(progress, 1) * circumference);
+
+	// Use provided color or default
+	const mainColor = circleColor || lightTheme.colors.primary;
 
 	const hours = Math.floor(currentMinutes / 60);
 	const minutes = currentMinutes % 60;
@@ -50,6 +52,85 @@ export function CircularProgress({
 		remainingText = 'Completado';
 	}
 
+	// iOS-style overlap rendering
+	const renderProgressArcs = () => {
+		const arcs: any[] = [];
+
+		if (progress <= 0) return arcs;
+
+		// First arc (up to 100%)
+		const firstArcProgress = Math.min(progress, 1);
+		const firstStrokeDashoffset = circumference - (firstArcProgress * circumference);
+
+		arcs.push(
+			<Circle
+				key="arc1"
+				cx={size / 2}
+				cy={size / 2}
+				r={baseRadius}
+				stroke={mainColor}
+				strokeWidth={strokeWidth}
+				fill="none"
+				strokeDasharray={`${circumference} ${circumference}`}
+				strokeDashoffset={firstStrokeDashoffset}
+				strokeLinecap="round"
+				rotation="-90"
+				origin={`${size / 2}, ${size / 2}`}
+			/>
+		);
+
+		// Overlapping arc (progress > 100%)
+		if (progress > 1) {
+			const overlapProgress = progress - 1;
+			const overlapStrokeDashoffset = circumference - (Math.min(overlapProgress, 1) * circumference);
+
+			// iOS effect: brighter color with reduced opacity for overlap
+			arcs.push(
+				<Circle
+					key="arc2"
+					cx={size / 2}
+					cy={size / 2}
+					r={baseRadius}
+					stroke={mainColor}
+					strokeWidth={strokeWidth}
+					fill="none"
+					strokeDasharray={`${circumference} ${circumference}`}
+					strokeDashoffset={overlapStrokeDashoffset}
+					strokeLinecap="round"
+					rotation="-90"
+					origin={`${size / 2}, ${size / 2}`}
+					opacity={0.8}
+				/>
+			);
+
+			// Additional subtle indicator for > 200%
+			if (progress > 2) {
+				const extraProgress = progress - 2;
+				const extraStrokeDashoffset = circumference - (Math.min(extraProgress, 1) * circumference);
+
+				arcs.push(
+					<Circle
+						key="arc3"
+						cx={size / 2}
+						cy={size / 2}
+						r={baseRadius}
+						stroke={mainColor}
+						strokeWidth={strokeWidth}
+						fill="none"
+						strokeDasharray={`${circumference} ${circumference}`}
+						strokeDashoffset={extraStrokeDashoffset}
+						strokeLinecap="round"
+						rotation="-90"
+						origin={`${size / 2}, ${size / 2}`}
+						opacity={0.6}
+					/>
+				);
+			}
+		}
+
+		return arcs;
+	};
+
 	return (
 		<View style={styles.circularProgressContainer}>
 			<Svg width={size} height={size}>
@@ -57,26 +138,14 @@ export function CircularProgress({
 				<Circle
 					cx={size / 2}
 					cy={size / 2}
-					r={radius}
+					r={baseRadius}
 					stroke={backgroundCircleColor}
 					strokeWidth={strokeWidth}
 					fill="none"
 				/>
 
-				{/* Progress circle */}
-				<Circle
-					cx={size / 2}
-					cy={size / 2}
-					r={radius}
-					stroke={circleColor}
-					strokeWidth={strokeWidth}
-					fill="none"
-					strokeDasharray={`${circumference} ${circumference}`}
-					strokeDashoffset={strokeDashoffset}
-					strokeLinecap="round"
-					rotation="-90"
-					origin={`${size / 2}, ${size / 2}`}
-				/>
+				{/* Progress arcs with iOS-style overlap */}
+				{renderProgressArcs()}
 
 				{/* Center time text */}
 				<SvgText

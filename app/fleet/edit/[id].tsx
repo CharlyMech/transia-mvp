@@ -167,7 +167,7 @@ export default function EditVehicleScreen() {
 				title="¿Descartar cambios?"
 				message="Los cambios realizados se perderán si sales ahora."
 				confirmText="Descartar"
-				cancelText="Continuar editando"
+				cancelText="Seguir editando"
 			/>
 
 			<ActionsModal

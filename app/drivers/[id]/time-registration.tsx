@@ -511,19 +511,60 @@ export default function TimeRegistrationScreen() {
 	};
 
 	// Calculate current minutes including active range
+	// FIXED: Only use currentTime for calculations if it's today
 	const getCurrentMinutes = () => {
 		if (!currentRegistration) return 0;
+
+		// If selected date is not today, use the registration's totalHours
+		// This prevents miscalculation for past days with active ranges
+		if (!isToday()) {
+			return Math.floor(currentRegistration.totalHours * 60);
+		}
+
+		// Only use real-time calculation for today
 		return calculateCurrentMinutes(currentRegistration.timeRanges, currentTime);
 	};
 
 	const calculateRangeDuration = (range: any) => {
 		const start = new Date(range.startTime);
-		const end = range.endTime ? new Date(range.endTime) : currentTime;
+		let end: Date;
+
+		if (range.endTime) {
+			// If range has an end time, use it
+			end = new Date(range.endTime);
+		} else {
+			// Range is open (no endTime)
+			if (isToday()) {
+				// For today, use current time
+				end = currentTime;
+			} else {
+				// For past days, use 23:59 of that day
+				const dayEnd = new Date(selectedDate);
+				dayEnd.setHours(23, 59, 59, 999);
+				end = dayEnd;
+			}
+		}
 
 		const minutes = Math.floor((end.getTime() - start.getTime()) / (1000 * 60));
 		const hours = Math.floor(minutes / 60);
 		const mins = minutes % 60;
 		return `${hours}h ${mins}m`;
+	};
+
+	const getRangeEndDisplay = (range: any) => {
+		if (range.endTime) {
+			return formatTime(new Date(range.endTime));
+		}
+
+		// Range is open (no endTime)
+		if (isToday()) {
+			return 'En curso';
+		}
+
+		// For past days, show 23:59
+		const dayEnd = new Date(selectedDate);
+		dayEnd.setHours(23, 59, 0, 0);
+		return formatTime(dayEnd);
 	};
 
 	const activeRange = getActiveRange();
@@ -794,7 +835,7 @@ export default function TimeRegistrationScreen() {
 												<View style={styles.rangeTimeRow}>
 													<Text style={styles.rangeLabel}>Fin:</Text>
 													<Text style={[styles.rangeValue, range.endTime ? {} : styles.rangeValueActive]}>
-														{range.endTime ? formatTime(new Date(range.endTime)) : 'En curso'}
+														{getRangeEndDisplay(range)}
 													</Text>
 												</View>
 

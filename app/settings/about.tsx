@@ -7,7 +7,7 @@ export default function AboutScreen() {
 	return (
 		<SafeAreaView style={styles.container}>
 			<Text style={styles.title}>Acerca de</Text>
-			<Text style={styles.body}>Fleetly v0.1.0 (sample)</Text>
+			<Text style={styles.body}>Transia v0.1.0 (sample)</Text>
 		</SafeAreaView>
 	);
 }
