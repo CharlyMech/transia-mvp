@@ -145,12 +145,12 @@ export default function LoginScreen() {
 
 						<View style={styles.header}>
 							<Image
-								source={require('@/assets/images/icon.png')}
+								source={require('@/assets/images/splash-icon.png')}
 								style={styles.logo}
 								resizeMode="contain"
 							/>
 							<View style={styles.headerTextContainer}>
-								<Text style={styles.title}>Transia MVP</Text>
+								<Text style={styles.title}>Transia</Text>
 								<Text style={styles.subtitle}>Gestión de flota de vehículos a tu alcance</Text>
 							</View>
 						</View>
@@ -303,7 +303,7 @@ export default function LoginScreen() {
 
 						<View style={styles.footer}>
 							<Text style={styles.footerText}>
-								Transia MVP v1.0.0
+								Transia (MVP)
 							</Text>
 							<Text style={styles.footerTextSmall}>
 								© 2025 Todos los derechos reservados
@@ -350,10 +350,9 @@ const styles = StyleSheet.create({
 		marginBottom: spacing.xxl,
 	},
 	logo: {
-		width: 120,
+		width: '100%',
 		height: 120,
 		objectFit: 'contain',
-		borderRadius: roundness.sm,
 	},
 	headerTextContainer: {
 		flexDirection: 'column',
@@ -466,10 +465,15 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 	},
 	footer: {
+		position: 'absolute',
+		bottom: 0,
+		left: 0,
+		right: 0,
 		alignItems: 'center',
 		gap: spacing.xs,
 		marginTop: 'auto',
 		paddingTop: spacing.lg,
+		paddingBottom: spacing.xl,
 	},
 	footerText: {
 		fontSize: typography.bodySmall,
