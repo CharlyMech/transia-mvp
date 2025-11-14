@@ -468,16 +468,13 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 					range.id === rangeId ? { ...range, ...updates } : range
 				);
 
-				// Preserve the finalized state - only recalculate isActive if it was previously true
-				const newIsActive = registration.isActive
-					? updatedRanges.some((r) => !r.endTime)
-					: false;
-
+				// Preserve the isActive state - it should only change via endWork() or auto-close
+				// Manual edits to time ranges should NOT automatically finalize the workday
 				const updatedRegistration = {
 					...registration,
 					timeRanges: updatedRanges,
 					totalHours: calculateTotalHours(updatedRanges),
-					isActive: newIsActive,
+					isActive: registration.isActive, // Preserve the current isActive state
 				};
 
 				const isTodayRegistration = isToday(registration.date);
@@ -510,16 +507,13 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 					(range) => range.id !== rangeId
 				);
 
-				// Preserve the finalized state - only recalculate isActive if it was previously true
-				const newIsActive = registration.isActive
-					? updatedRanges.some((r) => !r.endTime)
-					: false;
-
+				// Preserve the isActive state - it should only change via endWork() or auto-close
+				// Manual deletion of time ranges should NOT automatically finalize the workday
 				const updatedRegistration = {
 					...registration,
 					timeRanges: updatedRanges,
 					totalHours: calculateTotalHours(updatedRanges),
-					isActive: newIsActive,
+					isActive: registration.isActive, // Preserve the current isActive state
 				};
 
 				const isTodayRegistration = isToday(registration.date);
