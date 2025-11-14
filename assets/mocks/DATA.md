@@ -14,11 +14,14 @@ Esquema de validación mediante **Zod (TypeScript)**.
 -  **drivers** (conductores)
 -  **fleet** (vehículos)
 -  **reports** (incidencias / eventos)
+-  **timeRegistration** (registro de tiempo de trabajo)
 
 Relaciones:
 
 -  `reports.vehicleId` → **FK** a `fleet.id`
 -  `reports.driverId` → **FK** a `drivers.id`
+-  `timeRegistration.driverId` → **FK** a `drivers.id`
+-  `timeRegistration.notes.id` → **FK** a `notes.id` (futura implementación completa de notas en toda la app)
 
 ---
 
@@ -37,9 +40,14 @@ Relaciones:
 | `surnames` | string | Apellidos. |
 | `personId` | string | DNI/NIE u otro ID legal. |
 | `completeAddress` | string | Dirección completa (texto libre). |
-| `phone` | string | Teléfono (ideal: formato E.164, p.ej. `+34123456789`). |
+| `birthDate` | ISO 8601 | Fecha de nacimiento. |
+| `imageUrl` | string? | URL de la imagen del conductor (**opcional**; puede ser `null`). |
+| `phone` | string | Teléfono (formato para números de España, p.ej. `123456789`). |
 | `email` | string | Email válido. |
-| `active` | boolean | Estado activo/inactivo. |
+| `licenseNumber` | string | Número de licencia de conducir o de camión (CAP). |
+| `registrationDate` | ISO 8601 | Fecha de registro/alta del conductor en la plataforma. |
+| `status` | string | Estado del conductor (p.ej. `Activo`, `Inactivo`, etc). |
+| `role` | string? | Rol del conductor (**por defecto `driver`**). |
 
 ### 2) `fleet`
 
@@ -51,9 +59,12 @@ Relaciones:
 | `vehicleBrand` | string | Marca (p.ej. Mercedes, Scania, Ford). |
 | `vehicleModel` | string | Modelo (p.ej. Actros, R450, Transit). |
 | `year` | number | Año (entero). |
-| `vehicleType` | string | Tipo (p.ej. `Truck`, `Van`). Puede tratarse como **enum**. |
+| `vehicleType` | string | Tipo (p.ej. `Camión tráiler`, `Camión rígido`, `Furgoneta pequeña`). Puede tratarse como **enum**. |
 | `plateNumber` | string | Matrícula (texto). |
-| `active` | boolean | Estado activo/inactivo. |
+| `registrationDate` | ISO 8601 | Fecha de matriculación del vehículo. |
+| `purchaseDate` | ISO 8601? | Fecha de compra del vehículo (**opcional**). |
+| `imageUrl` | string? | URL de la imagen del vehículo (**opcional**). |
+| `status` | string | Estado del vehículo (p.ej. `Activo`, `Inactivo`, etc). |
 
 ### 3) `reports`
 
@@ -67,83 +78,54 @@ Relaciones:
 | `vehicleId` | UUID (FK) | Debe existir en `fleet.id`. |
 | `driverId` | UUID (FK) | Debe existir en `drivers.id`. |
 | `createdAt` | ISO 8601 | Fecha/hora de creación (`string` en ISO). |
-| `checkedAt` | ISO 8601? | Fecha/hora de revisión (**opcional**; puede no existir). |
+| `readAt` | ISO 8601? | Fecha/hora de lectura (**opcional**; puede ser `null`). |
+| `closedAt` | ISO 8601? | Fecha/hora de cierre del reporte (**opcional**; puede ser `null`). |
+| `reporterComment` | string? | Comentario del administrador o manager (**opcional**). |
+| `images` | string[]? | URLs de imágenes adjuntas (**opcional**; array de strings). |
+| `location` | object? | Ubicación geográfica (**opcional**; objeto con `latitude` y `longitude`). |
 | `read` | boolean | Marcado como leído/no leído. |
 | `active` | boolean | Estado activo/inactivo. |
+
+### 4) `timeRegistration`
+
+> [Esquema de Zod](/models/timeRegistration.ts)
+
+| Campo | Tipo | Reglas / Comentarios |
+| --- | --- | --- |
+| `id` | UUID | Identificador único. |
+| `driverId` | UUID (FK) | Debe existir en `drivers.id`. |
+| `date` | string | Fecha del registro (formato `YYYY-MM-DD`). |
+| `timeRanges` | array | Array de rangos de tiempo (ver estructura abajo). |
+| `totalHours` | number | Total de horas trabajadas en el día. |
+| `isActive` | boolean | Indica si el registro está activo (en curso). |
+| `notes` | array | Array de notas asociadas al registro (ver estructura abajo). |
+
+**Estructura de `timeRanges`:**
+
+| Campo | Tipo | Reglas / Comentarios |
+| --- | --- | --- |
+| `id` | UUID | Identificador único del rango. |
+| `startTime` | ISO 8601 | Hora de inicio del periodo de trabajo. |
+| `endTime` | ISO 8601? | Hora de fin del periodo de trabajo (**puede ser `null`** si está en curso). |
+| `isPaused` | boolean | Indica si el rango está pausado. |
+| `pausedAt` | ISO 8601? | Hora de pausa (**opcional**; puede ser `null`). |
+
+**Estructura de `notes`:**
+
+| Campo | Tipo | Reglas / Comentarios |
+| --- | --- | --- |
+| `id` | UUID | Identificador único de la nota. |
+| `text` | string | Texto de la nota. |
+| `createdAt` | ISO 8601 | Fecha/hora de creación de la nota. |
+| `updatedAt` | ISO 8601? | Fecha/hora de actualización de la nota (**opcional**). |
 
 ---
 
 ## 🧪 Ficheros JSON (modo test)
 
-Ubicación sugerida: `assets/mocks/`
+Ubicación: `assets/mocks/`
 
 -  `drivers.json` → lista de `Driver`
 -  `fleet.json` → lista de `Fleet`
 -  `reports.json` → lista de `Report`
-
-> **Requisito:** las claves y tipos deben respetar exactamente los esquemas Zod anteriores.
-
----
-
-## 🗄️ Tablas en Supabase (PostgreSQL)
-
-> Estructuras recomendadas (sintaxis SQL orientativa):
-
-```sql
--- drivers
-CREATE TABLE IF NOT EXISTS public.drivers (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  surnames TEXT NOT NULL,
-  person_id TEXT NOT NULL,
-  complete_address TEXT NOT NULL,
-  phone TEXT NOT NULL,
-  email TEXT NOT NULL,
-  active BOOLEAN NOT NULL DEFAULT true
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS drivers_email_uidx ON public.drivers (email);
-CREATE INDEX IF NOT EXISTS drivers_active_idx ON public.drivers (active);
-
--- fleet
-CREATE TABLE IF NOT EXISTS public.fleet (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  vehicle_brand TEXT NOT NULL,
-  vehicle_model TEXT NOT NULL,
-  year INT NOT NULL,
-  vehicle_type TEXT NOT NULL, -- enum app-level
-  plate_number TEXT NOT NULL,
-  active BOOLEAN NOT NULL DEFAULT true
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS fleet_plate_uidx ON public.fleet (plate_number);
-CREATE INDEX IF NOT EXISTS fleet_active_idx ON public.fleet (active);
-
--- reports
-CREATE TABLE IF NOT EXISTS public.reports (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  title TEXT NOT NULL,
-  description TEXT NOT NULL,
-  vehicle_id UUID NOT NULL REFERENCES public.fleet(id) ON DELETE RESTRICT,
-  driver_id UUID NOT NULL REFERENCES public.drivers(id) ON DELETE RESTRICT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  checked_at TIMESTAMPTZ,
-  read BOOLEAN NOT NULL DEFAULT false,
-  active BOOLEAN NOT NULL DEFAULT true
-);
-
-CREATE INDEX IF NOT EXISTS reports_vehicle_idx ON public.reports (vehicle_id);
-CREATE INDEX IF NOT EXISTS reports_driver_idx ON public.reports (driver_id);
-CREATE INDEX IF NOT EXISTS reports_read_idx ON public.reports (read);
-CREATE INDEX IF NOT EXISTS reports_active_idx ON public.reports (active);
-```
-
-> Nota: los nombres en snake_case de la base de datos se mapean en la app a las claves camelCase del modelo (vía DTO/mapper).
-
-## 🧭 Reglas de coherencia
-
--  **IDs**: siempre UUID (v4 preferible).
--  **Fechas** (`createdAt`, `checkedAt`): ISO 8601 con zona (`timestamptz` en DB).
--  **FKs** (`vehicleId`, `driverId`): deben existir en sus tablas de referencia antes de insertar un `report`.
--  **Enum app-level**: `vehicleType` mantener catálogo consistente (sinónimos controlados).
--  **`checkedAt`** en `reports` es **opcional** (puede faltar en JSON y en DB).
+-  `timeRegistration.json` → lista de `TimeRegistration`
