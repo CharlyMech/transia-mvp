@@ -26,6 +26,7 @@ interface ElevatedButtonProps {
 	fontWeight?: TextStyle['fontWeight'];
 	iconSize?: number;
 	iconColor?: string;
+	iconPosition?: 'left' | 'right';
 	textColor?: string;
 	backgroundColor?: string;
 	shadow?: 'none' | 'small' | 'medium' | 'large';
@@ -47,6 +48,7 @@ export function ElevatedButton({
 	fontWeight = '600',
 	iconSize = 20,
 	iconColor,
+	iconPosition = 'left',
 	textColor = lightTheme.colors.onPrimary,
 	backgroundColor = lightTheme.colors.primary,
 	shadow = 'small',
@@ -140,10 +142,13 @@ export function ElevatedButton({
 			disabled={disabled}
 			style={[buttonStyle, animatedStyle, style]}
 		>
-			{Icon && (
+			{Icon && iconPosition === 'left' && (
 				<Icon size={iconSize} color={iconColor || textColor} />
 			)}
 			{label && <Text style={[baseTextStyle, textStyle]}>{label}</Text>}
+			{Icon && iconPosition === 'right' && (
+				<Icon size={iconSize} color={iconColor || textColor} />
+			)}
 		</AnimatedPressable>
 	);
 }

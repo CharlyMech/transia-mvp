@@ -202,37 +202,65 @@ export default function VehicleDetailScreen() {
 									value={currentVehicle.plateNumber}
 								/>
 							)}
-							<View style={styles.separator} />
 							{currentVehicle.vehicleBrand && (
-								<InfoRow
-									label="Marca"
-									labelFlex={2}
-									valueFlex={3}
-									value={currentVehicle.vehicleBrand}
-								/>
+								<>
+									<View style={styles.separator} />
+									<InfoRow
+										label="Marca"
+										labelFlex={2}
+										valueFlex={3}
+										value={currentVehicle.vehicleBrand}
+									/>
+								</>
 							)}
-							<View style={styles.separator} />
 							{currentVehicle.vehicleModel && (
-								<InfoRow
-									label="Modelo"
-									labelFlex={2}
-									valueFlex={3}
-									value={currentVehicle.vehicleModel}
-								/>
+								<>
+									<View style={styles.separator} />
+									<InfoRow
+										label="Modelo"
+										labelFlex={2}
+										valueFlex={3}
+										value={currentVehicle.vehicleModel}
+									/>
+								</>
 							)}
-							<View style={styles.separator} />
 							{currentVehicle.vehicleType && (
-								<InfoRow
-									label="Tipo"
-									labelFlex={2}
-									valueFlex={3}
-									value={currentVehicle.vehicleType}
-								/>
+								<>
+									<View style={styles.separator} />
+									<InfoRow
+										label="Tipo"
+										labelFlex={2}
+										valueFlex={3}
+										value={currentVehicle.vehicleType}
+									/>
+								</>
+							)}
+							{currentVehicle.year && (
+								<>
+									<View style={styles.separator} />
+									<InfoRow
+										label="Año"
+										labelFlex={2}
+										valueFlex={3}
+										value={currentVehicle.year.toString()}
+									/>
+								</>
+							)}
+							{currentVehicle.purchaseDate && (
+								<>
+									<View style={styles.separator} />
+									<InfoRow
+										label="Fecha de adquisición"
+										labelFlex={2}
+										valueFlex={3}
+										value={formatISODate(currentVehicle.purchaseDate.toISOString())}
+									/>
+								</>
 							)}
 						</View>
 					</Card>
 
-					<Text style={styles.cardTitle}>Información adicional</Text>
+					{/* <Text style={styles.cardTitle}>Información adicional</Text>
 					<Card
 						paddingX={spacing.md}
 						paddingY={spacing.md}
@@ -259,7 +287,7 @@ export default function VehicleDetailScreen() {
 								/>
 							)}
 						</View>
-					</Card>
+					</Card> */}
 
 					<Pressable
 						style={({ pressed }) => [
