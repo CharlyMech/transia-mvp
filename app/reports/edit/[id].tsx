@@ -6,16 +6,19 @@ import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
 import type { ReportFormData } from '@/models/report';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useNotesStore } from '@/stores/useNotesStore';
 import { useReportsStore } from '@/stores/useReportsStore';
 import { router } from 'expo-router';
-import { AlertCircle, ArrowLeft, CheckCircle2 } from 'lucide-react-native';
+import { AlertCircle, ArrowLeft, CheckCircle2 } from 'lucide-react-native'; //ActivityIndicator
 import React, { useEffect, useState } from 'react';
-import { BackHandler, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, BackHandler, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function EditReportScreen() {
 	const [loading, setLoading] = useState(false);
 	const [hasChanges, setHasChanges] = useState(false);
+	const [loadingNote, setLoadingNote] = useState(false);
+	const [currentNote, setCurrentNote] = useState<any>(null);
 
 	const confirmationModal = useActionsModal();
 	const successModal = useActionsModal();
@@ -23,9 +26,34 @@ export default function EditReportScreen() {
 	const currentReport = useReportsStore((state) => state.currentReport);
 	const reportError = useReportsStore((state) => state.reportError);
 	const updateReport = useReportsStore((state) => state.updateReport);
+	const getNoteById = useNotesStore((state) => state.getNoteById);
+	const createNote = useNotesStore((state) => state.createNote);
+	const updateNoteText = useNotesStore((state) => state.updateNoteText);
 	const user = useAuthStore((state) => state.user);
 
 	const insets = useSafeAreaInsets();
+
+	// Fetch the note if the report has one
+	useEffect(() => {
+		const fetchNote = async () => {
+			if (currentReport?.noteId) {
+				setLoadingNote(true);
+				try {
+					const note = await getNoteById(currentReport.noteId);
+					setCurrentNote(note);
+				} catch (error) {
+					console.error('Error fetching note:', error);
+					setCurrentNote(null);
+				} finally {
+					setLoadingNote(false);
+				}
+			} else {
+				setCurrentNote(null);
+			}
+		};
+
+		fetchNote();
+	}, [currentReport?.noteId, getNoteById]);
 
 	useEffect(() => {
 		const backHandler = BackHandler.addEventListener(
@@ -55,18 +83,31 @@ export default function EditReportScreen() {
 		setHasChanges(changed);
 	};
 
-	const handleSubmit = async (data: ReportFormData & { images: string[] }) => {
+	const handleSubmit = async (data: ReportFormData & { images: string[]; noteText: string }) => {
 		if (!currentReport || !user) return;
 
 		setLoading(true);
 		try {
+			let noteId = currentReport.noteId;
+
+			// If there's a note, update it or create a new one
+			if (currentNote) {
+				// Update existing note
+				await updateNoteText(currentNote.id, data.noteText);
+			} else {
+				// Create new note
+				const newNote = await createNote({
+					text: data.noteText,
+					createdBy: user.id,
+				});
+				noteId = newNote.id;
+			}
 
 			updateReport(currentReport.id, {
 				title: data.title,
-				description: data.description || undefined,
 				vehicleId: data.vehicleId,
 				driverId: data.driverId,
-				reporterComment: data.reporterComment || undefined,
+				noteId,
 				images: data.images,
 				location: data.location || undefined,
 			});
@@ -75,6 +116,7 @@ export default function EditReportScreen() {
 			successModal.open();
 		} catch (error) {
 			console.error('Error updating report:', error);
+			Alert.alert('Error', error instanceof Error ? error.message : 'No se pudo actualizar el reporte');
 		} finally {
 			setLoading(false);
 		}
@@ -119,14 +161,23 @@ export default function EditReportScreen() {
 		);
 	}
 
-	const initialData: Partial<ReportFormData> & { images: string[] } = {
+	// Show loading while fetching note
+	if (loadingNote && currentReport.noteId) {
+		return (
+			<View style={[styles.container, styles.centered]}>
+				<ActivityIndicator size="large" color={lightTheme.colors.primary} />
+				<Text style={styles.loadingText}>Cargando nota...</Text>
+			</View>
+		);
+	}
+
+	const initialData: Partial<ReportFormData> & { images: string[]; noteText?: string } = {
 		title: currentReport.title,
-		description: currentReport.description || '',
 		vehicleId: currentReport.vehicleId,
 		driverId: currentReport.driverId,
-		reporterComment: currentReport.reporterComment || '',
 		images: currentReport.images,
 		location: currentReport.location || null,
+		noteText: currentNote?.text || '',
 	};
 
 	return (
@@ -247,6 +298,12 @@ const styles = StyleSheet.create({
 		fontSize: typography.bodyLarge,
 		color: lightTheme.colors.error,
 		textAlign: 'center',
+	},
+	loadingText: {
+		fontSize: typography.bodyLarge,
+		color: lightTheme.colors.onSurfaceVariant,
+		textAlign: 'center',
+		marginTop: spacing.md,
 	},
 	permissionTitle: {
 		fontSize: typography.headlineMedium,

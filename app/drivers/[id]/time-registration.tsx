@@ -6,6 +6,7 @@ import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { ElevatedButton } from '@/components/ElevatedButton';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useNotesStore } from '@/stores/useNotesStore';
 import { useTimeRegistrationsStore } from '@/stores/useTimeRegistrationStore';
 import { calculateCurrentMinutes, formatDateToDisplay, formatHours, getTotalDayTimeColor } from '@/utils/dateUtils';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -78,9 +79,18 @@ export default function TimeRegistrationScreen() {
 	const deleteTimeRange = useTimeRegistrationsStore((state) => state.deleteTimeRange);
 	const updateTimeRange = useTimeRegistrationsStore((state) => state.updateTimeRange);
 	const addTimeRange = useTimeRegistrationsStore((state) => state.addTimeRange);
-	const addNote = useTimeRegistrationsStore((state) => state.addNote);
-	const updateNote = useTimeRegistrationsStore((state) => state.updateNote);
-	const deleteNote = useTimeRegistrationsStore((state) => state.deleteNote);
+
+	// Notes store
+	const getNoteById = useNotesStore((state) => state.getNoteById);
+	const createNote = useNotesStore((state) => state.createNote);
+	const updateNoteText = useNotesStore((state) => state.updateNoteText);
+	const deleteNoteById = useNotesStore((state) => state.deleteNoteById);
+	const [currentNote, setCurrentNote] = useState<any>(null);
+	const [loadingNote, setLoadingNote] = useState(false);
+
+	// TimeRegistration store methods for managing noteId
+	const setNoteId = useTimeRegistrationsStore((state) => state.setNoteId);
+	const removeNoteId = useTimeRegistrationsStore((state) => state.removeNoteId);
 
 	// Note modal states
 	const [showAddNoteModal, setShowAddNoteModal] = useState(false);
@@ -116,6 +126,28 @@ export default function TimeRegistrationScreen() {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [id, selectedDate]);
+
+	// Fetch note when currentRegistration changes
+	useEffect(() => {
+		const fetchNote = async () => {
+			if (currentRegistration?.noteId) {
+				setLoadingNote(true);
+				try {
+					const note = await getNoteById(currentRegistration.noteId);
+					setCurrentNote(note);
+				} catch (error) {
+					console.error('Error fetching note:', error);
+					setCurrentNote(null);
+				} finally {
+					setLoadingNote(false);
+				}
+			} else {
+				setCurrentNote(null);
+			}
+		};
+
+		fetchNote();
+	}, [currentRegistration?.noteId, getNoteById]);
 
 	const handlePreviousDay = () => {
 		const newDate = new Date(selectedDate);
@@ -390,53 +422,54 @@ export default function TimeRegistrationScreen() {
 		setSelectedRangeId(null);
 	};
 
-	const handleAddNote = () => {
-		console.log('=== handleAddNote called ===');
-		console.log('currentRegistration:', currentRegistration ? 'exists' : 'null');
-		console.log('noteText:', noteText);
-
+	const handleAddNote = async () => {
 		if (!currentRegistration) {
-			console.log('ERROR: No current registration');
 			Alert.alert('Error', 'No hay un registro de tiempo seleccionado');
 			return;
 		}
 
+		if (!user?.id) {
+			Alert.alert('Error', 'No se pudo identificar el usuario');
+			return;
+		}
+
 		const trimmedText = noteText.trim();
-		console.log('trimmedText:', trimmedText);
-		console.log('trimmedText.length:', trimmedText.length);
 
 		if (!trimmedText) {
-			console.log('ERROR: Empty text');
 			Alert.alert('Error', 'El texto de la nota no puede estar vacío');
 			return;
 		}
 
 		if (trimmedText.length > 500) {
-			console.log('ERROR: Text too long');
 			Alert.alert('Error', 'El texto de la nota no puede superar los 500 caracteres');
 			return;
 		}
 
 		try {
-			console.log('Calling addNote with:', currentRegistration.id, trimmedText);
-			addNote(currentRegistration.id, trimmedText);
-			console.log('Note added successfully');
+			// Create the note
+			const newNote = await createNote({
+				text: trimmedText,
+				createdBy: user.id,
+			});
+
+			// Link the note to the time registration
+			setNoteId(currentRegistration.id, newNote.id);
+
+			// Update local state
+			setCurrentNote(newNote);
+
+			// Close modal and reset
 			setNoteText('');
 			setShowAddNoteModal(false);
 			Alert.alert('Éxito', 'Nota agregada correctamente');
 		} catch (error) {
-			console.error('ERROR adding note:', error);
+			console.error('Error adding note:', error);
 			Alert.alert('Error', error instanceof Error ? error.message : 'No se pudo añadir la nota');
 		}
 	};
 
-	const handleEditNote = () => {
-		if (!currentRegistration) {
-			Alert.alert('Error', 'No hay un registro de tiempo seleccionado');
-			return;
-		}
-
-		if (!selectedNoteId) {
+	const handleEditNote = async () => {
+		if (!currentNote) {
 			Alert.alert('Error', 'No hay ninguna nota seleccionada');
 			return;
 		}
@@ -453,31 +486,43 @@ export default function TimeRegistrationScreen() {
 		}
 
 		try {
-			updateNote(currentRegistration.id, selectedNoteId, trimmedText);
+			// Update the note
+			await updateNoteText(currentNote.id, trimmedText);
+
+			// Update local state
+			setCurrentNote({ ...currentNote, text: trimmedText, updatedAt: new Date() });
+
+			// Close modal and reset
 			setNoteText('');
 			setSelectedNoteId(null);
 			setShowEditNoteModal(false);
+			Alert.alert('Éxito', 'Nota actualizada correctamente');
 		} catch (error) {
+			console.error('Error updating note:', error);
 			Alert.alert('Error', error instanceof Error ? error.message : 'No se pudo actualizar la nota');
 		}
 	};
 
-	const handleDeleteNote = () => {
-		if (!currentRegistration) {
-			Alert.alert('Error', 'No hay un registro de tiempo seleccionado');
-			return;
-		}
-
-		if (!selectedNoteId) {
+	const handleDeleteNote = async () => {
+		if (!currentRegistration || !currentNote) {
 			Alert.alert('Error', 'No hay ninguna nota seleccionada');
 			return;
 		}
 
 		try {
-			deleteNote(currentRegistration.id, selectedNoteId);
+			// Delete the note
+			await deleteNoteById(currentNote.id);
+
+			// Remove the noteId reference from the time registration
+			removeNoteId(currentRegistration.id);
+
+			// Update local state
+			setCurrentNote(null);
 			setSelectedNoteId(null);
 			setShowDeleteNoteModal(false);
+			Alert.alert('Éxito', 'Nota eliminada correctamente');
 		} catch (error) {
+			console.error('Error deleting note:', error);
 			Alert.alert('Error', error instanceof Error ? error.message : 'No se pudo eliminar la nota');
 		}
 	};
@@ -890,7 +935,17 @@ export default function TimeRegistrationScreen() {
 									)}
 								</View>
 
-								{!currentRegistration || currentRegistration.notes.length === 0 ? (
+								{loadingNote ? (
+									<Card
+										paddingX={spacing.lg}
+										paddingY={spacing.xl}
+										rounded={roundness.sm}
+										shadow="none"
+										backgroundColor={lightTheme.colors.surface}
+									>
+										<ActivityIndicator size="small" color={lightTheme.colors.primary} />
+									</Card>
+								) : !currentNote ? (
 									<Card
 										paddingX={spacing.lg}
 										paddingY={spacing.xl}
@@ -901,62 +956,57 @@ export default function TimeRegistrationScreen() {
 										<Text style={styles.emptyText}>No hay notas registradas</Text>
 									</Card>
 								) : (
-									currentRegistration.notes.map((note) => (
-										<Card
-											key={note.id}
-											paddingX={spacing.md}
-											paddingY={spacing.md}
-											rounded={roundness.sm}
-											shadow="none"
-											backgroundColor={lightTheme.colors.surface}
-											style={styles.rangeCard}
-										>
-											<View style={styles.noteContent}>
-												<View style={styles.noteHeader}>
-													<Text style={styles.noteDate}>
-														{new Date(note.createdAt).toLocaleDateString('es-ES', {
-															day: '2-digit',
-															month: 'short',
-															year: 'numeric',
-															hour: '2-digit',
-															minute: '2-digit'
-														})}
-													</Text>
-													{note.updatedAt && (
-														<Text style={styles.noteUpdated}>(editada)</Text>
-													)}
-												</View>
-												<Text style={styles.noteText}>{note.text}</Text>
-
-												{isOwnProfile && (
-													<View style={styles.rangeActions}>
-														<TouchableOpacity
-															style={styles.actionButton}
-															onPress={() => {
-																setSelectedNoteId(note.id);
-																setNoteText(note.text);
-																setShowEditNoteModal(true);
-															}}
-														>
-															<Edit2 size={18} color={lightTheme.colors.primary} />
-															<Text style={styles.editText}>Editar</Text>
-														</TouchableOpacity>
-
-														<TouchableOpacity
-															style={styles.actionButton}
-															onPress={() => {
-																setSelectedNoteId(note.id);
-																setShowDeleteNoteModal(true);
-															}}
-														>
-															<Trash2 size={18} color={lightTheme.colors.error} />
-															<Text style={styles.deleteText}>Eliminar</Text>
-														</TouchableOpacity>
-													</View>
+									<Card
+										paddingX={spacing.md}
+										paddingY={spacing.md}
+										rounded={roundness.sm}
+										shadow="none"
+										backgroundColor={lightTheme.colors.surface}
+										style={styles.rangeCard}
+									>
+										<View style={styles.noteContent}>
+											<View style={styles.noteHeader}>
+												<Text style={styles.noteDate}>
+													{new Date(currentNote.createdAt).toLocaleDateString('es-ES', {
+														day: '2-digit',
+														month: 'short',
+														year: 'numeric',
+														hour: '2-digit',
+														minute: '2-digit'
+													})}
+												</Text>
+												{currentNote.updatedAt && (
+													<Text style={styles.noteUpdated}>(editada)</Text>
 												)}
 											</View>
-										</Card>
-									))
+											<Text style={styles.noteText}>{currentNote.text}</Text>
+
+											{isOwnProfile && (
+												<View style={styles.rangeActions}>
+													<TouchableOpacity
+														style={styles.actionButton}
+														onPress={() => {
+															setNoteText(currentNote.text);
+															setShowEditNoteModal(true);
+														}}
+													>
+														<Edit2 size={18} color={lightTheme.colors.primary} />
+														<Text style={styles.editText}>Editar</Text>
+													</TouchableOpacity>
+
+													<TouchableOpacity
+														style={styles.actionButton}
+														onPress={() => {
+															setShowDeleteNoteModal(true);
+														}}
+													>
+														<Trash2 size={18} color={lightTheme.colors.error} />
+														<Text style={styles.deleteText}>Eliminar</Text>
+													</TouchableOpacity>
+												</View>
+											)}
+										</View>
+									</Card>
 								)}
 							</View>
 						</>

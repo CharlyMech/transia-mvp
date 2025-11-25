@@ -1,8 +1,4 @@
-import type {
-	Note,
-	TimeRange,
-	TimeRegistration,
-} from "@/models/timeRegistration";
+import type { TimeRange, TimeRegistration } from "@/models/timeRegistration";
 import { timeRegistrations as timeRegistrationsService } from "@/services/data";
 import { calculateTotalHours, hasActiveRange } from "@/utils/dateUtils";
 import * as Crypto from "expo-crypto";
@@ -55,10 +51,9 @@ interface TimeRegistrationsActions {
 	) => void;
 	deleteTimeRange: (registrationId: string, rangeId: string) => void;
 
-	// CRUD operations for notes
-	addNote: (registrationId: string, text: string) => void;
-	updateNote: (registrationId: string, noteId: string, text: string) => void;
-	deleteNote: (registrationId: string, noteId: string) => void;
+	// Note ID management (for managing noteId reference)
+	setNoteId: (registrationId: string, noteId: string) => void;
+	removeNoteId: (registrationId: string) => void;
 
 	// Active date management
 	setActiveDate: (date: Date) => void;
@@ -255,7 +250,7 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 					timeRanges: [newRange],
 					totalHours: 0,
 					isActive: true,
-					notes: [],
+					noteId: undefined,
 				};
 
 				set((state) => ({
@@ -426,7 +421,7 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 					timeRanges: [newRange],
 					totalHours: calculateTotalHours([newRange]),
 					isActive: !newRange.endTime,
-					notes: [],
+					noteId: undefined,
 				};
 
 				set((state) => ({
@@ -535,24 +530,17 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 			});
 		},
 
-		// Note management actions
-		addNote: (registrationId: string, text: string) => {
+		// Note ID management methods
+		setNoteId: (registrationId: string, noteId: string) => {
 			set((state) => {
 				const registration = state.registrations.find(
 					(reg) => reg.id === registrationId
 				);
 				if (!registration) return state;
 
-				const newNote: Note = {
-					id: Crypto.randomUUID(),
-					text,
-					createdAt: new Date(),
-				};
-
-				const updatedNotes = [...registration.notes, newNote];
-				const updatedRegistration = {
+				const updatedRegistration: TimeRegistration = {
 					...registration,
-					notes: updatedNotes,
+					noteId,
 				};
 
 				const isTodayRegistration = isToday(registration.date);
@@ -574,57 +562,16 @@ export const useTimeRegistrationsStore = create<TimeRegistrationsStore>(
 			});
 		},
 
-		updateNote: (registrationId: string, noteId: string, text: string) => {
+		removeNoteId: (registrationId: string) => {
 			set((state) => {
 				const registration = state.registrations.find(
 					(reg) => reg.id === registrationId
 				);
 				if (!registration) return state;
 
-				const updatedNotes = registration.notes.map((note) =>
-					note.id === noteId
-						? { ...note, text, updatedAt: new Date() }
-						: note
-				);
-
-				const updatedRegistration = {
+				const updatedRegistration: TimeRegistration = {
 					...registration,
-					notes: updatedNotes,
-				};
-
-				const isTodayRegistration = isToday(registration.date);
-
-				return {
-					registrations: state.registrations.map((reg) =>
-						reg.id === registrationId ? updatedRegistration : reg
-					),
-					currentRegistration:
-						state.currentRegistration?.id === registrationId
-							? updatedRegistration
-							: state.currentRegistration,
-					todayRegistration:
-						isTodayRegistration &&
-						state.todayRegistration?.id === registrationId
-							? updatedRegistration
-							: state.todayRegistration,
-				};
-			});
-		},
-
-		deleteNote: (registrationId: string, noteId: string) => {
-			set((state) => {
-				const registration = state.registrations.find(
-					(reg) => reg.id === registrationId
-				);
-				if (!registration) return state;
-
-				const updatedNotes = registration.notes.filter(
-					(note) => note.id !== noteId
-				);
-
-				const updatedRegistration = {
-					...registration,
-					notes: updatedNotes,
+					noteId: undefined,
 				};
 
 				const isTodayRegistration = isToday(registration.date);

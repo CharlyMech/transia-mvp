@@ -1,0 +1,99 @@
+[
+	{
+		"id": "f8e7d6c5-b4a3-4921-8f7e-6d5c4b3a2910",
+		"text": "Inspección completada sin problemas mayores",
+		"createdBy": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"createdAt": "2025-09-30T14:00:00.000Z"
+	},
+	{
+		"id": "e7d6c5b4-a392-4108-9f8e-7d6c5b4a3291",
+		"text": "Mantenimiento estándar realizado correctamente",
+		"createdBy": "b8d2c3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e",
+		"createdAt": "2025-09-21T10:00:00.000Z"
+	},
+	{
+		"id": "d6c5b4a3-9281-4f09-8e7d-6c5b4a392817",
+		"text": "ITV pasada exitosamente",
+		"createdBy": "ee5a4b6a-43c4-4e1a-9d1c-12f03a47bbf5",
+		"createdAt": "2025-09-18T16:30:00.000Z"
+	},
+	{
+		"id": "c5b4a392-8170-4e08-9d7c-6b5a49382716",
+		"text": "Parte de accidente entregado. Esperando valoración del taller.",
+		"createdBy": "f4c3b2a1-e0d9-c8b7-a6f5-e4d3c2b1a0f9",
+		"createdAt": "2025-10-05T15:10:00.000Z"
+	},
+	{
+		"id": "b4a39281-7069-4d07-8c6b-5a4938271615",
+		"text": "Documentación recuperada y entregada al conductor",
+		"createdBy": "a9b8c7d6-e5f4-a3b2-c1d0-e9f8a7b6c5d4",
+		"createdAt": "2025-10-12T16:00:00.000Z"
+	},
+	{
+		"id": "a3928170-6958-4c06-9b5a-493827161514",
+		"text": "Parte amistoso firmado. Vehículo en taller para reparación",
+		"createdBy": "c1d0e9f8-a7b6-c5d4-e3f2-a1b0c9d8e7f6",
+		"createdAt": "2025-10-11T17:20:00.000Z"
+	},
+	{
+		"id": "92817069-5847-4b05-8a49-382716151413",
+		"text": "Mantenimiento preventivo completado según programa",
+		"createdBy": "e3f2a1b0-c9d8-e7f6-a5b4-c3d2e1f0a9b8",
+		"createdAt": "2025-10-15T10:00:00.000Z"
+	},
+	{
+		"id": "81706958-4736-4a04-9938-271615141312",
+		"text": "Pendiente de valoración de daños",
+		"createdBy": "a5b4c3d2-e1f0-a9b8-c7d6-e5f4a3b2c1d0",
+		"createdAt": "2025-10-16T07:55:00.000Z"
+	},
+	{
+		"id": "70695847-3625-4903-8827-161514131211",
+		"text": "Jornada estándar, sin incidencias.",
+		"createdBy": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"createdAt": "2025-11-03T17:05:00.000Z"
+	},
+	{
+		"id": "69584736-2514-4802-9716-151413121110",
+		"text": "Horas extras por reparto nocturno.",
+		"createdBy": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"createdAt": "2025-11-01T20:20:00.000Z",
+		"updatedAt": "2025-11-02T09:00:00.000Z"
+	},
+	{
+		"id": "58473625-1403-4701-8615-141312111009",
+		"text": "Tarde con paradas múltiples; tráfico intenso.",
+		"createdBy": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"createdAt": "2025-11-04T17:50:00.000Z"
+	},
+	{
+		"id": "47362514-0392-4600-9514-131211100908",
+		"text": "Salida temprana para ruta larga. Cliente pidió entrega urgente al final del turno.",
+		"createdBy": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"createdAt": "2025-11-05T14:05:00.000Z"
+	},
+	{
+		"id": "36251403-9281-4509-8413-121110090807",
+		"text": "Turno dividido por formación interna.",
+		"createdBy": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"createdAt": "2025-11-06T20:05:00.000Z"
+	},
+	{
+		"id": "25140392-8170-4408-9312-111009080706",
+		"text": "Registro abierto — pendiente de cierre.",
+		"createdBy": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"createdAt": "2025-11-07T08:01:00.000Z"
+	},
+	{
+		"id": "14039281-7069-4307-8211-100908070605",
+		"text": "Noche completa — turno internacional (cruce de día).",
+		"createdBy": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"createdAt": "2025-11-01T06:10:00.000Z"
+	},
+	{
+		"id": "03928170-6958-4206-9110-090807060504",
+		"text": "Media jornada por cita médica.",
+		"createdBy": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"createdAt": "2025-11-08T12:05:00.000Z"
+	}
+]

@@ -23,11 +23,11 @@ import {
 import { LeafletMap } from '../LeafletMap';
 
 type ReportFormProps = {
-	initialData?: Partial<ReportFormData> & { images?: string[] };
+	initialData?: Partial<ReportFormData> & { images?: string[]; noteText?: string };
 	driverId: string;
 	vehicleInfo?: string;
 	driverName?: string;
-	onSubmit: (data: ReportFormData & { images: string[] }) => void;
+	onSubmit: (data: ReportFormData & { images: string[]; noteText: string }) => void;
 	onFormChange?: (hasChanges: boolean) => void;
 	submitLabel?: string;
 	loading?: boolean;
@@ -83,12 +83,12 @@ export function ReportForm({
 		description: initialData?.description || '',
 		vehicleId: initialData?.vehicleId || '',
 		driverId: driverId,
-		reporterComment: initialData?.reporterComment || '',
 		images: initialData?.images || [],
 		location: initialData?.location || null,
 	};
 
 	const [formData, setFormData] = useState<FormDataWithImages>(initialFormData);
+	const [noteText, setNoteText] = useState(initialData?.noteText || '');
 	const [errors, setErrors] = useState<Partial<Record<keyof ReportFormData, string>>>({});
 	const [showImageOptions, setShowImageOptions] = useState(false);
 	const [showReportTypePicker, setShowReportTypePicker] = useState(false);
@@ -111,8 +111,9 @@ export function ReportForm({
 	}, [currentLocation, includeLocation, locationSet]);
 
 	// Check if form has changes
-	const checkForChanges = (newData: FormDataWithImages) => {
-		const hasChanges = (Object.keys(newData) as (keyof FormDataWithImages)[]).some(key => {
+	const checkForChanges = (newData: FormDataWithImages, newNoteText?: string) => {
+		const noteTextChanged = (newNoteText !== undefined ? newNoteText : noteText) !== (initialData?.noteText || '');
+		const hasChanges = noteTextChanged || (Object.keys(newData) as (keyof FormDataWithImages)[]).some(key => {
 			if (key === 'images') {
 				return JSON.stringify(newData[key]) !== JSON.stringify(initialFormData[key]);
 			}
@@ -185,13 +186,19 @@ export function ReportForm({
 
 	const handleSubmit = () => {
 		try {
+			// Validate noteText separately (minimum 10 characters)
+			if (noteText.trim().length < 10) {
+				setErrors({ ...errors, description: 'La nota debe tener al menos 10 caracteres' });
+				return;
+			}
+
 			const dataToValidate = {
 				...formData,
 				location: includeLocation ? formData.location : null,
 			};
 			const validatedData = ReportFormSchema.parse(dataToValidate);
 			setErrors({});
-			onSubmit({ ...validatedData, images: formData.images });
+			onSubmit({ ...validatedData, images: formData.images, noteText: noteText.trim() });
 		} catch (error) {
 			if (error && typeof error === 'object' && 'errors' in error) {
 				const zodError = error as any;
@@ -208,10 +215,8 @@ export function ReportForm({
 	return (
 		<View style={styles.container}>
 			<View style={styles.section}>
-				<Text style={styles.sectionTitle}>Tipo de Reporte</Text>
-
 				<View style={styles.inputContainer}>
-					<Text style={styles.label}>Tipo *</Text>
+					<Text style={styles.label}>Tipo de reporte *</Text>
 					<TouchableOpacity
 						style={[styles.input, styles.dateInput, errors.title && styles.inputError]}
 						onPress={() => setShowReportTypePicker(true)}
@@ -278,39 +283,38 @@ export function ReportForm({
 			)}
 
 			<View style={styles.section}>
-				<Text style={styles.sectionTitle}>Descripción</Text>
-
 				<View style={styles.inputContainer}>
-					<Text style={styles.label}>Descripción *</Text>
+					<View style={styles.labelRow}>
+						<Text style={styles.label}>Nota *</Text>
+						<Text style={styles.characterCount}>
+							{noteText.length}/500
+						</Text>
+					</View>
 					<TextInput
 						style={[styles.textArea, errors.description && styles.inputError]}
-						value={formData.description}
-						onChangeText={(value) => handleChange('description', value)}
+						value={noteText}
+						onChangeText={(value) => {
+							if (value.length <= 500) {
+								setNoteText(value);
+								checkForChanges(formData, value);
+								if (errors.description) {
+									setErrors(prev => {
+										const newErrors = { ...prev };
+										delete newErrors.description;
+										return newErrors;
+									});
+								}
+							}
+						}}
 						placeholder="Describe la incidencia con el mayor detalle posible..."
 						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
 						multiline
 						numberOfLines={6}
 						textAlignVertical="top"
+						maxLength={500}
 					/>
 					{errors.description && <Text style={styles.errorText}>{errors.description}</Text>}
 				</View>
-
-				{user?.role === 'admin' && (
-					<View style={styles.inputContainer}>
-						<Text style={styles.label}>Respuesta de la incidencia</Text>
-						<TextInput
-							style={[styles.textArea, errors.reporterComment && styles.inputError]}
-							value={formData.reporterComment}
-							onChangeText={(value) => handleChange('reporterComment', value)}
-							placeholder="Añade cualquier comentario adicional..."
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
-							multiline
-							numberOfLines={4}
-							textAlignVertical="top"
-						/>
-						{errors.reporterComment && <Text style={styles.errorText}>{errors.reporterComment}</Text>}
-					</View>
-				)}
 			</View>
 
 			{/* Images */}
@@ -470,6 +474,16 @@ const styles = StyleSheet.create({
 		fontWeight: '500',
 		color: lightTheme.colors.onSurface,
 		marginBottom: spacing.xs,
+	},
+	labelRow: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		marginBottom: spacing.xs,
+	},
+	characterCount: {
+		fontSize: typography.bodySmall,
+		color: lightTheme.colors.onSurfaceVariant,
 	},
 	input: {
 		backgroundColor: lightTheme.colors.surface,

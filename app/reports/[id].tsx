@@ -8,10 +8,12 @@ import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useDriversStore } from '@/stores/useDriversStore';
 import { useFleetStore } from '@/stores/useFleetStore';
 import { useReportsStore } from '@/stores/useReportsStore';
+import { useNotesStore } from '@/stores/useNotesStore';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, SquarePen } from 'lucide-react-native';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
+	ActivityIndicator,
 	Dimensions,
 	Image,
 	ScrollView,
@@ -38,6 +40,11 @@ export default function ReportDetailScreen() {
 
 	const drivers = useDriversStore((state) => state.drivers);
 	const vehicles = useFleetStore((state) => state.vehicles);
+
+	// Notes store
+	const getNoteById = useNotesStore((state) => state.getNoteById);
+	const [currentNote, setCurrentNote] = useState<any>(null);
+	const [loadingNote, setLoadingNote] = useState(false);
 
 	// Get full driver and vehicle info
 	const driver = useMemo(() =>
@@ -74,6 +81,28 @@ export default function ReportDetailScreen() {
 			clearCurrentReport();
 		};
 	}, [id, fetchReportById, clearCurrentReport]);
+
+	// Fetch note when currentReport changes
+	useEffect(() => {
+		const fetchNote = async () => {
+			if (currentReport?.noteId) {
+				setLoadingNote(true);
+				try {
+					const note = await getNoteById(currentReport.noteId);
+					setCurrentNote(note);
+				} catch (error) {
+					console.error('Error fetching note:', error);
+					setCurrentNote(null);
+				} finally {
+					setLoadingNote(false);
+				}
+			} else {
+				setCurrentNote(null);
+			}
+		};
+
+		fetchNote();
+	}, [currentReport?.noteId, getNoteById]);
 
 	const handleEditPress = () => {
 		if (id) {
@@ -217,9 +246,48 @@ export default function ReportDetailScreen() {
 						</View>
 					</Card>
 
-					{currentReport.description && (
+					{/* Show note instead of description */}
+					{loadingNote ? (
 						<>
-							<Text style={styles.cardTitle}>Descripción</Text>
+							<Text style={styles.cardTitle}>Nota</Text>
+							<Card
+								paddingX={spacing.md}
+								paddingY={spacing.md}
+								rounded={roundness.sm}
+								shadow='none'
+								backgroundColor={lightTheme.colors.surface}
+							>
+								<ActivityIndicator size="small" color={lightTheme.colors.primary} />
+							</Card>
+						</>
+					) : currentNote ? (
+						<>
+							<Text style={styles.cardTitle}>Nota</Text>
+							<Card
+								paddingX={spacing.md}
+								paddingY={spacing.md}
+								rounded={roundness.sm}
+								shadow='none'
+								backgroundColor={lightTheme.colors.surface}
+							>
+								<Text style={styles.descriptionText}>
+									{currentNote.text}
+								</Text>
+								<Text style={styles.noteDate}>
+									{new Date(currentNote.createdAt).toLocaleDateString('es-ES', {
+										day: '2-digit',
+										month: 'short',
+										year: 'numeric',
+										hour: '2-digit',
+										minute: '2-digit'
+									})}
+									{currentNote.updatedAt && ' (editada)'}
+								</Text>
+							</Card>
+						</>
+					) : currentReport.description ? (
+						<>
+							<Text style={styles.cardTitle}>Descripción (legacy)</Text>
 							<Card
 								paddingX={spacing.md}
 								paddingY={spacing.md}
@@ -232,24 +300,7 @@ export default function ReportDetailScreen() {
 								</Text>
 							</Card>
 						</>
-					)}
-
-					{currentReport.reporterComment && (
-						<>
-							<Text style={styles.cardTitle}>Respuesta</Text>
-							<Card
-								paddingX={spacing.md}
-								paddingY={spacing.md}
-								rounded={roundness.sm}
-								shadow='none'
-								backgroundColor={lightTheme.colors.surface}
-							>
-								<Text style={styles.descriptionText}>
-									{currentReport.reporterComment}
-								</Text>
-							</Card>
-						</>
-					)}
+					) : null}
 
 					{currentReport.images && currentReport.images.length > 0 && (
 						<>
@@ -377,6 +428,12 @@ const styles = StyleSheet.create({
 		fontSize: typography.bodyLarge,
 		lineHeight: 24,
 		color: lightTheme.colors.onSurface,
+	},
+	noteDate: {
+		fontSize: typography.labelSmall,
+		color: lightTheme.colors.onSurfaceVariant,
+		marginTop: spacing.sm,
+		fontStyle: 'italic',
 	},
 	carouselImage: {
 		width: '100%',

@@ -14,13 +14,7 @@
 		],
 		"totalHours": 9,
 		"isActive": false,
-		"notes": [
-			{
-				"id": "33333333-4444-4333-8444-777788889999",
-				"text": "Jornada estándar, sin incidencias.",
-				"createdAt": "2025-11-03T17:05:00.000Z"
-			}
-		]
+		"noteId": "70695847-3625-4903-8827-161514131211"
 	},
 	{
 		"id": "44444444-5555-4333-8444-88889999aaaa",
@@ -36,8 +30,7 @@
 			}
 		],
 		"totalHours": 9.5,
-		"isActive": false,
-		"notes": []
+		"isActive": false
 	},
 	{
 		"id": "66666666-7777-4333-8444-aaaabbbbcccc",
@@ -54,14 +47,7 @@
 		],
 		"totalHours": 12.25,
 		"isActive": false,
-		"notes": [
-			{
-				"id": "88888888-9999-4333-8444-ccccddddeeee",
-				"text": "Horas extras por reparto nocturno.",
-				"createdAt": "2025-11-01T20:20:00.000Z",
-				"updatedAt": "2025-11-02T09:00:00.000Z"
-			}
-		]
+		"noteId": "69584736-2514-4802-9716-151413121110"
 	},
 	{
 		"id": "99999999-aaaa-4333-8444-ddddeeeeffff",
@@ -85,13 +71,7 @@
 		],
 		"totalHours": 8.75,
 		"isActive": false,
-		"notes": [
-			{
-				"id": "cccccccc-dddd-4333-8444-001122334455",
-				"text": "Tarde con paradas múltiples; tráfico intenso.",
-				"createdAt": "2025-11-04T17:50:00.000Z"
-			}
-		]
+		"noteId": "58473625-1403-4701-8615-141312111009"
 	},
 	{
 		"id": "dddddddd-eeee-4333-8444-112233445566",
@@ -108,18 +88,7 @@
 		],
 		"totalHours": 8,
 		"isActive": false,
-		"notes": [
-			{
-				"id": "ffffffff-0000-4333-8444-334455667788",
-				"text": "Salida temprana para ruta larga.",
-				"createdAt": "2025-11-05T14:05:00.000Z"
-			},
-			{
-				"id": "01234567-89ab-4333-8444-445566778899",
-				"text": "Cliente pidió entrega urgente al final del turno.",
-				"createdAt": "2025-11-05T14:15:00.000Z"
-			}
-		]
+		"noteId": "47362514-0392-4600-9514-131211100908"
 	},
 	{
 		"id": "12345678-9abc-4333-8444-5566778899aa",
@@ -143,13 +112,7 @@
 		],
 		"totalHours": 6.5,
 		"isActive": false,
-		"notes": [
-			{
-				"id": "456789ab-cdef-4333-8444-8899aabbccdd",
-				"text": "Turno dividido por formación interna.",
-				"createdAt": "2025-11-06T20:05:00.000Z"
-			}
-		]
+		"noteId": "36251403-9281-4509-8413-121110090807"
 	},
 	{
 		"id": "56789abc-def0-4333-8444-99aabbccdde0",
@@ -166,13 +129,7 @@
 		],
 		"totalHours": 0,
 		"isActive": true,
-		"notes": [
-			{
-				"id": "789abcde-f012-4333-8444-bbccddeeff00",
-				"text": "Registro abierto — pendiente de cierre.",
-				"createdAt": "2025-11-07T08:01:00.000Z"
-			}
-		]
+		"noteId": "25140392-8170-4408-9312-111009080706"
 	},
 	{
 		"id": "89abcdef-0123-4333-8444-ccbbaaddffee",
@@ -189,13 +146,7 @@
 		],
 		"totalHours": 8,
 		"isActive": false,
-		"notes": [
-			{
-				"id": "abcdef01-2345-4333-8444-eebbccdd0011",
-				"text": "Noche completa — turno internacional (cruce de día).",
-				"createdAt": "2025-11-01T06:10:00.000Z"
-			}
-		]
+		"noteId": "14039281-7069-4307-8211-100908070605"
 	},
 	{
 		"id": "a1b2c3d4-e5f6-4333-8444-001122334455",
@@ -212,12 +163,6 @@
 		],
 		"totalHours": 2.75,
 		"isActive": false,
-		"notes": [
-			{
-				"id": "c1d2e3f4-0607-4333-8444-223344556677",
-				"text": "Media jornada por cita médica.",
-				"createdAt": "2025-11-08T12:05:00.000Z"
-			}
-		]
+		"noteId": "03928170-6958-4206-9110-090807060504"
 	}
 ]

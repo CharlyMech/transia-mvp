@@ -6,7 +6,6 @@ const VALIDATION_MESSAGES = {
 	description: "La descripción debe tener al menos 10 caracteres",
 	vehicleId: "El vehículo es obligatorio",
 	driverId: "El conductor es obligatorio",
-	reporterComment: "El comentario debe tener al menos 10 caracteres",
 	latitude: "La latitud debe estar entre -90 y 90",
 	longitude: "La longitud debe estar entre -180 y 180",
 };
@@ -35,10 +34,8 @@ export const ReportSchema = z.object({
 	createdAt: z.coerce.date(),
 	readAt: z.coerce.date().nullable().default(null),
 	closedAt: z.coerce.date().nullable().default(null),
-	reporterComment: z
-		.string()
-		.min(10, VALIDATION_MESSAGES.reporterComment)
-		.optional(),
+	// Note reference (0:1 relationship - Report has one optional Note)
+	noteId: z.string().uuid().nullable().optional(),
 	images: z.array(z.string().url()).default([]),
 	read: z.boolean().default(false),
 	active: z.boolean().default(true),
@@ -57,11 +54,7 @@ export const ReportFormSchema = z.object({
 		.or(z.literal("")),
 	vehicleId: z.string().uuid(VALIDATION_MESSAGES.vehicleId),
 	driverId: z.string().uuid(VALIDATION_MESSAGES.driverId),
-	reporterComment: z
-		.string()
-		.min(10, VALIDATION_MESSAGES.reporterComment)
-		.optional()
-		.or(z.literal("")),
+	noteId: z.string().uuid().nullable().optional(),
 	images: z.array(z.string()).default([]),
 	location: LocationSchema.nullable().optional(),
 });

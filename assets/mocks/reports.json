@@ -8,14 +8,14 @@
 		"createdAt": "2025-09-29T09:15:00Z",
 		"readAt": "2025-09-29T10:30:00Z",
 		"closedAt": "2025-09-30T14:00:00Z",
-		"reporterComment": "Inspección completada sin problemas mayores",
 		"images": [
 			"https://i.pinimg.com/736x/03/07/a2/0307a23d51b5db55531470b0d24e1718.jpg",
 			"https://alavalascaray.es/wp-content/uploads/2021/02/58.jpg",
 			"https://www.mcondeocasion.com/wp-content/uploads/2025/04/rueda_pinchada_portada.jpg"
 		],
 		"read": true,
-		"active": false
+		"active": false,
+		"noteId": "f8e7d6c5-b4a3-4921-8f7e-6d5c4b3a2910"
 	},
 	{
 		"id": "9d6f21e2-85c3-4204-b4ad-7d8a2f4bcb99",
@@ -59,10 +59,10 @@
 		"createdAt": "2025-09-20T14:20:00Z",
 		"readAt": "2025-09-21T10:00:00Z",
 		"closedAt": null,
-		"reporterComment": "Mantenimiento estándar realizado correctamente",
 		"images": [],
 		"read": true,
-		"active": true
+		"active": true,
+		"noteId": "e7d6c5b4-a392-4108-9f8e-7d6c5b4a3291"
 	},
 	{
 		"id": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
@@ -96,10 +96,10 @@
 			"longitude": -0.3763,
 			"address": "Plaza del Ayuntamiento, 46002 València, ES"
 		},
-		"reporterComment": "ITV pasada exitosamente",
 		"images": [],
 		"read": true,
-		"active": false
+		"active": false,
+		"noteId": "d6c5b4a3-9281-4f09-8e7d-6c5b4a392817"
 	},
 	{
 		"id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
@@ -133,12 +133,12 @@
 			"longitude": -5.9845,
 			"address": "Av. de la Constitución, 41001 Sevilla, ES"
 		},
-		"reporterComment": "Parte de accidente entregado. Esperando valoración del taller.",
 		"images": [
 			"https://i.pinimg.com/736x/03/07/a2/0307a23d51b5db55531470b0d24e1718.jpg"
 		],
 		"read": true,
-		"active": true
+		"active": true,
+		"noteId": "c5b4a392-8170-4e08-9d7c-6b5a49382716"
 	},
 	{
 		"id": "6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c",
@@ -149,10 +149,10 @@
 		"createdAt": "2025-10-08T09:00:00Z",
 		"readAt": "2025-10-08T11:30:00Z",
 		"closedAt": "2025-10-12T16:00:00Z",
-		"reporterComment": "Documentación recuperada y entregada al conductor",
 		"images": [],
 		"read": true,
-		"active": false
+		"active": false,
+		"noteId": "b4a39281-7069-4d07-8c6b-5a4938271615"
 	},
 	{
 		"id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
@@ -186,13 +186,13 @@
 			"longitude": -0.8773,
 			"address": "Pl. del Pilar, 50003 Zaragoza, ES"
 		},
-		"reporterComment": "Parte amistoso firmado. Vehículo en taller para reparación",
 		"images": [
 			"https://i.pinimg.com/736x/03/07/a2/0307a23d51b5db55531470b0d24e1718.jpg",
 			"https://i.pinimg.com/736x/03/07/a2/0307a23d51b5db55531470b0d24e1718.jpg"
 		],
 		"read": true,
-		"active": true
+		"active": true,
+		"noteId": "a3928170-6958-4c06-9b5a-493827161514"
 	},
 	{
 		"id": "9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f",
@@ -226,10 +226,10 @@
 			"longitude": -2.935,
 			"address": "Arenal Kalea, 48005 Bilbao, ES"
 		},
-		"reporterComment": "Mantenimiento preventivo completado según programa",
 		"images": [],
 		"read": true,
-		"active": false
+		"active": false,
+		"noteId": "92817069-5847-4b05-8a49-382716151413"
 	},
 	{
 		"id": "1e2f3a4b-5c6d-7e8f-9a0b-1c2d3e4f5a6b",
@@ -253,11 +253,11 @@
 		"createdAt": "2025-10-16T07:55:00Z",
 		"readAt": null,
 		"closedAt": null,
-		"reporterComment": "Pendiente de valoración de daños",
 		"images": [
 			"https://i.pinimg.com/736x/03/07/a2/0307a23d51b5db55531470b0d24e1718.jpg"
 		],
 		"read": false,
-		"active": true
+		"active": true,
+		"noteId": "81706958-4736-4a04-9938-271615141312"
 	}
 ]

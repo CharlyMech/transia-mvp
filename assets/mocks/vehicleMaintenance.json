@@ -1,0 +1,245 @@
+[
+	{
+		"id": "maint-0001-0000-0000-000000000001",
+		"vehicleId": "11111111-1111-1111-1111-111111111111",
+		"maintenanceType": "Mantenimiento programado",
+		"status": "Completado",
+		"scheduledDate": "2025-09-15T00:00:00.000Z",
+		"completedDate": "2025-09-15T00:00:00.000Z",
+		"description": "Mantenimiento de 50.000 km. Cambio de aceite, filtros y revisión general.",
+		"workshopName": "Taller Mercedes Barcelona",
+		"cost": 450.5,
+		"mileage": 50000,
+		"nextMaintenanceDate": "2026-03-15T00:00:00.000Z",
+		"notes": "Todo en perfecto estado. Próximo mantenimiento a los 60.000 km.",
+		"documents": [
+			"https://example.com/invoices/invoice-001.pdf"
+		],
+		"createdAt": "2025-09-01T10:00:00.000Z",
+		"updatedAt": "2025-09-15T16:30:00.000Z"
+	},
+	{
+		"id": "maint-0002-0000-0000-000000000002",
+		"vehicleId": "11111111-1111-1111-1111-111111111111",
+		"maintenanceType": "ITV",
+		"status": "Completado",
+		"scheduledDate": "2025-01-20T00:00:00.000Z",
+		"completedDate": "2025-01-20T00:00:00.000Z",
+		"description": "Inspección Técnica de Vehículos anual. Resultado: FAVORABLE.",
+		"workshopName": "ITV Cerdanyola",
+		"cost": 55.0,
+		"mileage": 48200,
+		"nextMaintenanceDate": "2026-01-20T00:00:00.000Z",
+		"notes": "ITV pasada sin observaciones. Próxima revisión en enero de 2026.",
+		"documents": [
+			"https://example.com/itv/itv-cert-001.pdf"
+		],
+		"createdAt": "2025-01-10T09:00:00.000Z",
+		"updatedAt": "2025-01-20T11:15:00.000Z"
+	},
+	{
+		"id": "maint-0003-0000-0000-000000000003",
+		"vehicleId": "22222222-2222-2222-2222-222222222222",
+		"maintenanceType": "Cita de taller",
+		"status": "Programado",
+		"scheduledDate": "2025-11-30T09:00:00.000Z",
+		"description": "Revisión del sistema de iluminación. Cliente reportó luz intermitente.",
+		"workshopName": "Scania Service Madrid",
+		"mileage": 32500,
+		"notes": "Pendiente de diagnóstico. Cita confirmada para el 30 de noviembre.",
+		"documents": [],
+		"createdAt": "2025-11-15T14:20:00.000Z"
+	},
+	{
+		"id": "maint-0004-0000-0000-000000000004",
+		"vehicleId": "44444444-4444-4444-4444-444444444444",
+		"maintenanceType": "Cambio de aceite",
+		"status": "Completado",
+		"scheduledDate": "2025-10-10T00:00:00.000Z",
+		"completedDate": "2025-10-10T00:00:00.000Z",
+		"description": "Cambio de aceite de motor y filtro según programa de mantenimiento.",
+		"workshopName": "Volvo Trucks Valencia",
+		"cost": 180.0,
+		"mileage": 25000,
+		"nextMaintenanceDate": "2026-04-10T00:00:00.000Z",
+		"notes": "Aceite sintético 5W-30. Próximo cambio a los 35.000 km.",
+		"documents": [
+			"https://example.com/invoices/invoice-002.pdf"
+		],
+		"createdAt": "2025-10-01T08:00:00.000Z",
+		"updatedAt": "2025-10-10T12:45:00.000Z"
+	},
+	{
+		"id": "maint-0005-0000-0000-000000000005",
+		"vehicleId": "55555555-5555-5555-5555-555555555555",
+		"maintenanceType": "Servicio de frenos",
+		"status": "En progreso",
+		"scheduledDate": "2025-11-22T10:00:00.000Z",
+		"description": "Ruidos anormales en el sistema de frenos reportados por conductor. Requiere revisión urgente.",
+		"workshopName": "Taller MAN Sevilla",
+		"mileage": 42300,
+		"notes": "Vehículo en taller. Esperando diagnóstico completo del sistema de frenos.",
+		"documents": [],
+		"createdAt": "2025-11-20T07:30:00.000Z",
+		"updatedAt": "2025-11-22T09:15:00.000Z"
+	},
+	{
+		"id": "maint-0006-0000-0000-000000000006",
+		"vehicleId": "66666666-6666-6666-6666-666666666666",
+		"maintenanceType": "ITV",
+		"status": "Completado",
+		"scheduledDate": "2025-04-25T00:00:00.000Z",
+		"completedDate": "2025-04-25T00:00:00.000Z",
+		"description": "Inspección Técnica de Vehículos. Resultado: FAVORABLE.",
+		"workshopName": "ITV Valencia Centro",
+		"cost": 55.0,
+		"mileage": 38000,
+		"nextMaintenanceDate": "2026-04-25T00:00:00.000Z",
+		"notes": "Inspección pasada exitosamente sin observaciones.",
+		"documents": [
+			"https://example.com/itv/itv-cert-002.pdf"
+		],
+		"createdAt": "2025-04-15T10:00:00.000Z",
+		"updatedAt": "2025-04-25T11:30:00.000Z"
+	},
+	{
+		"id": "maint-0007-0000-0000-000000000007",
+		"vehicleId": "77777777-7777-7777-7777-777777777777",
+		"maintenanceType": "Cambio de neumáticos",
+		"status": "Pendiente",
+		"scheduledDate": "2025-12-05T00:00:00.000Z",
+		"description": "Los neumáticos traseros presentan desgaste considerable. Programar reemplazo.",
+		"workshopName": "Neumáticos Sevilla Express",
+		"mileage": 45200,
+		"notes": "Desgaste en neumáticos traseros detectado. Pendiente de programar cita.",
+		"documents": [],
+		"createdAt": "2025-11-18T16:10:00.000Z"
+	},
+	{
+		"id": "maint-0008-0000-0000-000000000008",
+		"vehicleId": "88888888-8888-8888-8888-888888888888",
+		"maintenanceType": "Reparación",
+		"status": "Programado",
+		"scheduledDate": "2025-11-25T08:00:00.000Z",
+		"description": "Colisión menor en aparcamiento. Reparación de parachoques delantero.",
+		"workshopName": "Carrocería Mercedes Madrid",
+		"cost": 850.0,
+		"mileage": 28500,
+		"notes": "Daños menores. Parte de seguro presentado. Reparación cubierta parcialmente.",
+		"documents": [
+			"https://example.com/accidents/accident-report-001.pdf"
+		],
+		"createdAt": "2025-11-20T14:30:00.000Z"
+	},
+	{
+		"id": "maint-0009-0000-0000-000000000009",
+		"vehicleId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+		"maintenanceType": "ITV",
+		"status": "Pendiente",
+		"scheduledDate": "2025-12-15T10:00:00.000Z",
+		"description": "ITV no superada. Fallo en sistema de emisiones. Requiere reparación y nueva inspección.",
+		"workshopName": "Taller Volkswagen Zaragoza",
+		"mileage": 55000,
+		"notes": "ITV no superada por emisiones. Programada reparación del sistema de escape.",
+		"documents": [
+			"https://example.com/itv/itv-failed-001.pdf"
+		],
+		"createdAt": "2025-11-10T10:30:00.000Z",
+		"updatedAt": "2025-11-12T09:00:00.000Z"
+	},
+	{
+		"id": "maint-0010-0000-0000-000000000010",
+		"vehicleId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+		"maintenanceType": "Reparación",
+		"status": "En progreso",
+		"scheduledDate": "2025-11-22T00:00:00.000Z",
+		"description": "Accidente en carretera. Reparación de daños por impacto de tercero.",
+		"workshopName": "Carrocería Mercedes Zaragoza",
+		"cost": 2500.0,
+		"mileage": 31200,
+		"notes": "Parte amistoso firmado. Reparación en progreso. Estimación 7-10 días.",
+		"documents": [
+			"https://example.com/accidents/accident-report-002.pdf",
+			"https://example.com/estimates/estimate-002.pdf"
+		],
+		"createdAt": "2025-11-18T16:50:00.000Z",
+		"updatedAt": "2025-11-22T10:00:00.000Z"
+	},
+	{
+		"id": "maint-0011-0000-0000-000000000011",
+		"vehicleId": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+		"maintenanceType": "Mantenimiento programado",
+		"status": "Programado",
+		"scheduledDate": "2025-12-01T08:00:00.000Z",
+		"description": "Revisión de 50.000 km programada. Cambio de aceite, filtros y revisión completa.",
+		"workshopName": "Volvo Service Bilbao",
+		"mileage": 49800,
+		"notes": "Revisión programada según manual del fabricante.",
+		"documents": [],
+		"createdAt": "2025-11-15T08:00:00.000Z"
+	},
+	{
+		"id": "maint-0012-0000-0000-000000000012",
+		"vehicleId": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+		"maintenanceType": "Mantenimiento programado",
+		"status": "Completado",
+		"scheduledDate": "2025-10-14T11:30:00.000Z",
+		"completedDate": "2025-10-15T10:00:00.000Z",
+		"description": "Cambio de filtros y revisión de líquidos según programa preventivo.",
+		"workshopName": "Peugeot Service Málaga",
+		"cost": 220.0,
+		"mileage": 33000,
+		"nextMaintenanceDate": "2026-04-15T00:00:00.000Z",
+		"notes": "Mantenimiento preventivo completado. Todos los sistemas funcionando correctamente.",
+		"documents": [
+			"https://example.com/invoices/invoice-003.pdf"
+		],
+		"createdAt": "2025-10-05T11:30:00.000Z",
+		"updatedAt": "2025-10-15T12:00:00.000Z"
+	},
+	{
+		"id": "maint-0013-0000-0000-000000000013",
+		"vehicleId": "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1",
+		"maintenanceType": "Reparación",
+		"status": "Pendiente",
+		"scheduledDate": "2025-11-28T00:00:00.000Z",
+		"description": "Vehículo implicado en accidente. Rotura de retrovisores. Requiere reemplazo.",
+		"workshopName": "Taller Iveco Barcelona",
+		"cost": 350.0,
+		"mileage": 27800,
+		"notes": "Pendiente de valoración completa de daños y confirmación de cita.",
+		"documents": [
+			"https://example.com/accidents/accident-report-003.pdf"
+		],
+		"createdAt": "2025-11-20T08:00:00.000Z"
+	},
+	{
+		"id": "maint-0014-0000-0000-000000000014",
+		"vehicleId": "e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e5",
+		"maintenanceType": "ITV",
+		"status": "Programado",
+		"scheduledDate": "2025-12-20T00:00:00.000Z",
+		"description": "Inspección Técnica de Vehículos anual programada.",
+		"workshopName": "ITV Las Palmas",
+		"mileage": 18500,
+		"notes": "ITV programada para vehículo nuevo (primer año).",
+		"documents": [],
+		"createdAt": "2025-11-25T09:00:00.000Z"
+	},
+	{
+		"id": "maint-0015-0000-0000-000000000015",
+		"vehicleId": "33333333-3333-3333-3333-333333333333",
+		"maintenanceType": "Otro",
+		"status": "Completado",
+		"scheduledDate": "2025-08-15T00:00:00.000Z",
+		"completedDate": "2025-08-15T00:00:00.000Z",
+		"description": "Limpieza profunda de cabina y desinfección por mal olor reportado.",
+		"workshopName": "Limpieza Premium Autos",
+		"cost": 80.0,
+		"mileage": 22100,
+		"notes": "Limpieza completa realizada. Sistema de aire acondicionado desinfectado.",
+		"documents": [],
+		"createdAt": "2025-08-10T13:20:00.000Z",
+		"updatedAt": "2025-08-15T15:00:00.000Z"
+	}
+]

@@ -7,12 +7,13 @@ import { useActionsModal } from '@/hooks/useActionsModal';
 import type { Report, ReportFormData } from '@/models/report';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useFleetStore } from '@/stores/useFleetStore';
+import { useNotesStore } from '@/stores/useNotesStore';
 import { useReportsStore } from '@/stores/useReportsStore';
 import * as Crypto from 'expo-crypto';
 import { router } from 'expo-router';
 import { ArrowLeft, CheckCircle2 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { BackHandler, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, BackHandler, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function NewReportScreen() {
@@ -23,6 +24,7 @@ export default function NewReportScreen() {
 	const confirmationModal = useActionsModal();
 	const successModal = useActionsModal();
 	const addReport = useReportsStore((state) => state.addReport);
+	const createNote = useNotesStore((state) => state.createNote);
 	const user = useAuthStore((state) => state.user);
 	const vehicles = useFleetStore((state) => state.vehicles);
 
@@ -62,7 +64,7 @@ export default function NewReportScreen() {
 		setHasChanges(changed);
 	};
 
-	const handleSubmit = async (data: ReportFormData & { images: string[] }) => {
+	const handleSubmit = async (data: ReportFormData & { images: string[]; noteText: string }) => {
 		if (!user) {
 			console.error('No user found');
 			return;
@@ -70,16 +72,23 @@ export default function NewReportScreen() {
 
 		setLoading(true);
 		try {
+			// Create the note first
+			const newNote = await createNote({
+				text: data.noteText,
+				createdBy: user.id,
+			});
+
+			// Create the report with the noteId
 			const newReport: Report = {
 				id: Crypto.randomUUID(),
 				title: data.title,
-				description: data.description || undefined,
+				description: undefined, // No longer using description
 				vehicleId: data.vehicleId,
 				driverId: user.id,
 				createdAt: new Date(),
 				readAt: null,
 				closedAt: null,
-				reporterComment: data.reporterComment || undefined,
+				noteId: newNote.id,
 				images: data.images,
 				read: false,
 				active: true,
@@ -92,6 +101,7 @@ export default function NewReportScreen() {
 			successModal.open();
 		} catch (error) {
 			console.error('Error creating report:', error);
+			Alert.alert('Error', error instanceof Error ? error.message : 'No se pudo crear el reporte');
 		} finally {
 			setLoading(false);
 		}
