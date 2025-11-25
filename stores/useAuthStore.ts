@@ -1,6 +1,7 @@
 import type { AuthResponse, LoginCredentials } from "@/models/auth";
 import type { Driver } from "@/models/driver";
 import { auth as authService } from "@/services/data";
+import { OnboardingStorage } from "@/utils/onBoardingStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -66,6 +67,19 @@ export const useAuthStore = create<AuthStore>()(
 						isLoading: false,
 						error: null,
 					});
+
+					// Mark onboarding as completed on first successful login
+					try {
+						await OnboardingStorage.setOnboardingCompleted();
+						console.log(
+							"✅ Onboarding marked as completed after successful login"
+						);
+					} catch (error) {
+						console.error(
+							"❌ Error marking onboarding as completed:",
+							error
+						);
+					}
 				} catch (error) {
 					// Log detailed error for debugging
 					console.error("Login error details:", error);
