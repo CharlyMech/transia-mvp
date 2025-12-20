@@ -2,11 +2,11 @@ import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
 import { useReportsStore } from "@/stores/useReportsStore";
 import { usePathname, useRouter } from "expo-router";
 import {
+	FileWarning,
 	LayoutDashboard,
-	MessageSquareWarning,
 	Settings as SettingsIcon,
 	SquareUserRound,
-	Truck,
+	Truck
 } from "lucide-react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { LayoutChangeEvent, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -25,7 +25,7 @@ type RouteCfg = {
 };
 
 const ROUTES: RouteCfg[] = [
-	{ key: "reports", path: "/(tabs)/reports", title: "Reportes", Icon: MessageSquareWarning },
+	{ key: "reports", path: "/(tabs)/reports", title: "Reportes", Icon: FileWarning },
 	{ key: "fleet", path: "/(tabs)/fleet", title: "Flota", Icon: Truck },
 	{ key: "home", path: "/(tabs)", title: "Inicio", Icon: LayoutDashboard },
 	{ key: "drivers", path: "/(tabs)/drivers", title: "Choferes", Icon: SquareUserRound },
@@ -69,8 +69,14 @@ export function BottomNavBar() {
 		const info = tabsLayout[activeIndex];
 		if (info && (info.w > 0 || info.x > 0)) {
 			const duration = readyRef.current ? 180 : 0;
-			pillX.value = withTiming(info.x + 8, { duration });
-			pillW.value = withTiming(Math.max(64, info.w - 16), { duration });
+			// Limit pill width to prevent it from stretching too wide on tablets
+			// Use the badge/icon container width (64) + some padding, or a max of say 100
+			const maxPillWidth = 80;
+			const targetWidth = Math.min(info.w - 16, maxPillWidth);
+			const targetX = info.x + (info.w - targetWidth) / 2;
+
+			pillX.value = withTiming(targetX, { duration });
+			pillW.value = withTiming(targetWidth, { duration });
 			readyRef.current = true;
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -162,6 +168,7 @@ const styles = StyleSheet.create({
 	tab: {
 		flex: 1,
 		paddingHorizontal: 8,
+		alignItems: "center", // Center the inner content (icon+label) in the available tab width
 	},
 	tabInner: {
 		height: 54,

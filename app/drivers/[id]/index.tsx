@@ -8,7 +8,7 @@ import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useDriversStore } from '@/stores/useDriversStore';
 import { useTimeRegistrationsStore } from '@/stores/useTimeRegistrationStore';
-import { calculateCurrentMinutes, formatDateToDisplay, getTotalDayTimeColor } from '@/utils/dateUtils';
+import { autoCloseOldActiveRanges, calculateCurrentMinutes, formatDateToDisplay, getTotalDayTimeColor } from '@/utils/dateUtils';
 import { getDriverStatusIcon } from '@/utils/driversUtils';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, ExternalLink, SquarePen, UserRound } from 'lucide-react-native';
@@ -326,7 +326,10 @@ export default function DriverProfileScreen() {
 
 												return lastFive.map((reg) => {
 													const dateLabel = formatDateToDisplay(reg.date);
-													const ranges = Array.isArray(reg.timeRanges) ? reg.timeRanges : [];
+
+
+													const closedReg = autoCloseOldActiveRanges(reg);
+													const ranges = Array.isArray(closedReg.timeRanges) ? closedReg.timeRanges : [];
 
 													const totalMinutes = calculateCurrentMinutes(ranges, new Date());
 

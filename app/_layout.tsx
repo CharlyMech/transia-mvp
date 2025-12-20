@@ -124,6 +124,20 @@ export default function RootLayout() {
 		}
 	}, [showSplash, isAuthenticated, initialRouteReady, hasCompletedOnboarding]);
 
+	// Handle navigation after successful login
+	useEffect(() => {
+		// Don't run during splash or before initialization
+		if (showSplash || !initialRouteReady) return;
+
+		const inLoginScreen = pathname === '/login';
+		const inTabsScreen = pathname.startsWith('/(tabs)');
+
+		// If user is authenticated and still on login screen, navigate to tabs
+		if (isAuthenticated && inLoginScreen && !inTabsScreen) {
+			router.replace('/(tabs)' as any);
+		}
+	}, [isAuthenticated, pathname, showSplash, initialRouteReady]);
+
 	const handleSplashFinish = useCallback(() => {
 		setShowSplash(false);
 	}, []);

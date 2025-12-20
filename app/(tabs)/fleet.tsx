@@ -2,7 +2,6 @@ import { ActionsModal } from "@/components/ActionsModal";
 import { Card } from "@/components/Card";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { ElevatedButton } from "@/components/ElevatedButton";
-import { IconBadge } from "@/components/IconBadge";
 import { IconPlaceholder } from "@/components/IconPlaceholder";
 import { SkeletonList } from "@/components/skeletons";
 import { StatusLabel } from "@/components/StatusLabel";
@@ -272,6 +271,9 @@ export default function FleetScreen() {
 		extrapolate: 'clamp',
 	});
 
+	// Check if any filters are active
+	const hasActiveFilters = searchQuery || filterStatuses.size > 0 || filterTypes.size > 0;
+
 	return (
 		<SafeAreaView style={styles.container} edges={['top']}>
 			<View style={styles.headerWrapper}>
@@ -334,6 +336,7 @@ export default function FleetScreen() {
 							opacity: animatedOpacity,
 						},
 					]}
+					pointerEvents={isFiltersExpanded ? 'auto' : 'none'}
 				>
 					<View style={styles.filtersContent}>
 						<View style={styles.filterSection}>
@@ -380,43 +383,50 @@ export default function FleetScreen() {
 							</View>
 						</View>
 
-						<View style={styles.filterSection}>
-							<View style={styles.filterSectionHeader}>
-								<Text style={styles.filterLabel}>Tipo de vehículo</Text>
-								{filterTypes.size > 0 && (
-									<Pressable onPress={clearTypeFilters}>
-										<Text style={styles.clearFiltersText}>Limpiar</Text>
-									</Pressable>
-								)}
-							</View>
-							<View style={styles.statusChipsGrid}>
-								{vehicleTypes.map((type) => {
-									const isSelected = filterTypes.has(type);
-									return (
-										<Pressable
-											key={type}
-											style={[
-												styles.statusChip,
-												{
-													backgroundColor: isSelected ? lightTheme.colors.secondaryContainer : lightTheme.colors.surface,
-													borderColor: isSelected ? lightTheme.colors.primary : lightTheme.colors.outline,
-												},
-											]}
-											onPress={() => toggleTypeFilter(type)}
-										>
-											<Text
-												style={[
-													styles.statusChipText,
-													{ color: lightTheme.colors.onSurface },
-												]}
-											>
-												{type}
-											</Text>
+						{vehicleTypes.length > 0 && (
+							<View style={styles.filterSection}>
+								<View style={styles.filterSectionHeader}>
+									<Text style={styles.filterLabel}>Tipo de vehículo</Text>
+									{filterTypes.size > 0 && (
+										<Pressable onPress={clearTypeFilters}>
+											<Text style={styles.clearFiltersText}>Limpiar</Text>
 										</Pressable>
-									);
-								})}
+									)}
+								</View>
+								<View style={styles.statusChipsGrid}>
+									{vehicleTypes.map((type) => {
+										const isSelected = filterTypes.has(type);
+
+										return (
+											<Pressable
+												key={type}
+												style={[
+													styles.statusChip,
+													{
+														backgroundColor: isSelected ? lightTheme.colors.secondaryContainer : lightTheme.colors.surface,
+														borderColor: isSelected ? lightTheme.colors.primary : lightTheme.colors.outline,
+													},
+												]}
+												onPress={() => toggleTypeFilter(type)}
+											>
+												<Truck
+													size={16}
+													color={lightTheme.colors.onSurface}
+												/>
+												<Text
+													style={[
+														styles.statusChipText,
+														{ color: lightTheme.colors.onSurface },
+													]}
+												>
+													{type}
+												</Text>
+											</Pressable>
+										);
+									})}
+								</View>
 							</View>
-						</View>
+						)}
 
 						<View style={styles.filterSection}>
 							<Text style={styles.filterLabel}>Ordenar por</Text>
@@ -489,20 +499,50 @@ export default function FleetScreen() {
 					</View>
 				</Animated.View>
 
-				{filteredVehicles.length > 0 && (
+				{!loading && (
 					<View style={styles.resultsInfo}>
-						<Text style={styles.resultsText}>{filteredVehicles.length} vehículos</Text>
+						<Text style={styles.resultsText}>
+							{filteredVehicles.length} {filteredVehicles.length === 1 ? 'vehículo' : 'vehículos'}
+							{searchQuery && ` para "${searchQuery}"`}
+							{(filterStatuses.size > 0 || filterTypes.size > 0) && ` · ${filterStatuses.size + filterTypes.size} filtro${(filterStatuses.size + filterTypes.size) > 1 ? 's' : ''} activo${(filterStatuses.size + filterTypes.size) > 1 ? 's' : ''}`}
+						</Text>
 					</View>
 				)}
 			</View>
 
 			{loading ? (
 				<SkeletonList count={8} cardHeight={100} />
+			) : isSearching ? (
+				<View style={styles.loadingContainer}>
+					<ActivityIndicator size="large" color={lightTheme.colors.primary} />
+					<Text style={styles.loadingText}>Buscando...</Text>
+				</View>
+			) : filteredVehicles.length === 0 ? (
+				<View style={styles.emptyContainer}>
+					<Truck size={64} color={lightTheme.colors.onSurfaceVariant} />
+					<Text style={styles.emptyTitle}>
+						{hasActiveFilters
+							? 'No se encontraron vehículos'
+							: 'No hay vehículos registrados'}
+					</Text>
+					<Text style={styles.emptySubtitle}>
+						{hasActiveFilters
+							? 'Intenta ajustar los filtros de búsqueda'
+							: 'Añade tu primer vehículo usando el botón "Nuevo"'}
+					</Text>
+				</View>
 			) : (
 				<ScrollView
 					style={styles.scrollView}
 					contentContainerStyle={styles.scrollContent}
 					showsVerticalScrollIndicator={false}
+					scrollEventThrottle={16}
+					onScroll={(event) => {
+						const currentOffset = event.nativeEvent.contentOffset.y;
+						if (currentOffset > 10 && isFiltersExpanded) {
+							toggleFilters();
+						}
+					}}
 				>
 					{filteredVehicles.map((item) => {
 						return (
@@ -574,7 +614,6 @@ export default function FleetScreen() {
 						visible={actionsModal.visible}
 						onClose={handleCloseActionsModal}
 						title="Acciones"
-						animationType="none"
 					>
 						<View style={styles.modalContent}>
 							<TouchableOpacity
@@ -582,23 +621,17 @@ export default function FleetScreen() {
 								onPress={handleViewVehicle}
 							>
 								<ExternalLink size={22} color={lightTheme.colors.onSurface} />
-								<Text style={styles.actionText}>Ver vehículo</Text>
+								<Text style={styles.actionText}>Ver detalles</Text>
 							</TouchableOpacity>
+
 							<TouchableOpacity
 								style={styles.actionButton}
 								onPress={handleChangeStatus}
 							>
-								<IconBadge
-									Icon={Truck}
-									BadgeIcon={RefreshCcw}
-									size={22}
-									color={lightTheme.colors.onBackground}
-									badgeSize={12}
-									badgeColor={lightTheme.colors.onBackground}
-									badgeBackgroundColor={lightTheme.colors.background}
-								/>
-								<Text style={styles.actionText}>Cambiar estado del vehículo</Text>
+								<RefreshCcw size={22} color={lightTheme.colors.onSurface} />
+								<Text style={styles.actionText}>Cambiar estado</Text>
 							</TouchableOpacity>
+
 							<TouchableOpacity
 								style={[styles.actionButton, styles.dangerAction]}
 								onPress={handleRequestDelete}
@@ -614,68 +647,47 @@ export default function FleetScreen() {
 					<ActionsModal
 						visible={statusModal.visible}
 						onClose={handleCloseStatusModal}
-						animationType="none"
+						title="Cambiar estado"
 					>
-						<View style={[styles.modalContent, { marginTop: spacing.md }]}>
+						<View style={styles.modalContent}>
 							<TouchableOpacity
-								style={[styles.actionButton, styles.successAction,]}
+								style={[styles.actionButton, styles.successAction]}
 								onPress={() => handleUpdateVehicleStatus(VehicleStatus.ACTIVE)}
 							>
-								<IconBadge
-									Icon={Truck}
-									BadgeIcon={Check}
-									size={22}
-									color={lightTheme.colors.statusActive}
-									badgeSize={12}
-									badgeColor={lightTheme.colors.statusActive}
-									badgeBackgroundColor={lightTheme.colors.statusActiveContainer}
-								/>
-								<Text style={styles.actionText}>Dar de alta</Text>
+								<Check size={22} color={lightTheme.colors.statusActive} />
+								<Text style={[styles.actionText, { color: lightTheme.colors.statusActive }]}>
+									Activo
+								</Text>
 							</TouchableOpacity>
-							<TouchableOpacity
-								style={[styles.actionButton, styles.setBrokenDownAction]}
-								onPress={() => handleUpdateVehicleStatus(VehicleStatus.INACTIVE)}
-							>
-								<IconBadge
-									Icon={Truck}
-									BadgeIcon={X}
-									size={22}
-									color={lightTheme.colors.statusBrokenDown}
-									badgeSize={12}
-									badgeColor={lightTheme.colors.statusBrokenDown}
-									badgeBackgroundColor={lightTheme.colors.statusBrokenDownContainer}
-								/>
-								<Text style={[styles.actionText, styles.setBrokenDownText]}>Dar de baja</Text>
-							</TouchableOpacity>
+
 							<TouchableOpacity
 								style={[styles.actionButton, styles.setMaintenanceAction]}
 								onPress={() => handleUpdateVehicleStatus(VehicleStatus.MAINTENANCE)}
 							>
-								<IconBadge
-									Icon={Truck}
-									BadgeIcon={Wrench}
-									size={22}
-									color={lightTheme.colors.statusMaintenance}
-									badgeSize={12}
-									badgeColor={lightTheme.colors.statusMaintenance}
-									badgeBackgroundColor={lightTheme.colors.statusMaintenanceContainer}
-								/>
-								<Text style={[styles.actionText, styles.setMaintenanceText]}>Poner en mantenimiento</Text>
+								<Wrench size={22} color={lightTheme.colors.statusMaintenance} />
+								<Text style={[styles.actionText, styles.setMaintenanceText]}>
+									En mantenimiento
+								</Text>
 							</TouchableOpacity>
+
 							<TouchableOpacity
 								style={[styles.actionButton, styles.setInactiveAction]}
 								onPress={() => handleUpdateVehicleStatus(VehicleStatus.INACTIVE)}
 							>
-								<IconBadge
-									Icon={Truck}
-									BadgeIcon={Pause}
-									size={22}
-									color={lightTheme.colors.onBackground}
-									badgeSize={12}
-									badgeColor={lightTheme.colors.onBackground}
-									badgeBackgroundColor={lightTheme.colors.background}
-								/>
-								<Text style={[styles.actionText, styles.setInactiveText]}>Poner como inactivo</Text>
+								<Pause size={22} color={lightTheme.colors.onBackground} />
+								<Text style={[styles.actionText, styles.setInactiveText]}>
+									Inactivo
+								</Text>
+							</TouchableOpacity>
+
+							<TouchableOpacity
+								style={[styles.actionButton, styles.setBrokenDownAction]}
+								onPress={() => handleUpdateVehicleStatus(VehicleStatus.BROKEN_DOWN)}
+							>
+								<X size={22} color={lightTheme.colors.statusBrokenDown} />
+								<Text style={[styles.actionText, styles.setBrokenDownText]}>
+									Averiado
+								</Text>
 							</TouchableOpacity>
 						</View>
 					</ActionsModal>
@@ -800,8 +812,10 @@ const styles = StyleSheet.create({
 		borderRadius: roundness.sm,
 		borderWidth: 1.5,
 		gap: spacing.xs,
-		minWidth: '48%',
-		flex: 1,
+		minWidth: 190,
+		flexGrow: 1,
+		flexShrink: 1,
+		maxWidth: 280, // Prevent buttons from becoming too wide on tablet
 	},
 	statusChipText: {
 		fontSize: typography.bodyMedium,
@@ -825,6 +839,10 @@ const styles = StyleSheet.create({
 		backgroundColor: lightTheme.colors.surface,
 		borderWidth: 1.5,
 		borderColor: lightTheme.colors.outline,
+		minWidth: 190,
+		flexGrow: 1,
+		flexShrink: 1,
+		maxWidth: 280,
 	},
 	sortOptionChipActive: {
 		backgroundColor: lightTheme.colors.secondaryContainer,
@@ -880,6 +898,34 @@ const styles = StyleSheet.create({
 		fontSize: typography.bodySmall,
 		color: lightTheme.colors.onSurfaceVariant,
 		fontWeight: '500',
+	},
+	loadingContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		gap: spacing.md,
+	},
+	loadingText: {
+		fontSize: typography.bodyMedium,
+		color: lightTheme.colors.onSurfaceVariant,
+	},
+	emptyContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		paddingHorizontal: spacing.xl,
+		gap: spacing.md,
+	},
+	emptyTitle: {
+		fontSize: typography.titleMedium,
+		fontWeight: '600',
+		color: lightTheme.colors.onSurface,
+		textAlign: 'center',
+	},
+	emptySubtitle: {
+		fontSize: typography.bodyMedium,
+		color: lightTheme.colors.onSurfaceVariant,
+		textAlign: 'center',
 	},
 	scrollView: {
 		width: "100%",

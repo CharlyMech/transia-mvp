@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Check, CheckCheck, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, ExternalLink, EyeOff, FileClock, MapPin, MapPinOff, Plus, Search, Trash2, TriangleAlert, X } from 'lucide-react-native';
+import { Check, CheckCheck, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, ExternalLink, EyeOff, FileClock, FileWarning, MapPin, MapPinOff, Plus, Search, Trash2, TriangleAlert, X } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Animated, Easing, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -241,6 +241,14 @@ export default function ReportsScreen() {
 		extrapolate: 'clamp',
 	});
 
+	// Count active filters
+	const activeFiltersCount = (filterTitles.size > 0 ? 1 : 0) +
+		(filterActive !== null ? 1 : 0) +
+		(filterHasLocation !== null ? 1 : 0);
+
+	// Check if any filters are active
+	const hasActiveFilters = searchQuery || filterTitles.size > 0 || filterActive !== null || filterHasLocation !== null;
+
 	return (
 		<SafeAreaView style={styles.container} edges={['top']}>
 			<View style={styles.headerWrapper}>
@@ -303,6 +311,7 @@ export default function ReportsScreen() {
 							opacity: animatedOpacity,
 						},
 					]}
+					pointerEvents={isFiltersExpanded ? 'auto' : 'none'}
 				>
 					<View style={styles.filtersContent}>
 						<View style={styles.filterSection}>
@@ -486,20 +495,50 @@ export default function ReportsScreen() {
 					</View>
 				</Animated.View>
 
-				{filteredReports.length > 0 && (
+				{!loading && (
 					<View style={styles.resultsInfo}>
-						<Text style={styles.resultsText}>{filteredReports.length} reportes</Text>
+						<Text style={styles.resultsText}>
+							{filteredReports.length} {filteredReports.length === 1 ? 'reporte' : 'reportes'}
+							{searchQuery && ` para "${searchQuery}"`}
+							{activeFiltersCount > 0 && ` · ${activeFiltersCount} filtro${activeFiltersCount > 1 ? 's' : ''} activo${activeFiltersCount > 1 ? 's' : ''}`}
+						</Text>
 					</View>
 				)}
 			</View>
 
 			{loading ? (
 				<SkeletonList count={8} cardHeight={100} />
+			) : isSearching ? (
+				<View style={styles.loadingContainer}>
+					<ActivityIndicator size="large" color={lightTheme.colors.primary} />
+					<Text style={styles.loadingText}>Buscando...</Text>
+				</View>
+			) : filteredReports.length === 0 ? (
+				<View style={styles.emptyContainer}>
+					<FileWarning size={64} color={lightTheme.colors.onSurfaceVariant} />
+					<Text style={styles.emptyTitle}>
+						{hasActiveFilters
+							? 'No se encontraron reportes'
+							: 'No hay reportes registrados'}
+					</Text>
+					<Text style={styles.emptySubtitle}>
+						{hasActiveFilters
+							? 'Intenta ajustar los filtros de búsqueda'
+							: 'Añade tu primer reporte usando el botón "Nuevo"'}
+					</Text>
+				</View>
 			) : (
 				<ScrollView
 					style={styles.scrollView}
 					contentContainerStyle={styles.scrollContent}
 					showsVerticalScrollIndicator={false}
+					scrollEventThrottle={16}
+					onScroll={(event) => {
+						const currentOffset = event.nativeEvent.contentOffset.y;
+						if (currentOffset > 10 && isFiltersExpanded) {
+							toggleFilters();
+						}
+					}}
 				>
 					{filteredReports.map((item) => (
 						<Card
@@ -733,7 +772,6 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		flexWrap: 'wrap',
 		gap: spacing.xs,
-		justifyContent: 'space-between',
 	},
 	statusChip: {
 		flexDirection: 'row',
@@ -743,9 +781,10 @@ const styles = StyleSheet.create({
 		borderRadius: roundness.sm,
 		borderWidth: 1.5,
 		gap: spacing.xs,
-		flexBasis: '49%',
-		flexGrow: 0,
-		flexShrink: 0,
+		minWidth: 190,
+		flexGrow: 1,
+		flexShrink: 1,
+		maxWidth: 280,
 	},
 	statusChipText: {
 		color: lightTheme.colors.onSurface,
@@ -770,6 +809,10 @@ const styles = StyleSheet.create({
 		backgroundColor: lightTheme.colors.surface,
 		borderWidth: 1.5,
 		borderColor: lightTheme.colors.outline,
+		minWidth: 190,
+		flexGrow: 1,
+		flexShrink: 1,
+		maxWidth: 280,
 	},
 	sortOptionChipActive: {
 		backgroundColor: lightTheme.colors.secondaryContainer,
@@ -825,6 +868,34 @@ const styles = StyleSheet.create({
 		fontSize: typography.bodySmall,
 		color: lightTheme.colors.onSurfaceVariant,
 		fontWeight: '500',
+	},
+	loadingContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		gap: spacing.md,
+	},
+	loadingText: {
+		fontSize: typography.bodyMedium,
+		color: lightTheme.colors.onSurfaceVariant,
+	},
+	emptyContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		paddingHorizontal: spacing.xl,
+		gap: spacing.md,
+	},
+	emptyTitle: {
+		fontSize: typography.titleMedium,
+		fontWeight: '600',
+		color: lightTheme.colors.onSurface,
+		textAlign: 'center',
+	},
+	emptySubtitle: {
+		fontSize: typography.bodyMedium,
+		color: lightTheme.colors.onSurfaceVariant,
+		textAlign: 'center',
 	},
 	scrollView: {
 		width: "100%",

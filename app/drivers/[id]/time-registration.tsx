@@ -295,6 +295,30 @@ export default function TimeRegistrationScreen() {
 		setShowEndTimePicker(true);
 	};
 
+	const checkOverlap = (newStart: Date, newEnd: Date | null, excludeRangeId?: string): boolean => {
+		if (!currentRegistration?.timeRanges) return false;
+
+		const endOfDay = new Date(selectedDate);
+		endOfDay.setHours(23, 59, 59, 999);
+		const effectiveNewEnd = newEnd || (isToday() ? new Date() : endOfDay);
+
+		return currentRegistration.timeRanges.some(range => {
+			if (excludeRangeId && range.id === excludeRangeId) return false;
+
+			const rangeStart = new Date(range.startTime);
+			let rangeEnd: Date;
+
+			if (range.endTime) {
+				rangeEnd = new Date(range.endTime);
+			} else {
+				// Existing open range
+				rangeEnd = isToday() ? new Date() : endOfDay;
+			}
+
+			return newStart < rangeEnd && rangeStart < effectiveNewEnd;
+		});
+	};
+
 	const handleSaveNewRange = () => {
 		if (!id || !editStartTime) {
 			Alert.alert('Error', 'Debe ingresar al menos la hora de inicio');
@@ -327,6 +351,11 @@ export default function TimeRegistrationScreen() {
 				Alert.alert('Error', 'La hora de fin no puede ser mayor a la hora actual');
 				return;
 			}
+		}
+
+		if (checkOverlap(startDate, endDate)) {
+			Alert.alert('Error', 'El rango de tiempo se solapa con otro existente');
+			return;
 		}
 
 		addTimeRange(id, selectedDate, {
@@ -397,6 +426,11 @@ export default function TimeRegistrationScreen() {
 				Alert.alert('Error', 'La hora de fin no puede ser mayor a la hora actual');
 				return;
 			}
+		}
+
+		if (checkOverlap(startDate, endDate, selectedRangeId)) {
+			Alert.alert('Error', 'El rango de tiempo se solapa con otro existente');
+			return;
 		}
 
 		updateTimeRange(currentRegistration.id, selectedRangeId, {

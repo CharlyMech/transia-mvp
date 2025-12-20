@@ -2,6 +2,7 @@ import { Card } from "@/components/Card";
 import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
 import { Location } from "@/models/report";
 import { Ionicons } from "@expo/vector-icons";
+import * as ExpoLocation from "expo-location";
 import { Expand, MapPin } from "lucide-react-native";
 import React, { useCallback, useRef, useState } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -42,17 +43,41 @@ export function LeafletMap({
 		}
 
 		// Debounce the update to prevent constant re-renders
-		timeoutRef.current = setTimeout(() => {
+		timeoutRef.current = setTimeout(async () => {
+			let address = location.address;
+			try {
+				const reverseGeocoded = await ExpoLocation.reverseGeocodeAsync({
+					latitude: lat,
+					longitude: lng
+				});
+
+				if (reverseGeocoded.length > 0) {
+					const place = reverseGeocoded[0];
+					const parts = [
+						place.street ? `${place.street} ${place.streetNumber || ''}`.trim() : null,
+						place.city,
+						place.region,
+						place.postalCode
+					].filter(Boolean);
+
+					if (parts.length > 0) {
+						address = parts.join(', ');
+					}
+				}
+			} catch (e) {
+				console.log("Geocoding error", e);
+			}
+
 			const newLocation: Location = {
 				latitude: lat,
 				longitude: lng,
 				altitude: location.altitude,
 				accuracy: location.accuracy,
-				address: location.address,
+				address: address,
 			};
 
 			onLocationChange?.(newLocation);
-		}, 300); // Wait 300ms after user stops moving map
+		}, 500); // Increased debounce slightly for network request warning
 	}, [editable, location.altitude, location.accuracy, location.address, onLocationChange]);
 
 	// Generate the HTML content for the map
@@ -161,7 +186,7 @@ export function LeafletMap({
 				</View>
 			</View>
 
-			<View style={styles.topContainer}>
+			<View style={[styles.topContainer, isFullScreen && styles.topContainerFullScreen]}>
 				<View style={styles.contentWrapper}>
 					{(location.address && showAddress) && (
 						<Card
@@ -255,7 +280,7 @@ const styles = StyleSheet.create({
 		pointerEvents: 'none',
 	},
 	centerMarker: {
-		marginBottom: 32, // Offset to center the pin point
+		marginBottom: 32,
 	},
 	topContainer: {
 		position: "absolute",
@@ -267,6 +292,9 @@ const styles = StyleSheet.create({
 		alignItems: "flex-start",
 		gap: spacing.sm,
 		zIndex: 10,
+	},
+	topContainerFullScreen: {
+		paddingLeft: spacing.xl + spacing.md,
 	},
 	contentWrapper: {
 		flex: 1,

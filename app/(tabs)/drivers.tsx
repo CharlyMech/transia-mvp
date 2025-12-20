@@ -471,6 +471,13 @@ export default function DriversScreen() {
 					style={styles.scrollView}
 					contentContainerStyle={styles.scrollContent}
 					showsVerticalScrollIndicator={false}
+					scrollEventThrottle={16}
+					onScroll={(event) => {
+						const currentOffset = event.nativeEvent.contentOffset.y;
+						if (currentOffset > 10 && isFiltersExpanded) {
+							toggleFilters();
+						}
+					}}
 				>
 					{filteredDrivers.map((item) => {
 						return (
@@ -783,9 +790,10 @@ const styles = StyleSheet.create({
 		borderRadius: roundness.sm,
 		borderWidth: 1.5,
 		gap: spacing.xs,
-		flexBasis: '49%',
-		flexGrow: 0,
-		flexShrink: 0,
+		minWidth: 190,
+		flexGrow: 1,
+		flexShrink: 1,
+		maxWidth: 280,
 	},
 	statusChipText: {
 		fontSize: typography.bodyMedium,
@@ -809,6 +817,10 @@ const styles = StyleSheet.create({
 		backgroundColor: lightTheme.colors.surface,
 		borderWidth: 1.5,
 		borderColor: lightTheme.colors.outline,
+		minWidth: 190, // ensure decent size
+		flexGrow: 1,
+		flexShrink: 1,
+		maxWidth: 280,
 	},
 	sortOptionChipActive: {
 		backgroundColor: lightTheme.colors.secondaryContainer,
