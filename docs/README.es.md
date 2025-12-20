@@ -140,3 +140,16 @@ transia-mvp/
 ├── tsconfig.json               # Configuración de TypeScript
 └── package.json                # Dependencias del proyecto
 ```
+
+## 📚 Documentación de Referencia
+
+La documentación formal de referencia se encuentra en la carpeta `docs/`:
+
+| Tema | Inglés | Español |
+|-------|---------|---------|
+| **Arquitectura** | [Architecture](docs/architecture.en.md) | [Arquitectura](docs/architecture.es.md) |
+| **Ref. Esquema** | [Schema Reference](docs/schema.en.md) | [Ref. Esquema](docs/schema.es.md) |
+| **Flujo App** | [App Flow](docs/app-flow.en.md) | [Flujo App](docs/app-flow.es.md) |
+| **Workflows** | [Collaboration](docs/collaboration.en.md) | [Colaboración](docs/collaboration.es.md) |
+| **Manual** | [Usage Guide](docs/usage-guide.en.md) | [Guía Uso](docs/usage-guide.es.md) |
+
