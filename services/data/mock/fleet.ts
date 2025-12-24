@@ -1,17 +1,17 @@
 import raw from "@/assets/mocks/fleet.json";
-import type { Vehicle } from "@/models";
 import { VehicleSchema } from "@/models";
+import type { IFleetService } from "../interfaces";
 
-export async function listFleet(): Promise<Vehicle[]> {
+export const listFleet: IFleetService["listFleet"] = async () => {
 	const parsed = VehicleSchema.array().safeParse(raw);
 	if (!parsed.success) {
 		console.error(parsed.error);
 		throw new Error("Vehicles mock inválidos");
 	}
 	return parsed.data;
-}
+};
 
-export async function getVehicleById(id: string): Promise<Vehicle | null> {
+export const getVehicleById: IFleetService["getVehicleById"] = async (id) => {
 	const fleet = await listFleet();
 	return fleet.find((vehicle) => vehicle.id === id) || null;
-}
+};

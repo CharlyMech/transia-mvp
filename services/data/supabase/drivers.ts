@@ -1,8 +1,8 @@
-import type { Driver } from "@/models";
 import { DriverSchema } from "@/models";
+import type { IDriverService } from "../interfaces";
 import { supabase } from "./client";
 
-export async function listDrivers(): Promise<Driver[]> {
+export const listDrivers: IDriverService["listDrivers"] = async () => {
 	const { data, error } = await supabase.from("drivers").select("*");
 	if (error) throw error;
 
@@ -12,9 +12,9 @@ export async function listDrivers(): Promise<Driver[]> {
 		throw new Error("Drivers inválidos desde Supabase");
 	}
 	return parsed.data;
-}
+};
 
-export async function getDriverById(id: string): Promise<Driver | null> {
+export const getDriverById: IDriverService["getDriverById"] = async (id) => {
 	const { data, error } = await supabase
 		.from("drivers")
 		.select("*")
@@ -35,4 +35,4 @@ export async function getDriverById(id: string): Promise<Driver | null> {
 		throw new Error("Driver inválido desde Supabase");
 	}
 	return parsed.data;
-}
+};

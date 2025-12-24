@@ -1,8 +1,8 @@
-import type { Report } from "@/models";
 import { ReportSchema } from "@/models";
+import type { IReportService } from "../interfaces";
 import { supabase } from "./client";
 
-export async function listReports(): Promise<Report[]> {
+export const listReports: IReportService["listReports"] = async () => {
 	const { data, error } = await supabase.from("reports").select("*");
 	if (error) throw error;
 
@@ -12,9 +12,9 @@ export async function listReports(): Promise<Report[]> {
 		throw new Error("Reports inválidos desde Supabase");
 	}
 	return parsed.data;
-}
+};
 
-export async function getReportById(id: string): Promise<Report | null> {
+export const getReportById: IReportService["getReportById"] = async (id) => {
 	const { data, error } = await supabase
 		.from("reports")
 		.select("*")
@@ -35,4 +35,4 @@ export async function getReportById(id: string): Promise<Report | null> {
 		throw new Error("Report inválido desde Supabase");
 	}
 	return parsed.data;
-}
+};

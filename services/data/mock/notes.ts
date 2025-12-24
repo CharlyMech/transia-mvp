@@ -1,12 +1,13 @@
 import raw from "@/assets/mocks/notes.json";
-import type { Note, NoteFormData } from "@/models/note";
+import type { Note } from "@/models/note";
 import { NoteSchema } from "@/models/note";
 import * as Crypto from "expo-crypto";
+import type { INoteService } from "../interfaces";
 
 // In-memory store for mock (simulates database)
 let mockNotes: Note[] = [];
 
-export async function listNotes(): Promise<Note[]> {
+export const listNotes: INoteService["listNotes"] = async () => {
 	if (mockNotes.length === 0) {
 		const parsed = NoteSchema.array().safeParse(raw);
 		if (!parsed.success) {
@@ -16,14 +17,14 @@ export async function listNotes(): Promise<Note[]> {
 		mockNotes = parsed.data;
 	}
 	return [...mockNotes];
-}
+};
 
-export async function getNoteById(id: string): Promise<Note | null> {
+export const getNoteById: INoteService["getNoteById"] = async (id) => {
 	const notes = await listNotes();
 	return notes.find((note) => note.id === id) || null;
-}
+};
 
-export async function createNote(data: NoteFormData): Promise<Note> {
+export const createNote: INoteService["createNote"] = async (data) => {
 	const notes = await listNotes();
 
 	const newNote: Note = {
@@ -41,9 +42,9 @@ export async function createNote(data: NoteFormData): Promise<Note> {
 
 	mockNotes.push(parsed.data);
 	return parsed.data;
-}
+};
 
-export async function updateNote(id: string, text: string): Promise<Note> {
+export const updateNote: INoteService["updateNote"] = async (id, text) => {
 	const notes = await listNotes();
 	const index = notes.findIndex((note) => note.id === id);
 
@@ -65,9 +66,9 @@ export async function updateNote(id: string, text: string): Promise<Note> {
 
 	mockNotes[index] = parsed.data;
 	return parsed.data;
-}
+};
 
-export async function deleteNote(id: string): Promise<void> {
+export const deleteNote: INoteService["deleteNote"] = async (id) => {
 	const notes = await listNotes();
 	const index = notes.findIndex((note) => note.id === id);
 
@@ -76,4 +77,4 @@ export async function deleteNote(id: string): Promise<void> {
 	}
 
 	mockNotes.splice(index, 1);
-}
+};

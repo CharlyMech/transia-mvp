@@ -1,13 +1,12 @@
 import driversRaw from "@/assets/mocks/drivers.json";
-import type { AuthResponse, LoginCredentials } from "@/models/auth";
+import type { AuthResponse } from "@/models/auth";
 import { DriverSchema } from "@/models/driver";
+import type { IAuthService } from "../interfaces";
 
 // Mock password for testing (in production this would be hashed)
 const MOCK_PASSWORD = "123456";
 
-export async function login(
-	credentials: LoginCredentials
-): Promise<AuthResponse> {
+export const login: IAuthService["login"] = async (credentials) => {
 	try {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -19,12 +18,17 @@ export async function login(
 
 		const drivers = driversResult.data;
 
-		// For MVP/testing: Always use the first driver from the mock data
-		// In production, you would validate credentials properly
-		const driver = drivers[0];
+		// Find driver by email or phone
+		const driver = drivers.find(
+			(d) =>
+				d.email === credentials.identifier ||
+				d.phone === credentials.identifier
+		);
 
 		if (!driver) {
-			throw new Error("No hay conductores disponibles en el sistema");
+			throw new Error(
+				"Credenciales incorrectas. Por favor, verifica tus datos."
+			);
 		}
 
 		if (credentials.password !== MOCK_PASSWORD) {
@@ -56,12 +60,12 @@ export async function login(
 	}
 }
 
-export async function logout(): Promise<void> {
+export const logout: IAuthService["logout"] = async () => {
 	await new Promise((resolve) => setTimeout(resolve, 500));
 	console.log("Mock logout successful");
-}
+};
 
-export async function verifyToken(token: string): Promise<boolean> {
+export const verifyToken: IAuthService["verifyToken"] = async (token) => {
 	await new Promise((resolve) => setTimeout(resolve, 500));
 	return token.startsWith("mock_token_");
-}
+};

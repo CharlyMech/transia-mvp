@@ -1,8 +1,8 @@
-import type { Vehicle } from "@/models";
 import { VehicleSchema } from "@/models";
+import type { IFleetService } from "../interfaces";
 import { supabase } from "./client";
 
-export async function listFleet(): Promise<Vehicle[]> {
+export const listFleet: IFleetService["listFleet"] = async () => {
 	const { data, error } = await supabase.from("vehicles").select("*");
 	if (error) throw error;
 
@@ -12,9 +12,9 @@ export async function listFleet(): Promise<Vehicle[]> {
 		throw new Error("Vehicles inválidos desde Supabase");
 	}
 	return parsed.data;
-}
+};
 
-export async function getVehicleById(id: string): Promise<Vehicle | null> {
+export const getVehicleById: IFleetService["getVehicleById"] = async (id) => {
 	const { data, error } = await supabase
 		.from("vehicles")
 		.select("*")
@@ -35,4 +35,4 @@ export async function getVehicleById(id: string): Promise<Vehicle | null> {
 		throw new Error("Vehicle inválido desde Supabase");
 	}
 	return parsed.data;
-}
+};

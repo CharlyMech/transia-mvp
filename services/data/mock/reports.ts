@@ -1,17 +1,17 @@
 import raw from "@/assets/mocks/reports.json";
-import type { Report } from "@/models";
 import { ReportSchema } from "@/models";
+import type { IReportService } from "../interfaces";
 
-export async function listReports(): Promise<Report[]> {
+export const listReports: IReportService["listReports"] = async () => {
 	const parsed = ReportSchema.array().safeParse(raw);
 	if (!parsed.success) {
 		console.error(parsed.error);
 		throw new Error("Reports mock inválidos");
 	}
 	return parsed.data;
-}
+};
 
-export async function getReportById(id: string): Promise<Report | null> {
+export const getReportById: IReportService["getReportById"] = async (id) => {
 	const reports = await listReports();
 	return reports.find((report) => report.id === id) || null;
-}
+};

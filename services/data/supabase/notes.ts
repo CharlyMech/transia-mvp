@@ -1,8 +1,9 @@
-import type { Note, NoteFormData } from "@/models/note";
+import type { Note } from "@/models/note";
 import { NoteSchema } from "@/models/note";
+import type { INoteService } from "../interfaces";
 import { supabase } from "./client";
 
-export async function listNotes(): Promise<Note[]> {
+export const listNotes: INoteService["listNotes"] = async () => {
 	const { data, error } = await supabase.from("notes").select("*");
 	if (error) throw error;
 
@@ -12,9 +13,9 @@ export async function listNotes(): Promise<Note[]> {
 		throw new Error("Notes inválidas desde Supabase");
 	}
 	return parsed.data;
-}
+};
 
-export async function getNoteById(id: string): Promise<Note | null> {
+export const getNoteById: INoteService["getNoteById"] = async (id) => {
 	const { data, error } = await supabase
 		.from("notes")
 		.select("*")
@@ -35,9 +36,9 @@ export async function getNoteById(id: string): Promise<Note | null> {
 		throw new Error("Note inválida desde Supabase");
 	}
 	return parsed.data;
-}
+};
 
-export async function createNote(noteData: NoteFormData): Promise<Note> {
+export const createNote: INoteService["createNote"] = async (noteData) => {
 	const newNote = {
 		text: noteData.text,
 		createdBy: noteData.createdBy,
@@ -59,9 +60,9 @@ export async function createNote(noteData: NoteFormData): Promise<Note> {
 	}
 
 	return parsed.data;
-}
+};
 
-export async function updateNote(id: string, text: string): Promise<Note> {
+export const updateNote: INoteService["updateNote"] = async (id, text) => {
 	const { data, error } = await supabase
 		.from("notes")
 		.update({
@@ -81,10 +82,10 @@ export async function updateNote(id: string, text: string): Promise<Note> {
 	}
 
 	return parsed.data;
-}
+};
 
-export async function deleteNote(id: string): Promise<void> {
+export const deleteNote: INoteService["deleteNote"] = async (id) => {
 	const { error } = await supabase.from("notes").delete().eq("id", id);
 
 	if (error) throw error;
-}
+};

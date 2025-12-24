@@ -10,13 +10,8 @@ const VALIDATION_MESSAGES = {
 };
 
 export enum MaintenanceType {
-	SCHEDULED_MAINTENANCE = "Mantenimiento programado", // Regular maintenance
-	WORKSHOP_APPOINTMENT = "Cita de taller", // Workshop appointment
-	ITV = "ITV", // Technical vehicle inspection
-	TIRE_CHANGE = "Cambio de neumáticos",
-	OIL_CHANGE = "Cambio de aceite",
-	BRAKE_SERVICE = "Servicio de frenos",
-	REPAIR = "Reparación",
+	ITV = "ITV",
+	MAINTENANCE = "Mantenimiento",
 	OTHER = "Otro",
 }
 
