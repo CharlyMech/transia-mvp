@@ -95,5 +95,95 @@
 		"text": "Media jornada por cita médica.",
 		"createdBy": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
 		"createdAt": "2025-11-08T12:05:00.000Z"
+	},
+	{
+		"id": "aa1a2a3a-4a5a-4a6a-7a8a-9a0abacadaea",
+		"text": "Cambio de aceite y filtros completado. Todo en perfecto estado.",
+		"createdBy": "b8d2c3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e",
+		"createdAt": "2025-09-15T16:30:00.000Z"
+	},
+	{
+		"id": "bb1b2b3b-4b5b-4b6b-7b8b-9b0bbcbdbebb",
+		"text": "ITV pasada sin observaciones. Próxima revisión en enero de 2026.",
+		"createdBy": "ee5a4b6a-43c4-4e1a-9d1c-12f03a47bbf5",
+		"createdAt": "2025-01-20T11:15:00.000Z"
+	},
+	{
+		"id": "cc1c2c3c-4c5c-4c6c-7c8c-9c0ccccdcecc",
+		"text": "Luz intermitente en sistema de iluminación. Pendiente de diagnóstico.",
+		"createdBy": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"createdAt": "2025-11-15T14:20:00.000Z"
+	},
+	{
+		"id": "dd1d2d3d-4d5d-4d6d-7d8d-9d0dddddeddd",
+		"text": "Aceite sintético 5W-30 utilizado. Próximo cambio a los 35.000 km.",
+		"createdBy": "b8d2c3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e",
+		"createdAt": "2025-10-10T12:45:00.000Z"
+	},
+	{
+		"id": "ee1e2e3e-4e5e-4e6e-7e8e-9e0eeeeefee",
+		"text": "Ruidos en sistema de frenos. Vehículo en taller para revisión urgente.",
+		"createdBy": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"createdAt": "2025-11-22T09:15:00.000Z"
+	},
+	{
+		"id": "ff1f2f3f-4f5f-4f6f-7f8f-9f0ffffff0ff",
+		"text": "ITV favorable sin observaciones. Certificado adjunto.",
+		"createdBy": "ee5a4b6a-43c4-4e1a-9d1c-12f03a47bbf5",
+		"createdAt": "2025-04-25T11:30:00.000Z"
+	},
+	{
+		"id": "aa2a3a4a-5a6a-4a7a-8a9a-0abacadaeafa",
+		"text": "Desgaste considerable en neumáticos traseros. Programar reemplazo urgente.",
+		"createdBy": "b8d2c3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e",
+		"createdAt": "2025-11-18T16:10:00.000Z"
+	},
+	{
+		"id": "bb2b3b4b-5b6b-4b7b-8b9b-0bbcbdbebfbb",
+		"text": "Colisión menor en aparcamiento. Reparación de parachoques cubierta parcialmente por seguro.",
+		"createdBy": "f4c3b2a1-e0d9-c8b7-a6f5-e4d3c2b1a0f9",
+		"createdAt": "2025-11-20T14:30:00.000Z"
+	},
+	{
+		"id": "cc2c3c4c-5c6c-4c7c-8c9c-0ccccdcecfcc",
+		"text": "ITV no superada por fallo en sistema de emisiones. Reparación del escape programada.",
+		"createdBy": "a3f9a2d2-8c11-4b8a-8bbd-8bce9c6f6a11",
+		"createdAt": "2025-11-12T09:00:00.000Z"
+	},
+	{
+		"id": "dd2d3d4d-5d6d-4d7d-8d9d-0ddddedfdddd",
+		"text": "Accidente en carretera. Parte amistoso firmado. Estimación de reparación: 7-10 días.",
+		"createdBy": "c1d0e9f8-a7b6-c5d4-e3f2-a1b0c9d8e7f6",
+		"createdAt": "2025-11-22T10:00:00.000Z"
+	},
+	{
+		"id": "ee2e3e4e-5e6e-4e7e-8e9e-0eeeeef0eeee",
+		"text": "Revisión de 50.000 km programada según manual del fabricante.",
+		"createdBy": "b8d2c3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e",
+		"createdAt": "2025-11-15T08:00:00.000Z"
+	},
+	{
+		"id": "ff2f3f4f-5f6f-4f7f-8f9f-0ffffff1ffff",
+		"text": "Mantenimiento preventivo completado. Todos los sistemas funcionando correctamente.",
+		"createdBy": "e3f2a1b0-c9d8-e7f6-a5b4-c3d2e1f0a9b8",
+		"createdAt": "2025-10-15T12:00:00.000Z"
+	},
+	{
+		"id": "aa3a4a5a-6a7a-4a8a-9a0a-bacadaeafaaa",
+		"text": "Rotura de retrovisores por accidente. Pendiente de valoración completa.",
+		"createdBy": "a5b4c3d2-e1f0-a9b8-c7d6-e5f4a3b2c1d0",
+		"createdAt": "2025-11-20T08:00:00.000Z"
+	},
+	{
+		"id": "bb3b4b5b-6b7b-4b8b-9b0b-bcbdbebfbabb",
+		"text": "ITV programada para vehículo nuevo (primer año). Cita confirmada.",
+		"createdBy": "a9b8c7d6-e5f4-a3b2-c1d0-e9f8a7b6c5d4",
+		"createdAt": "2025-11-25T09:00:00.000Z"
+	},
+	{
+		"id": "cc3c4c5c-6c7c-4c8c-9c0c-ccdcecfccccc",
+		"text": "Limpieza profunda y desinfección de cabina completada. Sistema de aire acondicionado tratado.",
+		"createdBy": "b8d2c3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e",
+		"createdAt": "2025-08-15T15:00:00.000Z"
 	}
 ]
