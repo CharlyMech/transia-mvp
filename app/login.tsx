@@ -186,7 +186,7 @@ export default function LoginScreen() {
 									});
 								}}
 							>
-								<Text style={styles.label}>Teléfono, Email o DNI/NIE</Text>
+								<Text style={styles.label}>Teléfono o Email</Text>
 								<View style={styles.inputWrapper}>
 									<TextInput
 										ref={identifierInputRef}
