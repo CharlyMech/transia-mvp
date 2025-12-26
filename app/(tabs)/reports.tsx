@@ -13,6 +13,8 @@ import { ElevatedButton } from '@/components/ElevatedButton';
 import { StatusLabel } from '@/components/StatusLabel';
 import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
+import { useDriversStore } from '@/stores/useDriversStore';
+import { useFleetStore } from '@/stores/useFleetStore';
 import { useReportsStore } from '@/stores/useReportsStore';
 import { getReportActiveStatusIcon, getReportTypeIcon } from '@/utils/reportsUtils';
 
@@ -30,12 +32,26 @@ export default function ReportsScreen() {
 	const deleteReport = useReportsStore((state) => state.deleteReport);
 	const updateReport = useReportsStore((state) => state.updateReport);
 
+	const vehicles = useFleetStore((state) => state.vehicles);
+	const drivers = useDriversStore((state) => state.drivers);
+
+	// Helper functions to get vehicle and driver info
+	const getVehiclePlate = (vehicleId: string): string => {
+		const vehicle = vehicles.find(v => v.id === vehicleId);
+		return vehicle?.plateNumber || vehicleId;
+	};
+
+	const getDriverName = (driverId: string): string => {
+		const driver = drivers.find(d => d.id === driverId);
+		return driver ? `${driver.name} ${driver.surnames}` : driverId;
+	};
+
 	// Search and filter states
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
 	const [filterHasLocation, setFilterHasLocation] = useState<boolean | null>(null);
 	const [filterTitles, setFilterTitles] = useState<Set<string>>(new Set());
-	const [filterActive, setFilterActive] = useState<boolean | null>(null);
+	const [filterActive, setFilterActive] = useState<boolean | null>(true);
 	const [sortBy, setSortBy] = useState<SortOption>('createdAt');
 	const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 	const [isSearching, setIsSearching] = useState(false);
@@ -370,7 +386,7 @@ export default function ReportsScreen() {
 									]}
 									onPress={() => setFilterActive(filterActive === true ? null : true)}
 								>
-									<CheckCheck size={16} color={lightTheme.colors.onSurface} />
+									<FileClock size={16} color={lightTheme.colors.onSurface} />
 									<Text
 										style={[
 											styles.statusChipText,
@@ -389,7 +405,7 @@ export default function ReportsScreen() {
 									]}
 									onPress={() => setFilterActive(filterActive === false ? null : false)}
 								>
-									<FileClock size={16} color={lightTheme.colors.onSurface} />
+									<CheckCheck size={16} color={lightTheme.colors.onSurface} />
 									<Text
 										style={[
 											styles.statusChipText,
@@ -568,7 +584,15 @@ export default function ReportsScreen() {
 									numberOfLines={1}
 									ellipsizeMode="tail"
 								>
-									Vehículo: {item.vehicleId}
+									Vehículo: {getVehiclePlate(item.vehicleId)}
+								</Text>
+
+								<Text
+									style={styles.reportDriver}
+									numberOfLines={1}
+									ellipsizeMode="tail"
+								>
+									Conductor: {getDriverName(item.driverId)}
 								</Text>
 
 								<View style={styles.reportFooter}>
@@ -784,7 +808,7 @@ const styles = StyleSheet.create({
 		minWidth: 190,
 		flexGrow: 1,
 		flexShrink: 1,
-		maxWidth: 280,
+		flexBasis: 0,
 	},
 	statusChipText: {
 		color: lightTheme.colors.onSurface,
@@ -905,7 +929,7 @@ const styles = StyleSheet.create({
 		gap: spacing.sm,
 	},
 	reportCard: {
-		height: 100,
+		height: 115,
 	},
 	cardContent: {
 		flex: 1,
@@ -926,6 +950,11 @@ const styles = StyleSheet.create({
 		fontWeight: "600"
 	},
 	reportVehicle: {
+		fontSize: typography.bodyMedium,
+		fontWeight: "400",
+		opacity: 0.7
+	},
+	reportDriver: {
 		fontSize: typography.bodyMedium,
 		fontWeight: "400",
 		opacity: 0.7
