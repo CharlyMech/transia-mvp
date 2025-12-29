@@ -2,17 +2,83 @@ import { Card } from "@/components/Card";
 import { IconPlaceholder } from "@/components/IconPlaceholder";
 import { lightTheme, roundness, spacing, typography } from "@/constants/theme"; // Ajusta la ruta según tu estructura
 import { useAuthStore } from "@/stores/useAuthStore";
+import * as Notifications from 'expo-notifications';
 import { router } from "expo-router";
 import { ChevronRight, LogOut, UserRound } from "lucide-react-native";
-import React, { useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Alert, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Dropdown } from 'react-native-element-dropdown';
+import { Switch } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SettingsScreen() {
 	const [theme, setTheme] = useState<string>('light');
 	const [language, setLanguage] = useState<string>('es');
+	const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
 	const { user, logout } = useAuthStore();
+
+	useEffect(() => {
+		checkNotificationPermissions();
+	}, []);
+
+	const checkNotificationPermissions = async () => {
+		const { status } = await Notifications.getPermissionsAsync();
+		setNotificationsEnabled(status === 'granted');
+	};
+
+	const handleNotificationToggle = async (value: boolean) => {
+		if (value) {
+			// Activate notifications
+			const { status: existingStatus } = await Notifications.getPermissionsAsync();
+
+			if (existingStatus === 'granted') {
+				setNotificationsEnabled(true);
+			} else if (existingStatus === 'undetermined') {
+				// First time, request permissions
+				const { status: newStatus } = await Notifications.requestPermissionsAsync();
+				setNotificationsEnabled(newStatus === 'granted');
+
+				if (newStatus !== 'granted') {
+					Alert.alert(
+						'Permisos denegados',
+						'No se pudieron activar las notificaciones. Por favor, actívalas desde la configuración de tu dispositivo.',
+						[
+							{ text: 'Cancelar', style: 'cancel' },
+							{ text: 'Abrir ajustes', onPress: () => openAppSettings() }
+						]
+					);
+				}
+			} else {
+				// Previous permissions denied, redirect to settings
+				Alert.alert(
+					'Notificaciones desactivadas',
+					'Para recibir notificaciones, debes activarlas desde la configuración de tu dispositivo.',
+					[
+						{ text: 'Cancelar', style: 'cancel' },
+						{ text: 'Abrir ajustes', onPress: () => openAppSettings() }
+					]
+				);
+			}
+		} else {
+			// User wants to disable notifications
+			Alert.alert(
+				'Desactivar notificaciones',
+				'Para desactivar las notificaciones, debes hacerlo desde la configuración de tu dispositivo.',
+				[
+					{ text: 'Cancelar', style: 'cancel' },
+					{ text: 'Abrir ajustes', onPress: () => openAppSettings() }
+				]
+			);
+		}
+	};
+
+	const openAppSettings = () => {
+		if (Platform.OS === 'ios') {
+			Linking.openURL('app-settings:');
+		} else {
+			Linking.openSettings();
+		}
+	};
 
 	const themeItems = [
 		{ label: "Claro", value: "light", disabled: false },
@@ -153,20 +219,15 @@ export default function SettingsScreen() {
 						backgroundColor={lightTheme.colors.surface}
 					>
 						<View style={styles.cardContent}>
-							<Pressable
-								onPress={() => router.push("/settings/notifications")}
-								style={({ pressed }) => [
-									styles.rowContainer,
-									pressed && styles.rowPressed,
-								]}
-							>
-								{({ pressed }) => (
-									<View style={styles.row}>
-										<Text style={styles.rowText}>Notificaciones</Text>
-										<ChevronRight size={20} style={styles.rowIcon} />
-									</View>
-								)}
-							</Pressable>
+							<View style={[styles.row, { paddingVertical: 0 }]}>
+								<Text style={styles.rowText}>Notificaciones</Text>
+								<Switch
+									value={notificationsEnabled}
+									onValueChange={handleNotificationToggle}
+									color={lightTheme.colors.primary}
+									style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
+								/>
+							</View>
 							<View style={styles.separator} />
 							<View style={styles.row}>
 								<Text style={styles.rowText}>Tema</Text>
