@@ -1,4 +1,5 @@
-import { lightTheme, roundness, spacing } from '@/constants/theme';
+import { roundness, spacing } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import React from 'react';
 import {
 	GestureResponderEvent,
@@ -40,14 +41,19 @@ export function Card({
 	rounded = roundness.sm,
 	border = false,
 	borderWidth = 1,
-	borderColor = lightTheme.colors.outline,
+	borderColor,
 	shadow = 'small',
-	backgroundColor = lightTheme.colors.primary,
+	backgroundColor,
 	style,
 	disabled = false,
 }: CardProps) {
+	const { theme } = useAppTheme();
 	const scale = useSharedValue(1);
 	const opacity = useSharedValue(1);
+
+	// Default values derived from theme
+	const finalBackgroundColor = backgroundColor || theme.colors.surface;
+	const finalBorderColor = borderColor || theme.colors.outline;
 
 	const isInteractive = !disabled && (onPress || onLongPress);
 
@@ -81,7 +87,7 @@ export function Card({
 				return {};
 			case 'small':
 				return {
-					shadowColor: lightTheme.colors.shadow,
+					shadowColor: theme.colors.shadow,
 					shadowOffset: { width: 0, height: 1 },
 					shadowOpacity: 0.08,
 					shadowRadius: 2,
@@ -89,7 +95,7 @@ export function Card({
 				};
 			case 'medium':
 				return {
-					shadowColor: lightTheme.colors.shadow,
+					shadowColor: theme.colors.shadow,
 					shadowOffset: { width: 0, height: 2 },
 					shadowOpacity: 0.12,
 					shadowRadius: 4,
@@ -97,7 +103,7 @@ export function Card({
 				};
 			case 'large':
 				return {
-					shadowColor: lightTheme.colors.shadow,
+					shadowColor: theme.colors.shadow,
 					shadowOffset: { width: 0, height: 4 },
 					shadowOpacity: 0.16,
 					shadowRadius: 8,
@@ -109,14 +115,14 @@ export function Card({
 	};
 
 	const cardStyle: ViewStyle = {
-		backgroundColor,
+		backgroundColor: finalBackgroundColor,
 		borderRadius: rounded,
 		paddingHorizontal: paddingX,
 		paddingVertical: paddingY,
 		width: '100%',
 		...(border && {
 			borderWidth,
-			borderColor,
+			borderColor: finalBorderColor,
 		}),
 		...getShadowStyle(),
 	};

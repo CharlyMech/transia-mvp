@@ -2,19 +2,21 @@ import { ActionsModal } from '@/components/ActionsModal';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { ElevatedButton } from '@/components/ElevatedButton';
 import { ReportForm } from '@/components/forms/ReportForm';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import type { ReportFormData } from '@/models/report';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useNotesStore } from '@/stores/useNotesStore';
 import { useReportsStore } from '@/stores/useReportsStore';
 import { router } from 'expo-router';
 import { AlertCircle, ArrowLeft, CheckCircle2 } from 'lucide-react-native'; //ActivityIndicator
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, BackHandler, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function EditReportScreen() {
+	const { theme, isDark } = useAppTheme();
 	const [loading, setLoading] = useState(false);
 	const [hasChanges, setHasChanges] = useState(false);
 	const [loadingNote, setLoadingNote] = useState(false);
@@ -32,6 +34,7 @@ export default function EditReportScreen() {
 	const user = useAuthStore((state) => state.user);
 
 	const insets = useSafeAreaInsets();
+	const styles = useMemo(() => getStyles(theme), [theme]);
 
 	// Fetch the note if the report has one
 	useEffect(() => {
@@ -137,7 +140,7 @@ export default function EditReportScreen() {
 	if (reportError) {
 		return (
 			<View style={[styles.container, styles.centered]}>
-				<AlertCircle size={48} color={lightTheme.colors.error} />
+				<AlertCircle size={48} color={theme.colors.error} />
 				<Text style={styles.errorText}>Error: {reportError}</Text>
 			</View>
 		);
@@ -146,7 +149,7 @@ export default function EditReportScreen() {
 	if (!currentReport) {
 		return (
 			<View style={[styles.container, styles.centered]}>
-				<AlertCircle size={48} color={lightTheme.colors.error} />
+				<AlertCircle size={48} color={theme.colors.error} />
 				<Text style={styles.errorText}>Reporte no encontrado</Text>
 			</View>
 		);
@@ -155,7 +158,7 @@ export default function EditReportScreen() {
 	if (!user) {
 		return (
 			<View style={[styles.container, styles.centered]}>
-				<AlertCircle size={48} color={lightTheme.colors.error} />
+				<AlertCircle size={48} color={theme.colors.error} />
 				<Text style={styles.errorText}>Usuario no autenticado</Text>
 			</View>
 		);
@@ -165,7 +168,7 @@ export default function EditReportScreen() {
 	if (loadingNote && currentReport.noteId) {
 		return (
 			<View style={[styles.container, styles.centered]}>
-				<ActivityIndicator size="large" color={lightTheme.colors.primary} />
+				<ActivityIndicator size="large" color={theme.colors.primary} />
 				<Text style={styles.loadingText}>Cargando nota...</Text>
 			</View>
 		);
@@ -183,17 +186,17 @@ export default function EditReportScreen() {
 	return (
 		<View style={styles.container}>
 			<StatusBar
-				barStyle="dark-content"
-				backgroundColor={lightTheme.colors.background}
+				barStyle={isDark ? "light-content" : "dark-content"}
+				backgroundColor={theme.colors.background}
 				translucent={false}
 			/>
 
 			<View style={[styles.floatingButtonsContainer, { paddingTop: insets.top + spacing.sm }]}>
 				<ElevatedButton
-					backgroundColor={lightTheme.colors.primary}
+					backgroundColor={theme.colors.primary}
 					icon={ArrowLeft}
 					iconSize={22}
-					iconColor={lightTheme.colors.onPrimary}
+					iconColor={theme.colors.onPrimary}
 					paddingX={spacing.sm}
 					paddingY={spacing.sm}
 					rounded={roundness.full}
@@ -240,7 +243,7 @@ export default function EditReportScreen() {
 			>
 				<View style={styles.successContent}>
 					<View style={styles.iconContainer}>
-						<CheckCircle2 size={56} color={lightTheme.colors.primary} />
+						<CheckCircle2 size={56} color={theme.colors.primary} />
 					</View>
 
 					<Text style={styles.successTitle}>¡Reporte actualizado!</Text>
@@ -260,10 +263,10 @@ export default function EditReportScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	floatingButtonsContainer: {
 		position: 'absolute',
@@ -296,40 +299,40 @@ const styles = StyleSheet.create({
 	},
 	errorText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.error,
+		color: theme.colors.error,
 		textAlign: 'center',
 	},
 	loadingText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		textAlign: 'center',
 		marginTop: spacing.md,
 	},
 	permissionTitle: {
 		fontSize: typography.headlineMedium,
 		fontWeight: '700',
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 		textAlign: 'center',
 		marginTop: spacing.md,
 	},
 	permissionText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		textAlign: 'center',
 		lineHeight: 24,
 	},
 	noticeContainer: {
-		backgroundColor: lightTheme.colors.secondaryContainer,
+		backgroundColor: theme.colors.secondaryContainer,
 		padding: spacing.md,
 		marginHorizontal: spacing.md,
 		marginBottom: spacing.sm,
 		borderRadius: roundness.sm,
 		borderLeftWidth: 4,
-		borderLeftColor: lightTheme.colors.secondary,
+		borderLeftColor: theme.colors.secondary,
 	},
 	noticeText: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSecondaryContainer,
+		color: theme.colors.onSecondaryContainer,
 		lineHeight: 20,
 	},
 	successContent: {
@@ -344,12 +347,12 @@ const styles = StyleSheet.create({
 	successTitle: {
 		fontSize: typography.headlineSmall,
 		fontWeight: '700',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		textAlign: 'center',
 	},
 	successMessage: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		textAlign: 'center',
 		lineHeight: 22,
 	},
@@ -365,11 +368,11 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 	primaryButton: {
-		backgroundColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primary,
 	},
 	primaryButtonText: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onPrimary,
+		color: theme.colors.onPrimary,
 	},
 });

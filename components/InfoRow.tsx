@@ -1,4 +1,6 @@
-import { lightTheme, spacing, typography } from "@/constants/theme";
+import { spacing, typography } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/useAppTheme";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 
@@ -10,6 +12,9 @@ type InfoRowProps = {
 };
 
 export function InfoRow({ label, value, labelFlex = 1, valueFlex = 1 }: InfoRowProps) {
+	const { theme } = useAppTheme();
+	const styles = useMemo(() => getStyles(theme), [theme]);
+
 	return (
 		<View style={styles.infoRow}>
 			<Text style={[styles.infoLabel, { flex: labelFlex }]}>{label}</Text>
@@ -18,7 +23,7 @@ export function InfoRow({ label, value, labelFlex = 1, valueFlex = 1 }: InfoRowP
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	infoRow: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
@@ -27,12 +32,12 @@ const styles = StyleSheet.create({
 	},
 	infoLabel: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	infoValue: {
 		fontSize: typography.bodyMedium,
 		fontWeight: '500',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		textAlign: 'right',
 	},
 })

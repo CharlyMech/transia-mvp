@@ -1,4 +1,5 @@
-import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
+import { roundness, spacing, typography } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { AlertTriangle, X } from "lucide-react-native";
 import {
 	Modal,
@@ -31,6 +32,8 @@ export function ConfirmationModal({
 	cancelText = "Cancelar",
 	...props
 }: ConfirmationModalProps) {
+	const { theme } = useAppTheme();
+	const styles = createStyles(theme);
 
 	return (
 		<Modal
@@ -45,17 +48,17 @@ export function ConfirmationModal({
 				<Pressable style={styles.content} onPress={(e) => e.stopPropagation()}>
 					<Card
 						shadow="medium"
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={theme.colors.surface}
 						paddingX={0}
 						paddingY={0}
 					>
 						<Pressable style={styles.closeButton} onPress={onClose}>
-							<X size={24} color={lightTheme.colors.onSurface} />
+							<X size={24} color={theme.colors.onSurface} />
 						</Pressable>
 
 						<View style={styles.body}>
 							<View style={styles.iconContainer}>
-								<AlertTriangle size={56} color={lightTheme.colors.error} />
+								<AlertTriangle size={56} color={theme.colors.error} />
 							</View>
 
 							<Text style={styles.title}>{title}</Text>
@@ -85,10 +88,10 @@ export function ConfirmationModal({
 	);
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
 	overlay: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.backdrop,
+		backgroundColor: theme.colors.backdrop,
 		justifyContent: "center",
 		alignItems: "center",
 		padding: spacing.md,
@@ -117,12 +120,12 @@ const styles = StyleSheet.create({
 	title: {
 		fontSize: typography.headlineSmall,
 		fontWeight: "700",
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		textAlign: 'center',
 	},
 	message: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		textAlign: 'center',
 		lineHeight: 22,
 	},
@@ -141,19 +144,19 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 	cancelButton: {
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	cancelButtonText: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 	},
 	confirmButton: {
-		backgroundColor: lightTheme.colors.error,
+		backgroundColor: theme.colors.error,
 	},
 	confirmButtonText: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onError,
+		color: theme.colors.onError,
 	},
 });

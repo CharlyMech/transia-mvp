@@ -1,21 +1,24 @@
 import { Card } from "@/components/Card";
 import { IconPlaceholder } from "@/components/IconPlaceholder";
-import { lightTheme, roundness, spacing, typography } from "@/constants/theme"; // Ajusta la ruta según tu estructura
+import { roundness, spacing, typography } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { useAuthStore } from "@/stores/useAuthStore";
 import * as Notifications from 'expo-notifications';
 import { router } from "expo-router";
 import { ChevronRight, LogOut, UserRound } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Alert, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Dropdown } from 'react-native-element-dropdown';
 import { Switch } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SettingsScreen() {
-	const [theme, setTheme] = useState<string>('light');
+	const { theme: appTheme, mode: themeMode, setTheme: setAppTheme } = useAppTheme();
 	const [language, setLanguage] = useState<string>('es');
 	const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
 	const { user, logout } = useAuthStore();
+
+	const styles = useMemo(() => getStyles(appTheme), [appTheme]);
 
 	useEffect(() => {
 		checkNotificationPermissions();
@@ -83,7 +86,7 @@ export default function SettingsScreen() {
 	const themeItems = [
 		{ label: "Claro", value: "light", disabled: false },
 		{ label: "Oscuro", value: "dark", disabled: false },
-		{ label: "Sistema", value: "system", disabled: true },
+		{ label: "Sistema", value: "system", disabled: false },
 	];
 
 	const languageItems = [
@@ -107,7 +110,7 @@ export default function SettingsScreen() {
 							paddingY={spacing.sm}
 							rounded={roundness.sm}
 							shadow='none'
-							backgroundColor={lightTheme.colors.surface}
+							backgroundColor={appTheme.colors.surface}
 							onPress={() => router.push(`/drivers/${user.id}`)}
 						>
 							<View style={styles.loggedUserContainer}>
@@ -122,11 +125,11 @@ export default function SettingsScreen() {
 										paddingY={0}
 										rounded={roundness.xs}
 										shadow='none'
-										backgroundColor={`${lightTheme.colors.primary}CC`}
+										backgroundColor={`${appTheme.colors.primary}CC`}
 										style={styles.userImage}
 									>
 										<IconPlaceholder
-											color={lightTheme.colors.onPrimary}
+											color={appTheme.colors.onPrimary}
 											icon={UserRound}
 											size={80}
 										/>
@@ -156,7 +159,7 @@ export default function SettingsScreen() {
 						paddingY={spacing.md}
 						rounded={roundness.sm}
 						shadow='none'
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={appTheme.colors.surface}
 					>
 						<View style={styles.cardContent}>
 							<Pressable
@@ -216,7 +219,7 @@ export default function SettingsScreen() {
 						paddingY={spacing.md}
 						rounded={roundness.sm}
 						shadow='none'
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={appTheme.colors.surface}
 					>
 						<View style={styles.cardContent}>
 							<View style={[styles.row, { paddingVertical: 0 }]}>
@@ -224,7 +227,7 @@ export default function SettingsScreen() {
 								<Switch
 									value={notificationsEnabled}
 									onValueChange={handleNotificationToggle}
-									color={lightTheme.colors.primary}
+									color={appTheme.colors.primary}
 									style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
 								/>
 							</View>
@@ -236,37 +239,36 @@ export default function SettingsScreen() {
 									labelField="label"
 									valueField="value"
 									placeholder="Selecciona un tema"
-									value={theme}
+									value={themeMode}
 									selectedTextStyle={styles.selectedTextStyle}
 									containerStyle={styles.containerStyle}
 									itemContainerStyle={styles.itemContainerStyle}
-									activeColor={lightTheme.colors.primaryContainer}
+									activeColor={appTheme.colors.primaryContainer}
 									onChange={item => {
 										if (!item.disabled) {
-											setTheme(item.value);
+											setAppTheme(item.value as "light" | "dark" | "system");
 										}
 									}}
 									style={styles.dropdown}
 									renderItem={(item) => {
-										// TODO -> handle language status change //! This is currently not working!
-										if (item.disabled) {
-											return (
-												<View style={[styles.dropdownItem, styles.dropdownItemDisabled]}>
-													<Text style={[styles.itemTextStyle, styles.itemTextDisabled]}>
-														{item.label}
-													</Text>
-												</View>
-											);
-										}
+										const isDisabled = item.disabled;
 										return (
-											<TouchableOpacity
-												style={styles.dropdownItem}
-												onPress={() => setTheme(item.value)}
+											<View
+												style={[
+													styles.dropdownItem,
+													isDisabled && styles.dropdownItemDisabled
+												]}
+												pointerEvents={isDisabled ? 'none' : 'auto'}
 											>
-												<Text style={styles.itemTextStyle}>
+												<Text
+													style={[
+														styles.itemTextStyle,
+														isDisabled && styles.itemTextDisabled
+													]}
+												>
 													{item.label}
 												</Text>
-											</TouchableOpacity>
+											</View>
 										);
 									}}
 								/>
@@ -284,7 +286,7 @@ export default function SettingsScreen() {
 									selectedTextStyle={styles.selectedTextStyle}
 									containerStyle={styles.containerStyle}
 									itemContainerStyle={styles.itemContainerStyle}
-									activeColor={lightTheme.colors.primaryContainer}
+									activeColor={appTheme.colors.primaryContainer}
 									onChange={item => {
 										if (!item.disabled) {
 											setLanguage(item.value);
@@ -292,25 +294,24 @@ export default function SettingsScreen() {
 									}}
 									style={styles.dropdown}
 									renderItem={(item) => {
-										// TODO -> handle language status change //! This is currently not working!
-										if (item.disabled) {
-											return (
-												<View style={[styles.dropdownItem, styles.dropdownItemDisabled]}>
-													<Text style={[styles.itemTextStyle, styles.itemTextDisabled]}>
-														{item.label}
-													</Text>
-												</View>
-											);
-										}
+										const isDisabled = item.disabled;
 										return (
-											<TouchableOpacity
-												style={styles.dropdownItem}
-												onPress={() => setLanguage(item.value)}
+											<View
+												style={[
+													styles.dropdownItem,
+													isDisabled && styles.dropdownItemDisabled
+												]}
+												pointerEvents={isDisabled ? 'none' : 'auto'}
 											>
-												<Text style={styles.itemTextStyle}>
+												<Text
+													style={[
+														styles.itemTextStyle,
+														isDisabled && styles.itemTextDisabled
+													]}
+												>
 													{item.label}
 												</Text>
-											</TouchableOpacity>
+											</View>
 										);
 									}}
 								/>
@@ -326,7 +327,7 @@ export default function SettingsScreen() {
 						paddingY={spacing.md}
 						rounded={roundness.sm}
 						shadow='none'
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={appTheme.colors.surface}
 					>
 						<View style={styles.cardContent}>
 
@@ -387,17 +388,18 @@ export default function SettingsScreen() {
 						<Text style={styles.logoutButtonText}>
 							Cerrar sesión
 						</Text>
-						<LogOut size={18} color={lightTheme.colors.onPrimary} />
+						<LogOut size={18} color={appTheme.colors.onPrimary} />
 					</TouchableOpacity>
 				</View>
 			</ScrollView>
 		</SafeAreaView>
 	);
 };
-const styles = StyleSheet.create({
+
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	scrollContainer: {
 		paddingHorizontal: spacing.sm,
@@ -407,7 +409,7 @@ const styles = StyleSheet.create({
 		fontSize: typography.headlineLarge,
 		fontWeight: "600",
 		marginBottom: spacing.md,
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 	},
 	section: {
 		marginBottom: spacing.md,
@@ -416,7 +418,7 @@ const styles = StyleSheet.create({
 		fontSize: typography.titleMedium,
 		fontWeight: "500",
 		marginBottom: spacing.sm,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	loggedUserContainer: {
 		flexDirection: 'row',
@@ -442,30 +444,30 @@ const styles = StyleSheet.create({
 	userName: {
 		fontSize: typography.titleMedium,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	userStatus: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	userEmail: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	cardContent: {
 		gap: spacing.sm,
 	},
 	separator: {
 		height: 1,
-		backgroundColor: lightTheme.colors.outline,
+		backgroundColor: theme.colors.outline,
 		opacity: 0.5
 	},
 	rowContainer: {
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderRadius: roundness.xs,
 	},
 	rowPressed: {
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	row: {
 		width: "100%",
@@ -476,10 +478,10 @@ const styles = StyleSheet.create({
 	},
 	rowText: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	rowIcon: {
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		opacity: 0.9,
 	},
 	dropdown: {
@@ -488,25 +490,25 @@ const styles = StyleSheet.create({
 		paddingHorizontal: spacing.sm,
 		borderRadius: roundness.xs,
 		borderWidth: 1,
-		borderColor: lightTheme.colors.outline,
-		backgroundColor: lightTheme.colors.surface,
+		borderColor: theme.colors.outline,
+		backgroundColor: theme.colors.surface,
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	placeholderStyle: {
-		color: lightTheme.colors.primary,
+		color: theme.colors.primary,
 		fontSize: typography.bodySmall,
 	},
 	selectedTextStyle: {
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontSize: typography.bodyMedium,
 	},
 	containerStyle: {
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderRadius: roundness.xs,
 		borderWidth: 1,
-		borderColor: lightTheme.colors.outline,
-		shadowColor: lightTheme.colors.shadow,
+		borderColor: theme.colors.outline,
+		shadowColor: theme.colors.shadow,
 		shadowOffset: {
 			width: 0,
 			height: 2,
@@ -516,10 +518,10 @@ const styles = StyleSheet.create({
 		elevation: 3,
 	},
 	itemContainerStyle: {
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 	},
 	itemTextStyle: {
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontSize: typography.bodyMedium,
 	},
 	dropdownItem: {
@@ -527,10 +529,10 @@ const styles = StyleSheet.create({
 	},
 	dropdownItemDisabled: {
 		opacity: 0.4,
-		backgroundColor: lightTheme.colors.surfaceVariant,
+		backgroundColor: theme.colors.surfaceVariant,
 	},
 	itemTextDisabled: {
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		opacity: 0.5,
 	},
 	footerContainer: {
@@ -549,12 +551,12 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 		paddingHorizontal: spacing.xs,
 		paddingVertical: spacing.xs,
-		backgroundColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primary,
 		borderRadius: roundness.xs,
 		gap: spacing.sm,
 	},
 	logoutButtonText: {
-		color: lightTheme.colors.onPrimary,
+		color: theme.colors.onPrimary,
 		fontSize: typography.labelLarge,
 		fontWeight: "600",
 		textAlign: "center",

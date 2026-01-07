@@ -1,4 +1,5 @@
-import { lightTheme, roundness } from '@/constants/theme';
+import { roundness } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 
@@ -11,10 +12,14 @@ interface SkeletonCardProps {
 
 export function SkeletonCard({
 	height = 80,
-	backgroundColor = lightTheme.colors.surface,
-	shimmerColor = `${lightTheme.colors.shadow}30`,
+	backgroundColor,
+	shimmerColor,
 	borderRadius = roundness.sm,
 }: SkeletonCardProps) {
+	const { theme } = useAppTheme();
+	const bgColor = backgroundColor || theme.colors.surface;
+	const animationColor = shimmerColor || (theme.dark || theme.colors.surface === "#151A15" ? `${theme.colors.onSurface}20` : `${theme.colors.shadow}30`);
+
 	const pulseAnim = useRef(new Animated.Value(0)).current;
 
 	useEffect(() => {
@@ -43,13 +48,13 @@ export function SkeletonCard({
 	});
 
 	return (
-		<View style={[styles.card, { height, backgroundColor, borderRadius }]}>
+		<View style={[styles.card, { height, backgroundColor: bgColor, borderRadius }]}>
 			<Animated.View
 				style={[
 					styles.shimmer,
 					{
 						opacity,
-						backgroundColor: shimmerColor,
+						backgroundColor: animationColor,
 					},
 				]}
 			/>

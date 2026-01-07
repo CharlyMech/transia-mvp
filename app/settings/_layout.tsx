@@ -1,20 +1,26 @@
 import { ElevatedButton } from "@/components/ElevatedButton";
-import { lightTheme, roundness, spacing } from "@/constants/theme";
+import { roundness, spacing } from "@/constants/theme";
 import { router, Stack } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAppTheme } from "@/hooks/useAppTheme";
+
 export default function SettingsLayout() {
+	const { theme } = useAppTheme();
 	const insets = useSafeAreaInsets();
+
+	const styles = useMemo(() => getStyles(theme), [theme]);
+
 	return (
 		<View style={styles.container}>
 			<View style={[styles.floatingButtonContainer, { paddingTop: insets.top + spacing.sm }]}>
 				<ElevatedButton
-					backgroundColor={lightTheme.colors.primary}
+					backgroundColor={theme.colors.primary}
 					icon={ArrowLeft}
 					iconSize={22}
-					iconColor={lightTheme.colors.onPrimary}
+					iconColor={theme.colors.onPrimary}
 					paddingX={spacing.sm}
 					paddingY={spacing.sm}
 					rounded={roundness.full}
@@ -28,7 +34,7 @@ export default function SettingsLayout() {
 					headerShown: false,
 					animation: 'none',
 					contentStyle: {
-						backgroundColor: lightTheme.colors.background,
+						backgroundColor: theme.colors.background,
 					},
 				}}
 			>
@@ -55,10 +61,10 @@ export default function SettingsLayout() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	floatingButtonContainer: {
 		position: 'absolute',

@@ -2,8 +2,9 @@ import { ActionsModal } from '@/components/ActionsModal';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { ElevatedButton } from '@/components/ElevatedButton';
 import { ReportForm } from '@/components/forms/ReportForm';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import type { Report, ReportFormData } from '@/models/report';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useFleetStore } from '@/stores/useFleetStore';
@@ -12,11 +13,12 @@ import { useReportsStore } from '@/stores/useReportsStore';
 import * as Crypto from 'expo-crypto';
 import { router } from 'expo-router';
 import { ArrowLeft, CheckCircle2 } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, BackHandler, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function NewReportScreen() {
+	const { theme, isDark } = useAppTheme();
 	const [loading, setLoading] = useState(false);
 	const [hasChanges, setHasChanges] = useState(false);
 	const [newReportId, setNewReportId] = useState<string | null>(null);
@@ -35,6 +37,7 @@ export default function NewReportScreen() {
 	// );
 
 	const insets = useSafeAreaInsets();
+	const styles = useMemo(() => getStyles(theme), [theme]);
 
 	useEffect(() => {
 		const backHandler = BackHandler.addEventListener(
@@ -139,16 +142,16 @@ export default function NewReportScreen() {
 	return (
 		<View style={styles.container}>
 			<StatusBar
-				barStyle="dark-content"
-				backgroundColor={lightTheme.colors.background}
+				barStyle={isDark ? "light-content" : "dark-content"}
+				backgroundColor={theme.colors.background}
 				translucent={false}
 			/>
 			<View style={[styles.floatingButtonsContainer, { paddingTop: insets.top + spacing.sm }]}>
 				<ElevatedButton
-					backgroundColor={lightTheme.colors.primary}
+					backgroundColor={theme.colors.primary}
 					icon={ArrowLeft}
 					iconSize={22}
-					iconColor={lightTheme.colors.onPrimary}
+					iconColor={theme.colors.onPrimary}
 					paddingX={spacing.sm}
 					paddingY={spacing.sm}
 					rounded={roundness.full}
@@ -197,7 +200,7 @@ export default function NewReportScreen() {
 			>
 				<View style={styles.successContent}>
 					<View style={styles.iconContainer}>
-						<CheckCircle2 size={56} color={lightTheme.colors.primary} />
+						<CheckCircle2 size={56} color={theme.colors.primary} />
 					</View>
 
 					<Text style={styles.successTitle}>Éxito</Text>
@@ -224,10 +227,10 @@ export default function NewReportScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	floatingButtonsContainer: {
 		position: 'absolute',
@@ -258,7 +261,7 @@ const styles = StyleSheet.create({
 	},
 	errorText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.error,
+		color: theme.colors.error,
 	},
 	successContent: {
 		alignItems: 'center',
@@ -272,12 +275,12 @@ const styles = StyleSheet.create({
 	successTitle: {
 		fontSize: typography.headlineSmall,
 		fontWeight: '700',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		textAlign: 'center',
 	},
 	successMessage: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		textAlign: 'center',
 		lineHeight: 22,
 	},
@@ -296,19 +299,19 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 	secondaryButton: {
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	secondaryButtonText: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 	},
 	primaryButton: {
-		backgroundColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primary,
 	},
 	primaryButtonText: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onPrimary,
+		color: theme.colors.onPrimary,
 	},
 });

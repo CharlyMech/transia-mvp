@@ -1,6 +1,7 @@
 import { ActionsModal } from '@/components/ActionsModal';
 import { ReportsTypes } from '@/constants/enums/ReportsTypes';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useImagePicker } from '@/hooks/useImagePicker';
 import { useLocation } from '@/hooks/useLocation';
 import type { Location, ReportFormData } from '@/models/report';
@@ -47,6 +48,7 @@ export function ReportForm({
 	loading = false,
 	isEditMode = false
 }: ReportFormProps) {
+	const { theme } = useAppTheme();
 	const { user } = useAuthStore();
 	const drivers = useDriversStore((state) => state.drivers);
 	const vehicles = useFleetStore((state) => state.vehicles);
@@ -184,6 +186,8 @@ export function ReportForm({
 		setLocationSet(true);
 	};
 
+	const styles = createStyles(theme);
+
 	const handleSubmit = () => {
 		try {
 			// Validate noteText separately (minimum 10 characters)
@@ -224,7 +228,7 @@ export function ReportForm({
 						<Text style={styles.dateText}>
 							{formData.title}
 						</Text>
-						<ChevronDown size={20} color={lightTheme.colors.onSurfaceVariant} />
+						<ChevronDown size={20} color={theme.colors.onSurfaceVariant} />
 					</TouchableOpacity>
 					{errors.title && <Text style={styles.errorText}>{errors.title}</Text>}
 				</View>
@@ -263,7 +267,7 @@ export function ReportForm({
 
 					<View style={styles.infoDisplayContainer}>
 						<View style={styles.infoRow}>
-							<User size={24} color={lightTheme.colors.primary} />
+							<User size={24} color={theme.colors.primary} />
 							<View style={styles.infoContent}>
 								<Text style={styles.infoLabel}>Conductor</Text>
 								<Text style={styles.infoValue}>{fullDriverName}</Text>
@@ -272,7 +276,7 @@ export function ReportForm({
 
 						{/* TODO -> Allow to change the vehicle */}
 						<View style={styles.infoRow}>
-							<Truck size={24} color={lightTheme.colors.primary} />
+							<Truck size={24} color={theme.colors.primary} />
 							<View style={styles.infoContent}>
 								<Text style={styles.infoLabel}>Vehículo</Text>
 								<Text style={styles.infoValue}>{fullVehicleInfo}</Text>
@@ -307,7 +311,7 @@ export function ReportForm({
 							}
 						}}
 						placeholder="Describe la incidencia con el mayor detalle posible..."
-						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						placeholderTextColor={theme.colors.onSurfaceVariant}
 						multiline
 						numberOfLines={6}
 						textAlignVertical="top"
@@ -330,7 +334,7 @@ export function ReportForm({
 									style={styles.removeImageButton}
 									onPress={() => handleRemoveImage(index)}
 								>
-									<X size={16} color={lightTheme.colors.onPrimary} />
+									<X size={16} color={theme.colors.onPrimary} />
 								</Pressable>
 							</View>
 						))}
@@ -343,10 +347,10 @@ export function ReportForm({
 					disabled={imageLoading}
 				>
 					{imageLoading ? (
-						<ActivityIndicator color={lightTheme.colors.primary} />
+						<ActivityIndicator color={theme.colors.primary} />
 					) : (
 						<>
-							<Camera size={24} color={lightTheme.colors.primary} />
+							<Camera size={24} color={theme.colors.primary} />
 							<Text style={styles.addImageText}>
 								{formData.images.length > 0 ? 'Añadir más imágenes' : 'Añadir imágenes'}
 							</Text>
@@ -366,7 +370,7 @@ export function ReportForm({
 						style={styles.imageOption}
 						onPress={() => handleImageSelect('camera')}
 					>
-						<Camera size={24} color={lightTheme.colors.onSurface} />
+						<Camera size={24} color={theme.colors.onSurface} />
 						<Text style={styles.imageOptionText}>Tomar foto</Text>
 					</TouchableOpacity>
 
@@ -374,7 +378,7 @@ export function ReportForm({
 						style={styles.imageOption}
 						onPress={() => handleImageSelect('gallery')}
 					>
-						<ImageIcon size={24} color={lightTheme.colors.onSurface} />
+						<ImageIcon size={24} color={theme.colors.onSurface} />
 						<Text style={styles.imageOptionText}>Elegir de galería</Text>
 					</TouchableOpacity>
 				</View>
@@ -407,7 +411,7 @@ export function ReportForm({
 					<View style={styles.locationContainer}>
 						{locationLoading && !formData.location ? (
 							<View style={styles.locationLoadingContainer}>
-								<ActivityIndicator size="large" color={lightTheme.colors.primary} />
+								<ActivityIndicator size="large" color={theme.colors.primary} />
 								<Text style={styles.locationLoadingText}>Obteniendo ubicación...</Text>
 							</View>
 						) : formData.location ? (
@@ -424,7 +428,7 @@ export function ReportForm({
 								style={styles.requestLocationButton}
 								onPress={requestLocation}
 							>
-								<MapPinOff size={24} color={lightTheme.colors.primary} />
+								<MapPinOff size={24} color={theme.colors.primary} />
 								<Text style={styles.requestLocationText}>Solicitar ubicación</Text>
 							</TouchableOpacity>
 						)}
@@ -438,7 +442,7 @@ export function ReportForm({
 				disabled={loading}
 			>
 				{loading ? (
-					<ActivityIndicator color={lightTheme.colors.onPrimary} />
+					<ActivityIndicator color={theme.colors.onPrimary} />
 				) : (
 					<Text style={styles.submitButtonText}>{submitLabel}</Text>
 				)}
@@ -449,7 +453,7 @@ export function ReportForm({
 	);
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: 'transparent',
@@ -463,7 +467,7 @@ const styles = StyleSheet.create({
 	sectionTitle: {
 		fontSize: typography.titleMedium,
 		fontWeight: '600',
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 		marginBottom: spacing.md,
 	},
 	inputContainer: {
@@ -472,7 +476,7 @@ const styles = StyleSheet.create({
 	label: {
 		fontSize: typography.bodyMedium,
 		fontWeight: '500',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		marginBottom: spacing.xs,
 	},
 	labelRow: {
@@ -483,26 +487,26 @@ const styles = StyleSheet.create({
 	},
 	characterCount: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	input: {
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderRadius: roundness.sm,
 		padding: spacing.md,
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		borderWidth: 1,
 		borderColor: 'transparent',
 	},
 	inputError: {
-		borderColor: lightTheme.colors.error,
+		borderColor: theme.colors.error,
 	},
 	textArea: {
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderRadius: roundness.sm,
 		padding: spacing.md,
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		borderWidth: 1,
 		borderColor: 'transparent',
 		minHeight: 100,
@@ -514,14 +518,14 @@ const styles = StyleSheet.create({
 	},
 	dateText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	placeholderText: {
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	errorText: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.error,
+		color: theme.colors.error,
 		marginTop: spacing.xs,
 	},
 	reportTypePickerContent: {
@@ -534,21 +538,21 @@ const styles = StyleSheet.create({
 		width: '100%',
 		padding: spacing.md,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	reportTypeOptionActive: {
-		backgroundColor: lightTheme.colors.primaryContainer,
+		backgroundColor: theme.colors.primaryContainer,
 	},
 	reportTypeOptionText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontWeight: '500',
 	},
 	reportTypeOptionTextActive: {
 		fontWeight: '600',
 	},
 	infoDisplayContainer: {
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderRadius: roundness.sm,
 		padding: spacing.md,
 		gap: spacing.md,
@@ -566,13 +570,13 @@ const styles = StyleSheet.create({
 	},
 	infoLabel: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		marginBottom: spacing.xs / 2,
 	},
 	infoValue: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	imagesGrid: {
 		flexDirection: 'row',
@@ -594,7 +598,7 @@ const styles = StyleSheet.create({
 		position: 'absolute',
 		top: -8,
 		right: -8,
-		backgroundColor: lightTheme.colors.error,
+		backgroundColor: theme.colors.error,
 		borderRadius: roundness.full,
 		width: 24,
 		height: 24,
@@ -609,13 +613,13 @@ const styles = StyleSheet.create({
 		padding: spacing.md,
 		borderRadius: roundness.sm,
 		borderWidth: 2,
-		borderColor: lightTheme.colors.primary,
+		borderColor: theme.colors.primary,
 		borderStyle: 'dashed',
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 	},
 	addImageText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.primary,
+		color: theme.colors.primary,
 		fontWeight: '500',
 	},
 	imageOptionsContent: {
@@ -627,11 +631,11 @@ const styles = StyleSheet.create({
 		padding: spacing.md,
 		gap: spacing.md,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	imageOptionText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontWeight: '500',
 	},
 	locationHeader: {
@@ -650,14 +654,14 @@ const styles = StyleSheet.create({
 		height: 24,
 		borderRadius: roundness.xs,
 		borderWidth: 2,
-		borderColor: lightTheme.colors.primary,
+		borderColor: theme.colors.primary,
 		backgroundColor: 'transparent',
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
 	checkboxChecked: {
-		backgroundColor: lightTheme.colors.primary,
-		borderColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primary,
+		borderColor: theme.colors.primary,
 	},
 	checkmark: {
 		color: '#fff',
@@ -666,7 +670,7 @@ const styles = StyleSheet.create({
 	},
 	checkboxLabel: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontWeight: '500',
 	},
 	locationContainer: {
@@ -676,12 +680,12 @@ const styles = StyleSheet.create({
 		padding: spacing.xl,
 		alignItems: 'center',
 		gap: spacing.md,
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderRadius: roundness.sm,
 	},
 	locationLoadingText: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	mapContainer: {
 		borderRadius: roundness.sm,
@@ -698,7 +702,7 @@ const styles = StyleSheet.create({
 	addressText: {
 		flex: 1,
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		lineHeight: 20,
 	},
 	requestLocationButton: {
@@ -708,18 +712,18 @@ const styles = StyleSheet.create({
 		gap: spacing.sm,
 		padding: spacing.lg,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderWidth: 2,
-		borderColor: lightTheme.colors.primary,
+		borderColor: theme.colors.primary,
 		borderStyle: 'dashed',
 	},
 	requestLocationText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.primary,
+		color: theme.colors.primary,
 		fontWeight: '500',
 	},
 	submitButton: {
-		backgroundColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primary,
 		borderRadius: roundness.sm,
 		padding: spacing.md,
 		alignItems: 'center',
@@ -731,7 +735,7 @@ const styles = StyleSheet.create({
 	submitButtonText: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onPrimary,
+		color: theme.colors.onPrimary,
 	},
 	bottomSpacer: {
 		height: spacing.xl,

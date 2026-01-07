@@ -4,7 +4,8 @@ import { IconPlaceholder } from '@/components/IconPlaceholder';
 import { InfoRow } from '@/components/InfoRow';
 import { SkeletonDetail } from '@/components/skeletons';
 import { StatusLabel } from '@/components/StatusLabel';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import type { Driver } from '@/models/driver';
 import type { VehicleAssignation } from '@/models/vehicleAssignation';
 import type { VehicleMaintenance } from '@/models/vehicleMaintenance';
@@ -15,7 +16,7 @@ import { formatDateToDisplay, formatISODate } from '@/utils/dateUtils';
 import { getVehicleStatusIcon } from '@/utils/fleetUtils';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, ChevronRight, ExternalLink, SquarePen, Truck, UserRound } from 'lucide-react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
 	Animated,
 	Image,
@@ -32,6 +33,7 @@ const CARD_HEIGHT = 280;
 const SCROLL_DISTANCE = 200;
 
 export default function VehicleDetailScreen() {
+	const { theme, isDark } = useAppTheme();
 	const insets = useSafeAreaInsets();
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const scrollY = useRef(new Animated.Value(0)).current;
@@ -125,6 +127,8 @@ export default function VehicleDetailScreen() {
 		extrapolate: 'clamp',
 	});
 
+	const styles = useMemo(() => getStyles(theme), [theme]);
+
 	if (loadingVehicle) {
 		return <SkeletonDetail />;
 	}
@@ -148,17 +152,17 @@ export default function VehicleDetailScreen() {
 	return (
 		<View style={styles.container}>
 			<StatusBar
-				barStyle="dark-content"
-				backgroundColor={lightTheme.colors.background}
+				barStyle={isDark ? "light-content" : "dark-content"}
+				backgroundColor={theme.colors.background}
 				translucent={false}
 			/>
 
 			<View style={[styles.floatingButtonsContainer, { paddingTop: insets.top + spacing.sm }]}>
 				<ElevatedButton
-					backgroundColor={lightTheme.colors.primary}
+					backgroundColor={theme.colors.primary}
 					icon={ArrowLeft}
 					iconSize={22}
-					iconColor={lightTheme.colors.onPrimary}
+					iconColor={theme.colors.onPrimary}
 					paddingX={spacing.sm}
 					paddingY={spacing.sm}
 					rounded={roundness.full}
@@ -166,10 +170,10 @@ export default function VehicleDetailScreen() {
 					onPress={() => router.back()}
 				/>
 				<ElevatedButton
-					backgroundColor={lightTheme.colors.primary}
+					backgroundColor={theme.colors.primary}
 					icon={SquarePen}
 					iconSize={22}
-					iconColor={lightTheme.colors.onPrimary}
+					iconColor={theme.colors.onPrimary}
 					paddingX={spacing.sm}
 					paddingY={spacing.sm}
 					rounded={roundness.full}
@@ -208,7 +212,7 @@ export default function VehicleDetailScreen() {
 						paddingY={spacing.md}
 						rounded={roundness.sm}
 						shadow="medium"
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={theme.colors.surface}
 					>
 						{currentVehicle.imageUrl ? (
 							<Image
@@ -246,7 +250,7 @@ export default function VehicleDetailScreen() {
 						paddingY={spacing.md}
 						rounded={roundness.sm}
 						shadow="none"
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={theme.colors.surface}
 					>
 						<View style={styles.cardContent}>
 							{currentVehicle.plateNumber && (
@@ -319,7 +323,7 @@ export default function VehicleDetailScreen() {
 						<Text style={styles.cardTitle}>Incidencias</Text>
 						<TouchableOpacity style={styles.completeHisotry} onPress={() => router.push(`/fleet/${id}/report-history` as any)}>
 							<Text style={styles.completeHisotryText}>(ver historial completo</Text>
-							<ExternalLink size={12} style={{ marginLeft: spacing.xs }} color={`${lightTheme.colors.onSurface}90`} />
+							<ExternalLink size={12} style={{ marginLeft: spacing.xs }} color={`${theme.colors.onSurface}90`} />
 							<Text style={styles.completeHisotryText}>)</Text>
 						</TouchableOpacity>
 					</View>
@@ -328,7 +332,7 @@ export default function VehicleDetailScreen() {
 						paddingY={spacing.md}
 						rounded={roundness.sm}
 						shadow="none"
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={theme.colors.surface}
 					>
 						<View style={styles.cardContent}>
 							{loadingData ? (
@@ -368,7 +372,7 @@ export default function VehicleDetailScreen() {
 						<Text style={styles.cardTitle}>Mantenimientos</Text>
 						<TouchableOpacity style={styles.completeHisotry} onPress={() => router.push(`/fleet/${id}/maintenance-history` as any)}>
 							<Text style={styles.completeHisotryText}>(ver historial completo</Text>
-							<ExternalLink size={12} style={{ marginLeft: spacing.xs }} color={`${lightTheme.colors.onSurface}90`} />
+							<ExternalLink size={12} style={{ marginLeft: spacing.xs }} color={`${theme.colors.onSurface}90`} />
 							<Text style={styles.completeHisotryText}>)</Text>
 						</TouchableOpacity>
 					</View>
@@ -377,7 +381,7 @@ export default function VehicleDetailScreen() {
 						paddingY={spacing.md}
 						rounded={roundness.sm}
 						shadow="none"
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={theme.colors.surface}
 					>
 						<View style={styles.cardContent}>
 							{loadingData ? (
@@ -416,7 +420,7 @@ export default function VehicleDetailScreen() {
 						<Text style={styles.cardTitle}>Asignación actual</Text>
 						<TouchableOpacity style={styles.completeHisotry} onPress={() => router.push(`/fleet/${id}/assignation-history` as any)}>
 							<Text style={styles.completeHisotryText}>(ver historial completo</Text>
-							<ExternalLink size={12} style={{ marginLeft: spacing.xs }} color={`${lightTheme.colors.onSurface}90`} />
+							<ExternalLink size={12} style={{ marginLeft: spacing.xs }} color={`${theme.colors.onSurface}90`} />
 							<Text style={styles.completeHisotryText}>)</Text>
 						</TouchableOpacity>
 					</View>
@@ -430,7 +434,7 @@ export default function VehicleDetailScreen() {
 							paddingY={spacing.sm}
 							rounded={roundness.sm}
 							shadow='none'
-							backgroundColor={lightTheme.colors.surface}
+							backgroundColor={theme.colors.surface}
 							onPress={() => {
 								const driver = driversList.find(d => d.id === assignations[0].driverId);
 								if (driver) {
@@ -454,11 +458,11 @@ export default function VehicleDetailScreen() {
 													paddingY={0}
 													rounded={roundness.xs}
 													shadow='none'
-													backgroundColor={`${lightTheme.colors.primary}CC`}
+													backgroundColor={`${theme.colors.primary}CC`}
 													style={styles.userImage}
 												>
 													<IconPlaceholder
-														color={lightTheme.colors.onPrimary}
+														color={theme.colors.onPrimary}
 														icon={UserRound}
 														size={80}
 													/>
@@ -473,7 +477,7 @@ export default function VehicleDetailScreen() {
 												</Text>
 											</View>
 											<View style={styles.arrowContainer}>
-												<ChevronRight size={20} color={lightTheme.colors.onSurfaceVariant} />
+												<ChevronRight size={20} color={theme.colors.onSurfaceVariant} />
 											</View>
 										</>
 									) : (
@@ -493,10 +497,10 @@ export default function VehicleDetailScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	centered: {
 		justifyContent: 'center',
@@ -552,7 +556,7 @@ const styles = StyleSheet.create({
 		fontSize: typography.bodyMedium,
 		fontWeight: '500',
 		fontStyle: 'italic',
-		color: `${lightTheme.colors.onSurface}80`,
+		color: `${theme.colors.onSurface}80`,
 		textAlign: 'left',
 		marginBottom: spacing.xs,
 	},
@@ -565,7 +569,7 @@ const styles = StyleSheet.create({
 	cardTitle: {
 		fontSize: typography.titleMedium,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		marginBottom: spacing.xs,
 	},
 	row: {
@@ -582,21 +586,21 @@ const styles = StyleSheet.create({
 	completeHisotryText: {
 		fontSize: typography.bodyMedium,
 		fontWeight: '300',
-		color: `${lightTheme.colors.onSurface}90`,
+		color: `${theme.colors.onSurface}90`,
 	},
 	cardContent: {
 		gap: spacing.sm,
 	},
 	separator: {
 		height: 1,
-		backgroundColor: lightTheme.colors.outline,
+		backgroundColor: theme.colors.outline,
 		opacity: 0.5,
 	},
 	placeHolderText: {
 		fontSize: typography.bodyMedium,
 		fontWeight: '300',
 		fontStyle: 'italic',
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		textAlign: 'center',
 	},
 	lastAssignationContainer: {
@@ -607,20 +611,20 @@ const styles = StyleSheet.create({
 	itemText: {
 		fontSize: typography.bodyMedium,
 		fontWeight: '400',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		lineHeight: 20,
 	},
 	viewHistoryText: {
 		fontSize: typography.bodySmall,
 		fontWeight: '500',
 		fontStyle: 'italic',
-		color: lightTheme.colors.primary,
+		color: theme.colors.primary,
 		textAlign: 'center',
 		textDecorationLine: 'underline',
 	},
 	errorText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.error,
+		color: theme.colors.error,
 	},
 	userImage: {
 		width: 80,
@@ -634,12 +638,12 @@ const styles = StyleSheet.create({
 	userName: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	userEmail: {
 		fontSize: typography.bodySmall,
 		fontWeight: '400',
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	arrowContainer: {
 		justifyContent: 'center',

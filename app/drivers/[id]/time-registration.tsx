@@ -4,7 +4,8 @@ import { Card } from '@/components/Card';
 import { CircularProgress } from '@/components/CircularProgress';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { ElevatedButton } from '@/components/ElevatedButton';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useNotesStore } from '@/stores/useNotesStore';
 import { useTimeRegistrationsStore } from '@/stores/useTimeRegistrationStore';
@@ -12,7 +13,7 @@ import { calculateCurrentMinutes, formatDateToDisplay, formatHours, getTotalDayT
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, Calendar, ChevronLeft, ChevronRight, Clock, Edit2, MessageSquare, Pause, Play, Plus, Square, Trash2 } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { LocaleConfig, Calendar as RNCalendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -34,6 +35,9 @@ export default function TimeRegistrationScreen() {
 	const insets = useSafeAreaInsets();
 	const { id, date } = useLocalSearchParams<{ id: string; date?: string }>();
 	const user = useAuthStore((state) => state.user);
+	const { theme, isDark } = useAppTheme();
+
+	const styles = useMemo(() => getStyles(theme), [theme]);
 
 	// Initialize selectedDate from URL param if provided, otherwise use today
 	const [selectedDate, setSelectedDate] = useState(() => {
@@ -652,14 +656,14 @@ export default function TimeRegistrationScreen() {
 
 	return (
 		<View style={styles.container}>
-			<StatusBar barStyle="dark-content" backgroundColor={lightTheme.colors.background} translucent={false} />
+			<StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={theme.colors.background} translucent={false} />
 
 			<View style={[styles.floatingButtonsContainer, { paddingTop: insets.top + spacing.sm }]}>
 				<ElevatedButton
-					backgroundColor={lightTheme.colors.primary}
+					backgroundColor={theme.colors.primary}
 					icon={ArrowLeft}
 					iconSize={22}
-					iconColor={lightTheme.colors.onPrimary}
+					iconColor={theme.colors.onPrimary}
 					paddingX={spacing.sm}
 					paddingY={spacing.sm}
 					rounded={roundness.full}
@@ -681,18 +685,18 @@ export default function TimeRegistrationScreen() {
 						paddingY={spacing.md}
 						rounded={roundness.sm}
 						shadow="none"
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={theme.colors.surface}
 					>
 						<View style={styles.dateSelector}>
 							<TouchableOpacity onPress={handlePreviousDay} style={styles.dateButton}>
-								<ChevronLeft size={24} color={lightTheme.colors.onSurface} />
+								<ChevronLeft size={24} color={theme.colors.onSurface} />
 							</TouchableOpacity>
 
 							<TouchableOpacity
 								onPress={() => setShowCalendarModal(true)}
 								style={styles.dateInfo}
 							>
-								<Calendar size={20} color={lightTheme.colors.primary} />
+								<Calendar size={20} color={theme.colors.primary} />
 								<Text style={styles.dateText}>{formatDateToDisplay(selectedDate)}</Text>
 								{isToday() && <View style={styles.todayBadge}><Text style={styles.todayText}>Hoy</Text></View>}
 							</TouchableOpacity>
@@ -704,7 +708,7 @@ export default function TimeRegistrationScreen() {
 							>
 								<ChevronRight
 									size={24}
-									color={canGoNext() ? lightTheme.colors.onSurface : lightTheme.colors.onSurfaceVariant}
+									color={canGoNext() ? theme.colors.onSurface : theme.colors.onSurfaceVariant}
 								/>
 							</TouchableOpacity>
 						</View>
@@ -718,7 +722,7 @@ export default function TimeRegistrationScreen() {
 
 					{loadingRegistration ? (
 						<View style={styles.loadingContainer}>
-							<ActivityIndicator size="large" color={lightTheme.colors.primary} />
+							<ActivityIndicator size="large" color={theme.colors.primary} />
 							<Text style={styles.loadingText}>Cargando registro...</Text>
 						</View>
 					) : (
@@ -728,7 +732,7 @@ export default function TimeRegistrationScreen() {
 								paddingY={spacing.sm}
 								rounded={roundness.sm}
 								shadow="small"
-								backgroundColor={lightTheme.colors.surface}
+								backgroundColor={theme.colors.surface}
 							>
 								{
 									currentRegistration?.isActive ? (
@@ -736,14 +740,14 @@ export default function TimeRegistrationScreen() {
 											currentMinutes={currentMinutes}
 											targetMinutes={480}
 											size={180}
-											circleColor={hasActive ? lightTheme.colors.primary : lightTheme.colors.statusInactive}
+											circleColor={hasActive ? theme.colors.primary : theme.colors.statusInactive}
 										/>
 									) : (
 										<CircularProgress
 											currentMinutes={currentMinutes}
 											targetMinutes={480}
 											size={180}
-											circleColor={getTotalDayTimeColor(currentMinutes).container}
+											circleColor={getTotalDayTimeColor(currentMinutes, theme).container}
 										/>
 									)
 								}
@@ -755,13 +759,13 @@ export default function TimeRegistrationScreen() {
 												{!hasActive ? (
 													<>
 														<ElevatedButton
-															backgroundColor={lightTheme.colors.statusInactive}
+															backgroundColor={theme.colors.statusInactive}
 															label="Reanudar"
 															icon={Play}
 															iconSize={20}
-															iconColor={lightTheme.colors.onStatusInactive}
+															iconColor={theme.colors.onStatusInactive}
 															fontSize={typography.bodyLarge}
-															textColor={lightTheme.colors.onStatusInactive}
+															textColor={theme.colors.onStatusInactive}
 															paddingX={spacing.lg}
 															paddingY={spacing.md}
 															rounded={roundness.sm}
@@ -770,13 +774,13 @@ export default function TimeRegistrationScreen() {
 															onPress={handleResumeWork}
 														/>
 														<ElevatedButton
-															backgroundColor={lightTheme.colors.statusBrokenDown}
+															backgroundColor={theme.colors.statusBrokenDown}
 															label="Finalizar"
 															icon={Square}
 															iconSize={20}
-															iconColor={lightTheme.colors.onStatusBrokenDown}
+															iconColor={theme.colors.onStatusBrokenDown}
 															fontSize={typography.bodyLarge}
-															textColor={lightTheme.colors.onStatusBrokenDown}
+															textColor={theme.colors.onStatusBrokenDown}
 															paddingX={spacing.lg}
 															paddingY={spacing.md}
 															rounded={roundness.sm}
@@ -788,13 +792,13 @@ export default function TimeRegistrationScreen() {
 												) : (
 													<>
 														<ElevatedButton
-															backgroundColor={lightTheme.colors.warning}
+															backgroundColor={theme.colors.warning}
 															label="Pausar"
 															icon={Pause}
 															iconSize={20}
-															iconColor={lightTheme.colors.onStatusInactive}
+															iconColor={theme.colors.onStatusInactive}
 															fontSize={typography.bodyLarge}
-															textColor={lightTheme.colors.onStatusInactive}
+															textColor={theme.colors.onStatusInactive}
 															paddingX={spacing.lg}
 															paddingY={spacing.md}
 															rounded={roundness.sm}
@@ -803,13 +807,13 @@ export default function TimeRegistrationScreen() {
 															onPress={handlePauseWork}
 														/>
 														<ElevatedButton
-															backgroundColor={lightTheme.colors.statusBrokenDown}
+															backgroundColor={theme.colors.statusBrokenDown}
 															label="Finalizar"
 															icon={Square}
 															iconSize={20}
-															iconColor={lightTheme.colors.onStatusBrokenDown}
+															iconColor={theme.colors.onStatusBrokenDown}
 															fontSize={typography.bodyLarge}
-															textColor={lightTheme.colors.onStatusBrokenDown}
+															textColor={theme.colors.onStatusBrokenDown}
 															paddingX={spacing.lg}
 															paddingY={spacing.md}
 															rounded={roundness.sm}
@@ -825,11 +829,11 @@ export default function TimeRegistrationScreen() {
 										{isOwnProfile && (!currentRegistration || currentRegistration.timeRanges.length === 0) && (
 											<View style={styles.controlsContainer}>
 												<ElevatedButton
-													backgroundColor={lightTheme.colors.primary}
+													backgroundColor={theme.colors.primary}
 													label="Iniciar jornada"
 													icon={Play}
 													iconSize={20}
-													iconColor={lightTheme.colors.onPrimary}
+													iconColor={theme.colors.onPrimary}
 													fontSize={typography.bodyLarge}
 													paddingX={spacing.lg}
 													paddingY={spacing.md}
@@ -849,7 +853,7 @@ export default function TimeRegistrationScreen() {
 									const totalMinutes = currentRegistration
 										? Math.floor(currentRegistration.totalHours * 60)
 										: 0;
-									const colors = getTotalDayTimeColor(totalMinutes);
+									const colors = getTotalDayTimeColor(totalMinutes, theme);
 									return (
 										<Card
 											paddingX={spacing.lg}
@@ -873,12 +877,12 @@ export default function TimeRegistrationScreen() {
 							<View>
 								<View style={styles.sectionHeader}>
 									<View style={styles.sectionHeaderTitle}>
-										<Clock size={18} color={lightTheme.colors.onSurfaceVariant} />
+										<Clock size={18} color={theme.colors.onSurfaceVariant} />
 										<Text style={styles.sectionTitle}>Rangos de tiempo</Text>
 									</View>
 									{isOwnProfile && (
 										<TouchableOpacity onPress={handleAddRange} style={styles.addButton}>
-											<Plus size={20} color={lightTheme.colors.primary} />
+											<Plus size={20} color={theme.colors.primary} />
 											<Text style={styles.addButtonText}>Agregar</Text>
 										</TouchableOpacity>
 									)}
@@ -890,7 +894,7 @@ export default function TimeRegistrationScreen() {
 										paddingY={spacing.xl}
 										rounded={roundness.sm}
 										shadow="none"
-										backgroundColor={lightTheme.colors.surface}
+										backgroundColor={theme.colors.surface}
 									>
 										<Text style={styles.emptyText}>No hay rangos de tiempo registrados</Text>
 									</Card>
@@ -902,7 +906,7 @@ export default function TimeRegistrationScreen() {
 											paddingY={spacing.md}
 											rounded={roundness.sm}
 											shadow="none"
-											backgroundColor={lightTheme.colors.surface}
+											backgroundColor={theme.colors.surface}
 											style={styles.rangeCard}
 										>
 											<View style={styles.rangeContent}>
@@ -934,7 +938,7 @@ export default function TimeRegistrationScreen() {
 														style={styles.actionButton}
 														onPress={() => handleEditRange(range.id)}
 													>
-														<Edit2 size={18} color={lightTheme.colors.primary} />
+														<Edit2 size={18} color={theme.colors.primary} />
 														<Text style={styles.editText}>Editar</Text>
 													</TouchableOpacity>
 
@@ -942,7 +946,7 @@ export default function TimeRegistrationScreen() {
 														style={styles.actionButton}
 														onPress={() => handleDeleteRange(range.id)}
 													>
-														<Trash2 size={18} color={lightTheme.colors.error} />
+														<Trash2 size={18} color={theme.colors.error} />
 														<Text style={styles.deleteText}>Eliminar</Text>
 													</TouchableOpacity>
 												</View>
@@ -955,7 +959,7 @@ export default function TimeRegistrationScreen() {
 							<View>
 								<View style={styles.sectionHeader}>
 									<View style={styles.sectionHeaderTitle}>
-										<MessageSquare size={18} color={lightTheme.colors.onSurfaceVariant} />
+										<MessageSquare size={18} color={theme.colors.onSurfaceVariant} />
 										<Text style={styles.sectionTitle}>Notas</Text>
 									</View>
 									{isOwnProfile && currentRegistration && (
@@ -963,7 +967,7 @@ export default function TimeRegistrationScreen() {
 											setNoteText('');
 											setShowAddNoteModal(true);
 										}} style={styles.addButton}>
-											<Plus size={20} color={lightTheme.colors.primary} />
+											<Plus size={20} color={theme.colors.primary} />
 											<Text style={styles.addButtonText}>Agregar</Text>
 										</TouchableOpacity>
 									)}
@@ -975,9 +979,9 @@ export default function TimeRegistrationScreen() {
 										paddingY={spacing.xl}
 										rounded={roundness.sm}
 										shadow="none"
-										backgroundColor={lightTheme.colors.surface}
+										backgroundColor={theme.colors.surface}
 									>
-										<ActivityIndicator size="small" color={lightTheme.colors.primary} />
+										<ActivityIndicator size="small" color={theme.colors.primary} />
 									</Card>
 								) : !currentNote ? (
 									<Card
@@ -985,7 +989,7 @@ export default function TimeRegistrationScreen() {
 										paddingY={spacing.xl}
 										rounded={roundness.sm}
 										shadow="none"
-										backgroundColor={lightTheme.colors.surface}
+										backgroundColor={theme.colors.surface}
 									>
 										<Text style={styles.emptyText}>No hay notas registradas</Text>
 									</Card>
@@ -995,7 +999,7 @@ export default function TimeRegistrationScreen() {
 										paddingY={spacing.md}
 										rounded={roundness.sm}
 										shadow="none"
-										backgroundColor={lightTheme.colors.surface}
+										backgroundColor={theme.colors.surface}
 										style={styles.rangeCard}
 									>
 										<View style={styles.noteContent}>
@@ -1024,7 +1028,7 @@ export default function TimeRegistrationScreen() {
 															setShowEditNoteModal(true);
 														}}
 													>
-														<Edit2 size={18} color={lightTheme.colors.primary} />
+														<Edit2 size={18} color={theme.colors.primary} />
 														<Text style={styles.editText}>Editar</Text>
 													</TouchableOpacity>
 
@@ -1034,7 +1038,7 @@ export default function TimeRegistrationScreen() {
 															setShowDeleteNoteModal(true);
 														}}
 													>
-														<Trash2 size={18} color={lightTheme.colors.error} />
+														<Trash2 size={18} color={theme.colors.error} />
 														<Text style={styles.deleteText}>Eliminar</Text>
 													</TouchableOpacity>
 												</View>
@@ -1061,23 +1065,24 @@ export default function TimeRegistrationScreen() {
 						markedDates={{
 							[selectedDate.toISOString().split('T')[0]]: {
 								selected: true,
-								selectedColor: lightTheme.colors.primary,
+								selectedColor: theme.colors.primary,
 							},
 						}}
 						theme={{
-							backgroundColor: lightTheme.colors.surface,
-							calendarBackground: lightTheme.colors.surface,
-							textSectionTitleColor: lightTheme.colors.onSurfaceVariant,
-							selectedDayBackgroundColor: lightTheme.colors.primary,
-							selectedDayTextColor: lightTheme.colors.onPrimary,
-							todayTextColor: lightTheme.colors.primary,
-							dayTextColor: lightTheme.colors.onSurface,
-							textDisabledColor: lightTheme.colors.onSurfaceVariant,
-							monthTextColor: lightTheme.colors.onSurface,
+							backgroundColor: theme.colors.surface,
+							calendarBackground: theme.colors.surface,
+							textSectionTitleColor: theme.colors.onSurfaceVariant,
+							selectedDayBackgroundColor: theme.colors.primary,
+							selectedDayTextColor: theme.colors.onPrimary,
+							todayTextColor: theme.colors.primary,
+							dayTextColor: theme.colors.onSurface,
+							textDisabledColor: theme.colors.onSurfaceVariant,
+							monthTextColor: theme.colors.onSurface,
 							textMonthFontWeight: '600',
 							textDayFontSize: typography.bodyMedium,
 							textMonthFontSize: typography.titleMedium,
 							textDayHeaderFontSize: typography.labelMedium,
+							arrowColor: theme.colors.primary
 						}}
 						style={styles.calendar}
 					/>
@@ -1102,7 +1107,7 @@ export default function TimeRegistrationScreen() {
 							style={styles.timePickerButton}
 							onPress={openStartTimePicker}
 						>
-							<Clock size={20} color={lightTheme.colors.onSurfaceVariant} />
+							<Clock size={20} color={theme.colors.onSurfaceVariant} />
 							<Text style={styles.timePickerText}>
 								{editStartTime || 'Seleccionar hora'}
 							</Text>
@@ -1115,7 +1120,7 @@ export default function TimeRegistrationScreen() {
 									is24Hour={true}
 									display="spinner"
 									onChange={handleStartTimeChange}
-									accentColor={lightTheme.colors.primary}
+									accentColor={theme.colors.primary}
 									themeVariant="light"
 								/>
 							) : (
@@ -1143,7 +1148,7 @@ export default function TimeRegistrationScreen() {
 							style={styles.timePickerButton}
 							onPress={openEndTimePicker}
 						>
-							<Clock size={20} color={lightTheme.colors.onSurfaceVariant} />
+							<Clock size={20} color={theme.colors.onSurfaceVariant} />
 							<Text style={styles.timePickerText}>
 								{editEndTime || 'Seleccionar hora'}
 							</Text>
@@ -1156,7 +1161,7 @@ export default function TimeRegistrationScreen() {
 									is24Hour={true}
 									display="spinner"
 									onChange={handleEndTimeChange}
-									accentColor={lightTheme.colors.primary}
+									accentColor={theme.colors.primary}
 									themeVariant="light"
 								/>
 							) : (
@@ -1179,7 +1184,7 @@ export default function TimeRegistrationScreen() {
 					</View>
 
 					<ElevatedButton
-						backgroundColor={lightTheme.colors.primary}
+						backgroundColor={theme.colors.primary}
 						label="Agregar rango"
 						fontSize={typography.bodyLarge}
 						paddingX={spacing.lg}
@@ -1208,7 +1213,7 @@ export default function TimeRegistrationScreen() {
 							style={styles.timePickerButton}
 							onPress={openStartTimePicker}
 						>
-							<Clock size={20} color={lightTheme.colors.onSurfaceVariant} />
+							<Clock size={20} color={theme.colors.onSurfaceVariant} />
 							<Text style={styles.timePickerText}>
 								{editStartTime || 'Seleccionar hora'}
 							</Text>
@@ -1221,7 +1226,7 @@ export default function TimeRegistrationScreen() {
 									is24Hour={true}
 									display="spinner"
 									onChange={handleStartTimeChange}
-									accentColor={lightTheme.colors.primary}
+									accentColor={theme.colors.primary}
 									themeVariant="light"
 								/>
 							) : (
@@ -1249,7 +1254,7 @@ export default function TimeRegistrationScreen() {
 							style={styles.timePickerButton}
 							onPress={openEndTimePicker}
 						>
-							<Clock size={20} color={lightTheme.colors.onSurfaceVariant} />
+							<Clock size={20} color={theme.colors.onSurfaceVariant} />
 							<Text style={styles.timePickerText}>
 								{editEndTime || 'Seleccionar hora'}
 							</Text>
@@ -1262,7 +1267,7 @@ export default function TimeRegistrationScreen() {
 									is24Hour={true}
 									display="spinner"
 									onChange={handleEndTimeChange}
-									accentColor={lightTheme.colors.primary}
+									accentColor={theme.colors.primary}
 									themeVariant="light"
 								/>
 							) : (
@@ -1285,7 +1290,7 @@ export default function TimeRegistrationScreen() {
 					</View>
 
 					<ElevatedButton
-						backgroundColor={lightTheme.colors.primary}
+						backgroundColor={theme.colors.primary}
 						label="Guardar cambios"
 						fontSize={typography.bodyLarge}
 						paddingX={spacing.lg}
@@ -1331,7 +1336,7 @@ export default function TimeRegistrationScreen() {
 							<Text style={styles.inputLabel}>Texto de la nota</Text>
 							<Text style={[
 								styles.inputLabel,
-								{ fontSize: typography.labelMedium, color: noteText.length > 500 ? lightTheme.colors.error : lightTheme.colors.onSurfaceVariant }
+								{ fontSize: typography.labelMedium, color: noteText.length > 500 ? theme.colors.error : theme.colors.onSurfaceVariant }
 							]}>
 								{noteText.length}/500
 							</Text>
@@ -1341,7 +1346,7 @@ export default function TimeRegistrationScreen() {
 							value={noteText}
 							onChangeText={setNoteText}
 							placeholder="Escribe aquí tu nota..."
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+							placeholderTextColor={theme.colors.onSurfaceVariant}
 							multiline
 							numberOfLines={4}
 							textAlignVertical="top"
@@ -1350,7 +1355,7 @@ export default function TimeRegistrationScreen() {
 					</View>
 
 					<ElevatedButton
-						backgroundColor={lightTheme.colors.primary}
+						backgroundColor={theme.colors.primary}
 						label="Agregar"
 						fontSize={typography.bodyLarge}
 						paddingX={spacing.lg}
@@ -1377,7 +1382,7 @@ export default function TimeRegistrationScreen() {
 							<Text style={styles.inputLabel}>Texto de la nota</Text>
 							<Text style={[
 								styles.inputLabel,
-								{ fontSize: typography.labelMedium, color: noteText.length > 500 ? lightTheme.colors.error : lightTheme.colors.onSurfaceVariant }
+								{ fontSize: typography.labelMedium, color: noteText.length > 500 ? theme.colors.error : theme.colors.onSurfaceVariant }
 							]}>
 								{noteText.length}/500
 							</Text>
@@ -1387,7 +1392,7 @@ export default function TimeRegistrationScreen() {
 							value={noteText}
 							onChangeText={setNoteText}
 							placeholder="Escribe aquí tu nota..."
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+							placeholderTextColor={theme.colors.onSurfaceVariant}
 							multiline
 							numberOfLines={4}
 							textAlignVertical="top"
@@ -1396,7 +1401,7 @@ export default function TimeRegistrationScreen() {
 					</View>
 
 					<ElevatedButton
-						backgroundColor={lightTheme.colors.primary}
+						backgroundColor={theme.colors.primary}
 						label="Guardar cambios"
 						fontSize={typography.bodyLarge}
 						paddingX={spacing.lg}
@@ -1424,348 +1429,350 @@ export default function TimeRegistrationScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: lightTheme.colors.background,
-	},
-	floatingButtonsContainer: {
-		position: 'absolute',
-		top: 0,
-		left: 0,
-		right: 0,
-		flexDirection: 'row',
-		justifyContent: 'flex-start',
-		alignItems: 'center',
-		paddingHorizontal: spacing.md,
-		zIndex: 1000,
-	},
-	scrollView: {
-		flex: 1,
-	},
-	scrollViewContent: {
-		flexGrow: 1,
-	},
-	content: {
-		flex: 1,
-		paddingHorizontal: spacing.md,
-		paddingBottom: spacing.xl,
-		gap: spacing.md,
-	},
-	title: {
-		fontSize: typography.headlineLarge,
-		fontWeight: '700',
-		color: lightTheme.colors.onBackground,
-	},
-	dateSelector: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-	},
-	dateButton: {
-		padding: spacing.sm,
-	},
-	dateButtonDisabled: {
-		opacity: 0.3,
-	},
-	dateInfo: {
-		flex: 1,
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'center',
-		gap: spacing.sm,
-	},
-	dateText: {
-		fontSize: typography.titleLarge,
-		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
-	},
-	todayBadge: {
-		backgroundColor: lightTheme.colors.primary,
-		paddingHorizontal: spacing.sm,
-		paddingVertical: spacing.xs,
-		borderRadius: roundness.xs,
-	},
-	todayText: {
-		fontSize: typography.labelSmall,
-		fontWeight: '600',
-		color: lightTheme.colors.onPrimary,
-	},
-	todayButton: {
-		marginTop: spacing.sm,
-		paddingVertical: spacing.sm,
-		alignItems: 'center',
-	},
-	todayButtonText: {
-		fontSize: typography.bodyMedium,
-		fontWeight: '600',
-		color: lightTheme.colors.primary,
-	},
-	statusBadge: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'center',
-		gap: spacing.xs,
-		marginTop: spacing.md,
-		marginBottom: spacing.sm,
-	},
-	statusDot: {
-		width: 8,
-		height: 8,
-		borderRadius: 4,
-	},
-	statusText: {
-		fontSize: typography.bodyMedium,
-		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
-	},
-	controlsContainer: {
-		flexDirection: 'row',
-		gap: spacing.sm,
-		flexWrap: 'wrap',
-		marginTop: spacing.md,
-	},
-	controlButton: {
-		flex: 1,
-		minWidth: 140,
-	},
-	loadingContainer: {
-		alignItems: 'center',
-		justifyContent: 'center',
-		paddingVertical: spacing.xl,
-		gap: spacing.md,
-	},
-	loadingText: {
-		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurfaceVariant,
-	},
-	totalHoursContainer: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: spacing.sm,
-		justifyContent: 'center',
-	},
-	totalHoursLabel: {
-		fontSize: typography.bodyLarge,
-		fontWeight: '500',
-	},
-	totalHoursValue: {
-		fontSize: typography.headlineSmall,
-		fontWeight: '700',
-	},
-	sectionHeader: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		marginBottom: spacing.sm,
-	},
-	sectionHeaderTitle: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: spacing.xs,
-	},
-	sectionTitle: {
-		fontSize: typography.titleMedium,
-		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
-	},
-	addButton: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: spacing.xs,
-		paddingVertical: spacing.xs,
-		paddingHorizontal: spacing.sm,
-	},
-	addButtonText: {
-		fontSize: typography.bodyMedium,
-		fontWeight: '600',
-		color: lightTheme.colors.primary,
-	},
-	emptyText: {
-		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurfaceVariant,
-		textAlign: 'center',
-		fontStyle: 'italic',
-	},
-	rangeCard: {
-		marginBottom: spacing.sm,
-	},
-	rangeHeader: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		marginBottom: spacing.sm,
-	},
-	rangeNumber: {
-		fontSize: typography.titleSmall,
-		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
-	},
-	rangeBadges: {
-		flexDirection: 'row',
-		gap: spacing.xs,
-	},
-	activeBadge: {
-		backgroundColor: lightTheme.colors.primaryContainer,
-		paddingHorizontal: spacing.sm,
-		paddingVertical: spacing.xs,
-		borderRadius: roundness.xs,
-	},
-	activeText: {
-		fontSize: typography.labelSmall,
-		fontWeight: '600',
-		color: lightTheme.colors.onPrimaryContainer,
-	},
-	completedBadge: {
-		backgroundColor: lightTheme.colors.outline,
-		paddingHorizontal: spacing.sm,
-		paddingVertical: spacing.xs,
-		borderRadius: roundness.xs,
-	},
-	completedText: {
-		fontSize: typography.labelSmall,
-		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
-	},
-	rangeContent: {
-		gap: spacing.sm,
-	},
-	rangeTimeRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-	},
-	rangeLabel: {
-		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
-	},
-	rangeValue: {
-		fontSize: typography.bodyLarge,
-		fontWeight: '500',
-		color: lightTheme.colors.onSurface,
-	},
-	rangeValueActive: {
-		fontWeight: '700',
-		color: lightTheme.colors.primary,
-	},
-	rangeSeparator: {
-		height: 1,
-		backgroundColor: lightTheme.colors.outline,
-		opacity: 0.5,
-		marginVertical: spacing.xs,
-	},
-	rangeDurationLabel: {
-		fontSize: typography.bodyMedium,
-		fontWeight: '600',
-		color: lightTheme.colors.primary,
-	},
-	rangeDurationValue: {
-		fontSize: typography.titleMedium,
-		fontWeight: '700',
-		color: lightTheme.colors.primary,
-	},
-	rangeActions: {
-		flexDirection: 'row',
-		gap: spacing.sm,
-		marginTop: spacing.sm,
-		paddingTop: spacing.sm,
-		borderTopWidth: 1,
-		borderTopColor: lightTheme.colors.outline,
-	},
-	actionButton: {
-		flex: 1,
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'center',
-		gap: spacing.xs,
-		paddingVertical: spacing.sm,
-	},
-	editText: {
-		fontSize: typography.bodyMedium,
-		fontWeight: '600',
-		color: lightTheme.colors.primary,
-	},
-	deleteText: {
-		fontSize: typography.bodyMedium,
-		fontWeight: '600',
-		color: lightTheme.colors.error,
-	},
-	noteContent: {
-		gap: spacing.sm,
-	},
-	noteHeader: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: spacing.xs,
-		marginBottom: spacing.xs,
-	},
-	noteDate: {
-		fontSize: typography.labelMedium,
-		color: lightTheme.colors.onSurfaceVariant,
-		flex: 1,
-	},
-	noteUpdated: {
-		fontSize: typography.labelSmall,
-		color: lightTheme.colors.onSurfaceVariant,
-		fontStyle: 'italic',
-	},
-	noteText: {
-		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurface,
-		lineHeight: 22,
-	},
-	noteInput: {
-		minHeight: 100,
-		paddingTop: spacing.sm,
-	},
-	notesText: {
-		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurface,
-		lineHeight: 22,
-		marginTop: spacing.xs,
-	},
-	editModalContent: {
-		gap: spacing.md,
-	},
-	inputGroup: {
-		gap: spacing.xs,
-	},
-	inputLabel: {
-		fontSize: typography.bodyMedium,
-		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
-	},
-	input: {
-		backgroundColor: lightTheme.colors.background,
-		borderWidth: 1,
-		borderColor: lightTheme.colors.outline,
-		borderRadius: roundness.sm,
-		paddingHorizontal: spacing.md,
-		paddingVertical: spacing.sm,
-		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
-	},
-	timePickerButton: {
-		backgroundColor: lightTheme.colors.surface,
-		borderWidth: 1,
-		borderColor: lightTheme.colors.outline,
-		borderRadius: roundness.sm,
-		paddingHorizontal: spacing.md,
-		paddingVertical: spacing.md,
-		marginBottom: spacing.sm,
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: spacing.sm,
-	},
-	timePickerText: {
-		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
-		fontWeight: '500',
-	},
-	calendarWrapper: {
-		paddingVertical: spacing.xs,
-	},
-	calendar: {
-		borderRadius: roundness.sm,
-	},
-});
+function getStyles(theme: any) {
+	return StyleSheet.create({
+		container: {
+			flex: 1,
+			backgroundColor: theme.colors.background,
+		},
+		floatingButtonsContainer: {
+			position: 'absolute',
+			top: 0,
+			left: 0,
+			right: 0,
+			flexDirection: 'row',
+			justifyContent: 'flex-start',
+			alignItems: 'center',
+			paddingHorizontal: spacing.md,
+			zIndex: 1000,
+		},
+		scrollView: {
+			flex: 1,
+		},
+		scrollViewContent: {
+			flexGrow: 1,
+		},
+		content: {
+			flex: 1,
+			paddingHorizontal: spacing.md,
+			paddingBottom: spacing.xl,
+			gap: spacing.md,
+		},
+		title: {
+			fontSize: typography.headlineLarge,
+			fontWeight: '700',
+			color: theme.colors.onBackground,
+		},
+		dateSelector: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between',
+		},
+		dateButton: {
+			padding: spacing.sm,
+		},
+		dateButtonDisabled: {
+			opacity: 0.3,
+		},
+		dateInfo: {
+			flex: 1,
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center',
+			gap: spacing.sm,
+		},
+		dateText: {
+			fontSize: typography.titleLarge,
+			fontWeight: '600',
+			color: theme.colors.onSurface,
+		},
+		todayBadge: {
+			backgroundColor: theme.colors.primary,
+			paddingHorizontal: spacing.sm,
+			paddingVertical: spacing.xs,
+			borderRadius: roundness.xs,
+		},
+		todayText: {
+			fontSize: typography.labelSmall,
+			fontWeight: '600',
+			color: theme.colors.onPrimary,
+		},
+		todayButton: {
+			marginTop: spacing.sm,
+			paddingVertical: spacing.sm,
+			alignItems: 'center',
+		},
+		todayButtonText: {
+			fontSize: typography.bodyMedium,
+			fontWeight: '600',
+			color: theme.colors.primary,
+		},
+		statusBadge: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center',
+			gap: spacing.xs,
+			marginTop: spacing.md,
+			marginBottom: spacing.sm,
+		},
+		statusDot: {
+			width: 8,
+			height: 8,
+			borderRadius: 4,
+		},
+		statusText: {
+			fontSize: typography.bodyMedium,
+			fontWeight: '600',
+			color: theme.colors.onSurface,
+		},
+		controlsContainer: {
+			flexDirection: 'row',
+			gap: spacing.sm,
+			flexWrap: 'wrap',
+			marginTop: spacing.md,
+		},
+		controlButton: {
+			flex: 1,
+			minWidth: 140,
+		},
+		loadingContainer: {
+			alignItems: 'center',
+			justifyContent: 'center',
+			paddingVertical: spacing.xl,
+			gap: spacing.md,
+		},
+		loadingText: {
+			fontSize: typography.bodyLarge,
+			color: theme.colors.onSurfaceVariant,
+		},
+		totalHoursContainer: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: spacing.sm,
+			justifyContent: 'center',
+		},
+		totalHoursLabel: {
+			fontSize: typography.bodyLarge,
+			fontWeight: '500',
+		},
+		totalHoursValue: {
+			fontSize: typography.headlineSmall,
+			fontWeight: '700',
+		},
+		sectionHeader: {
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			alignItems: 'center',
+			marginBottom: spacing.sm,
+		},
+		sectionHeaderTitle: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: spacing.xs,
+		},
+		sectionTitle: {
+			fontSize: typography.titleMedium,
+			fontWeight: '600',
+			color: theme.colors.onSurface,
+		},
+		addButton: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: spacing.xs,
+			paddingVertical: spacing.xs,
+			paddingHorizontal: spacing.sm,
+		},
+		addButtonText: {
+			fontSize: typography.bodyMedium,
+			fontWeight: '600',
+			color: theme.colors.primary,
+		},
+		emptyText: {
+			fontSize: typography.bodyLarge,
+			color: theme.colors.onSurfaceVariant,
+			textAlign: 'center',
+			fontStyle: 'italic',
+		},
+		rangeCard: {
+			marginBottom: spacing.sm,
+		},
+		rangeHeader: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between',
+			marginBottom: spacing.sm,
+		},
+		rangeNumber: {
+			fontSize: typography.titleSmall,
+			fontWeight: '600',
+			color: theme.colors.onSurface,
+		},
+		rangeBadges: {
+			flexDirection: 'row',
+			gap: spacing.xs,
+		},
+		activeBadge: {
+			backgroundColor: theme.colors.primaryContainer,
+			paddingHorizontal: spacing.sm,
+			paddingVertical: spacing.xs,
+			borderRadius: roundness.xs,
+		},
+		activeText: {
+			fontSize: typography.labelSmall,
+			fontWeight: '600',
+			color: theme.colors.onPrimaryContainer,
+		},
+		completedBadge: {
+			backgroundColor: theme.colors.outline,
+			paddingHorizontal: spacing.sm,
+			paddingVertical: spacing.xs,
+			borderRadius: roundness.xs,
+		},
+		completedText: {
+			fontSize: typography.labelSmall,
+			fontWeight: '600',
+			color: theme.colors.onSurface,
+		},
+		rangeContent: {
+			gap: spacing.sm,
+		},
+		rangeTimeRow: {
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			alignItems: 'center',
+		},
+		rangeLabel: {
+			fontSize: typography.bodyMedium,
+			color: theme.colors.onSurfaceVariant,
+		},
+		rangeValue: {
+			fontSize: typography.bodyLarge,
+			fontWeight: '500',
+			color: theme.colors.onSurface,
+		},
+		rangeValueActive: {
+			fontWeight: '700',
+			color: theme.colors.primary,
+		},
+		rangeSeparator: {
+			height: 1,
+			backgroundColor: theme.colors.outline,
+			opacity: 0.5,
+			marginVertical: spacing.xs,
+		},
+		rangeDurationLabel: {
+			fontSize: typography.bodyMedium,
+			fontWeight: '600',
+			color: theme.colors.primary,
+		},
+		rangeDurationValue: {
+			fontSize: typography.titleMedium,
+			fontWeight: '700',
+			color: theme.colors.primary,
+		},
+		rangeActions: {
+			flexDirection: 'row',
+			gap: spacing.sm,
+			marginTop: spacing.sm,
+			paddingTop: spacing.sm,
+			borderTopWidth: 1,
+			borderTopColor: theme.colors.outline,
+		},
+		actionButton: {
+			flex: 1,
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center',
+			gap: spacing.xs,
+			paddingVertical: spacing.sm,
+		},
+		editText: {
+			fontSize: typography.bodyMedium,
+			fontWeight: '600',
+			color: theme.colors.primary,
+		},
+		deleteText: {
+			fontSize: typography.bodyMedium,
+			fontWeight: '600',
+			color: theme.colors.error,
+		},
+		noteContent: {
+			gap: spacing.sm,
+		},
+		noteHeader: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: spacing.xs,
+			marginBottom: spacing.xs,
+		},
+		noteDate: {
+			fontSize: typography.labelMedium,
+			color: theme.colors.onSurfaceVariant,
+			flex: 1,
+		},
+		noteUpdated: {
+			fontSize: typography.labelSmall,
+			color: theme.colors.onSurfaceVariant,
+			fontStyle: 'italic',
+		},
+		noteText: {
+			fontSize: typography.bodyMedium,
+			color: theme.colors.onSurface,
+			lineHeight: 22,
+		},
+		noteInput: {
+			minHeight: 100,
+			paddingTop: spacing.sm,
+		},
+		notesText: {
+			fontSize: typography.bodyMedium,
+			color: theme.colors.onSurface,
+			lineHeight: 22,
+			marginTop: spacing.xs,
+		},
+		editModalContent: {
+			gap: spacing.md,
+		},
+		inputGroup: {
+			gap: spacing.xs,
+		},
+		inputLabel: {
+			fontSize: typography.bodyMedium,
+			fontWeight: '600',
+			color: theme.colors.onSurface,
+		},
+		input: {
+			backgroundColor: theme.colors.background,
+			borderWidth: 1,
+			borderColor: theme.colors.outline,
+			borderRadius: roundness.sm,
+			paddingHorizontal: spacing.md,
+			paddingVertical: spacing.sm,
+			fontSize: typography.bodyLarge,
+			color: theme.colors.onSurface,
+		},
+		timePickerButton: {
+			backgroundColor: theme.colors.surface,
+			borderWidth: 1,
+			borderColor: theme.colors.outline,
+			borderRadius: roundness.sm,
+			paddingHorizontal: spacing.md,
+			paddingVertical: spacing.md,
+			marginBottom: spacing.sm,
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: spacing.sm,
+		},
+		timePickerText: {
+			fontSize: typography.bodyLarge,
+			color: theme.colors.onSurface,
+			fontWeight: '500',
+		},
+		calendarWrapper: {
+			paddingVertical: spacing.xs,
+		},
+		calendar: {
+			borderRadius: roundness.sm,
+		},
+	});
+}

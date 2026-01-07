@@ -1,8 +1,13 @@
-import { lightTheme } from "@/constants/theme";
+import { roundness, spacing, typography } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { Stack } from "expo-router";
+import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 
 export default function DriversStack() {
+	const { theme } = useAppTheme();
+	const styles = useMemo(() => getStyles(theme), [theme]);
+
 	return (
 		<View style={styles.container}>
 			<Stack
@@ -10,7 +15,7 @@ export default function DriversStack() {
 					headerShown: false,
 					animation: 'none',
 					contentStyle: {
-						backgroundColor: lightTheme.colors.background,
+						backgroundColor: theme.colors.background,
 					},
 				}}
 			>
@@ -31,9 +36,11 @@ export default function DriversStack() {
 	);
 }
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: lightTheme.colors.background,
-	},
-});
+function getStyles(theme: any) {
+	return StyleSheet.create({
+		container: {
+			flex: 1,
+			backgroundColor: theme.colors.background,
+		},
+	});
+}

@@ -1,5 +1,6 @@
 import SplashScreen from "@/app/splash";
-import { lightTheme } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/useAppTheme";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 import { StoreInitializer } from "@/stores/StoreInitializer";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { OnboardingStorage } from "@/utils/onBoardingStorage";
@@ -9,6 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
 
 export default function RootLayout() {
+	const { theme } = useAppTheme();
 	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 	const isInitialized = useAuthStore((state) => state.isInitialized);
 	const initialize = useAuthStore((state) => state.initialize);
@@ -142,36 +144,34 @@ export default function RootLayout() {
 		setShowSplash(false);
 	}, []);
 
-	// Show splash screen while loading or during splash duration
-	// The splash runs while we check everything in the background
-	if (showSplash) {
-		return <SplashScreen onFinish={handleSplashFinish} duration={2000} />;
-	}
-
-	// Only show loading if splash is done but we're still not ready
-	// This should rarely happen if splash duration is long enough
-	if (!initialRouteReady || isCheckingStorage || !isInitialized) {
-		return (
-			<View style={styles.loadingContainer}>
-				<ActivityIndicator size="large" color={lightTheme.colors.primary} />
-			</View>
-		);
-	}
-
 	return (
-		<StoreInitializer>
-			<Stack screenOptions={{ headerShown: false }}>
-				<Stack.Screen name="splash" options={{ headerShown: false }} />
-				<Stack.Screen name="on-boarding" options={{ headerShown: false }} />
-				<Stack.Screen name="login" options={{ headerShown: false }} />
-				<Stack.Screen name="error" options={{ headerShown: false }} />
-				<Stack.Screen
-					name="(tabs)"
-					options={{ headerShown: false }}
-				/>
-				<Stack.Screen name="+not-found" />
-			</Stack>
-		</StoreInitializer>
+		<ThemeProvider>
+			{showSplash ? (
+				// Show splash screen while loading or during splash duration
+				// The splash runs while we check everything in the background
+				<SplashScreen onFinish={handleSplashFinish} duration={2000} />
+			) : !initialRouteReady || isCheckingStorage || !isInitialized ? (
+				// Only show loading if splash is done but we're still not ready
+				// This should rarely happen if splash duration is long enough
+				<View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
+					<ActivityIndicator size="large" color={theme.colors.primary} />
+				</View>
+			) : (
+				<StoreInitializer>
+					<Stack screenOptions={{ headerShown: false }}>
+						<Stack.Screen name="splash" options={{ headerShown: false }} />
+						<Stack.Screen name="on-boarding" options={{ headerShown: false }} />
+						<Stack.Screen name="login" options={{ headerShown: false }} />
+						<Stack.Screen name="error" options={{ headerShown: false }} />
+						<Stack.Screen
+							name="(tabs)"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen name="+not-found" />
+					</Stack>
+				</StoreInitializer>
+			)}
+		</ThemeProvider>
 	);
 }
 
@@ -180,6 +180,5 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: lightTheme.colors.background,
 	},
 });

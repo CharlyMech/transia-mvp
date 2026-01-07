@@ -6,8 +6,9 @@ import { IconPlaceholder } from "@/components/IconPlaceholder";
 import { SkeletonList } from "@/components/skeletons";
 import { StatusLabel } from "@/components/StatusLabel";
 import { VehicleStatus } from "@/constants/enums/VehicleStatus";
-import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
+import { roundness, spacing, typography } from "@/constants/theme";
 import { useActionsModal } from "@/hooks/useActionsModal";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { useFleetStore } from "@/stores/useFleetStore";
 import { getVehicleStatusIcon } from "@/utils/fleetUtils";
 import { router } from "expo-router";
@@ -20,6 +21,9 @@ type SortOption = 'vehicleBrand' | 'vehicleModel' | 'plateNumber' | 'registratio
 type SortOrder = 'asc' | 'desc';
 
 export default function FleetScreen() {
+	const { theme } = useAppTheme();
+	const styles = useMemo(() => getStyles(theme), [theme]);
+
 	const vehicles = useFleetStore((state) => state.vehicles);
 	const loading = useFleetStore((state) => state.loading);
 	const selectedVehicle = useFleetStore((state) => state.selectedVehicle);
@@ -279,11 +283,11 @@ export default function FleetScreen() {
 			<View style={styles.headerWrapper}>
 				<View style={styles.headerContainer}>
 					<View style={styles.searchContainer}>
-						<Search size={20} color={lightTheme.colors.onSurfaceVariant} />
+						<Search size={20} color={theme.colors.onSurfaceVariant} />
 						<TextInput
 							style={styles.searchInput}
 							placeholder="Buscar vehículos..."
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+							placeholderTextColor={theme.colors.onSurfaceVariant}
 							value={searchQuery}
 							onChangeText={setSearchQuery}
 							autoCapitalize="none"
@@ -291,18 +295,18 @@ export default function FleetScreen() {
 						/>
 						{searchQuery.length > 0 && (
 							<Pressable onPress={clearSearch} style={styles.clearButton}>
-								<X size={18} color={lightTheme.colors.onSurfaceVariant} />
+								<X size={18} color={theme.colors.onSurfaceVariant} />
 							</Pressable>
 						)}
 						{isSearching && (
-							<ActivityIndicator size="small" color={lightTheme.colors.primary} />
+							<ActivityIndicator size="small" color={theme.colors.primary} />
 						)}
 					</View>
 					<ElevatedButton
-						backgroundColor={lightTheme.colors.primary}
+						backgroundColor={theme.colors.primary}
 						icon={Plus}
 						iconSize={22}
-						iconColor={lightTheme.colors.onPrimary}
+						iconColor={theme.colors.onPrimary}
 						label="Nuevo"
 						fontSize={typography.bodyMedium}
 						paddingX={spacing.sm}
@@ -321,9 +325,9 @@ export default function FleetScreen() {
 					<Text style={styles.filtersHeaderText}>Filtros y ordenación</Text>
 					<View style={styles.filtersHeaderRight}>
 						{isFiltersExpanded ? (
-							<ChevronUp size={20} color={lightTheme.colors.onSurface} />
+							<ChevronUp size={20} color={theme.colors.onSurface} />
 						) : (
-							<ChevronDown size={20} color={lightTheme.colors.onSurface} />
+							<ChevronDown size={20} color={theme.colors.onSurface} />
 						)}
 					</View>
 				</TouchableOpacity>
@@ -359,20 +363,20 @@ export default function FleetScreen() {
 											style={[
 												styles.statusChip,
 												{
-													backgroundColor: isSelected ? lightTheme.colors.secondaryContainer : lightTheme.colors.surface,
-													borderColor: isSelected ? lightTheme.colors.primary : lightTheme.colors.outline,
+													backgroundColor: isSelected ? theme.colors.secondaryContainer : theme.colors.surface,
+													borderColor: isSelected ? theme.colors.primary : theme.colors.outline,
 												},
 											]}
 											onPress={() => toggleStatusFilter(status)}
 										>
 											<StatusIcon
 												size={16}
-												color={lightTheme.colors.onSurface}
+												color={theme.colors.onSurface}
 											/>
 											<Text
 												style={[
 													styles.statusChipText,
-													{ color: lightTheme.colors.onSurface },
+													{ color: theme.colors.onSurface },
 												]}
 											>
 												{getStatusLabel(status)}
@@ -403,20 +407,20 @@ export default function FleetScreen() {
 												style={[
 													styles.statusChip,
 													{
-														backgroundColor: isSelected ? lightTheme.colors.secondaryContainer : lightTheme.colors.surface,
-														borderColor: isSelected ? lightTheme.colors.primary : lightTheme.colors.outline,
+														backgroundColor: isSelected ? theme.colors.secondaryContainer : theme.colors.surface,
+														borderColor: isSelected ? theme.colors.primary : theme.colors.outline,
 													},
 												]}
 												onPress={() => toggleTypeFilter(type)}
 											>
 												<Truck
 													size={16}
-													color={lightTheme.colors.onSurface}
+													color={theme.colors.onSurface}
 												/>
 												<Text
 													style={[
 														styles.statusChipText,
-														{ color: lightTheme.colors.onSurface },
+														{ color: theme.colors.onSurface },
 													]}
 												>
 													{type}
@@ -446,36 +450,15 @@ export default function FleetScreen() {
 
 									<View style={styles.activeFilterCardIcon}>
 										{sortOrder === 'asc' ? (
-											<ChevronsUp size={18} color={lightTheme.colors.primary} />
+											<ChevronsUp size={18} color={theme.colors.primary} />
 										) : (
-											<ChevronsDown size={18} color={lightTheme.colors.primary} />
+											<ChevronsDown size={18} color={theme.colors.primary} />
 										)}
 									</View>
 								</Pressable>
 							</View>
-							<View style={styles.sortOptionsContainer}>
-								{(['vehicleBrand', 'vehicleModel', 'plateNumber'] as SortOption[]).map((option) => (
-									<TouchableOpacity
-										key={option}
-										style={[
-											styles.sortOptionChip,
-											sortBy === option && styles.sortOptionChipActive,
-										]}
-										onPress={() => setSortBy(option)}
-									>
-										<Text
-											style={[
-												styles.sortOptionText,
-												sortBy === option && styles.sortOptionTextActive,
-											]}
-										>
-											{getSortLabel(option)}
-										</Text>
-									</TouchableOpacity>
-								))}
-							</View>
-							<View style={styles.sortOptionsContainer}>
-								{(['registrationDate', 'purchaseDate', 'year'] as SortOption[]).map((option) => (
+							<View style={styles.sortOptionsGrid}>
+								{(['vehicleBrand', 'vehicleModel', 'plateNumber', 'registrationDate', 'purchaseDate', 'year'] as SortOption[]).map((option) => (
 									<TouchableOpacity
 										key={option}
 										style={[
@@ -514,12 +497,12 @@ export default function FleetScreen() {
 				<SkeletonList count={8} cardHeight={100} />
 			) : isSearching ? (
 				<View style={styles.loadingContainer}>
-					<ActivityIndicator size="large" color={lightTheme.colors.primary} />
+					<ActivityIndicator size="large" color={theme.colors.primary} />
 					<Text style={styles.loadingText}>Buscando...</Text>
 				</View>
 			) : filteredVehicles.length === 0 ? (
 				<View style={styles.emptyContainer}>
-					<Truck size={64} color={lightTheme.colors.onSurfaceVariant} />
+					<Truck size={64} color={theme.colors.onSurfaceVariant} />
 					<Text style={styles.emptyTitle}>
 						{hasActiveFilters
 							? 'No se encontraron vehículos'
@@ -553,7 +536,7 @@ export default function FleetScreen() {
 								paddingX={spacing.sm}
 								paddingY={spacing.sm}
 								shadow='none'
-								backgroundColor={lightTheme.colors.surface}
+								backgroundColor={theme.colors.surface}
 								style={styles.vehicleCard}
 							>
 								<View style={styles.cardContent}>
@@ -566,9 +549,9 @@ export default function FleetScreen() {
 												paddingY={0}
 												rounded={roundness.xs}
 												shadow='none'
-												backgroundColor={`${lightTheme.colors.primary}CC`}
+												backgroundColor={`${theme.colors.primary}CC`}
 											>
-												<IconPlaceholder color={lightTheme.colors.onPrimary} icon={Truck} size={80} />
+												<IconPlaceholder color={theme.colors.onPrimary} icon={Truck} size={80} />
 											</Card>
 										}
 									</View>
@@ -620,7 +603,7 @@ export default function FleetScreen() {
 								style={styles.actionButton}
 								onPress={handleViewVehicle}
 							>
-								<ExternalLink size={22} color={lightTheme.colors.onSurface} />
+								<ExternalLink size={22} color={theme.colors.onSurface} />
 								<Text style={styles.actionText}>Ver detalles</Text>
 							</TouchableOpacity>
 
@@ -628,7 +611,7 @@ export default function FleetScreen() {
 								style={styles.actionButton}
 								onPress={handleChangeStatus}
 							>
-								<RefreshCcw size={22} color={lightTheme.colors.onSurface} />
+								<RefreshCcw size={22} color={theme.colors.onSurface} />
 								<Text style={styles.actionText}>Cambiar estado</Text>
 							</TouchableOpacity>
 
@@ -636,7 +619,7 @@ export default function FleetScreen() {
 								style={[styles.actionButton, styles.dangerAction]}
 								onPress={handleRequestDelete}
 							>
-								<Trash2 size={22} color={lightTheme.colors.error} />
+								<Trash2 size={22} color={theme.colors.error} />
 								<Text style={[styles.actionText, styles.dangerText]}>
 									Eliminar
 								</Text>
@@ -654,8 +637,8 @@ export default function FleetScreen() {
 								style={[styles.actionButton, styles.successAction]}
 								onPress={() => handleUpdateVehicleStatus(VehicleStatus.ACTIVE)}
 							>
-								<Check size={22} color={lightTheme.colors.statusActive} />
-								<Text style={[styles.actionText, { color: lightTheme.colors.statusActive }]}>
+								<Check size={22} color={theme.colors.statusActive} />
+								<Text style={[styles.actionText, { color: theme.colors.statusActive }]}>
 									Activo
 								</Text>
 							</TouchableOpacity>
@@ -664,7 +647,7 @@ export default function FleetScreen() {
 								style={[styles.actionButton, styles.setMaintenanceAction]}
 								onPress={() => handleUpdateVehicleStatus(VehicleStatus.MAINTENANCE)}
 							>
-								<Wrench size={22} color={lightTheme.colors.statusMaintenance} />
+								<Wrench size={22} color={theme.colors.statusMaintenance} />
 								<Text style={[styles.actionText, styles.setMaintenanceText]}>
 									En mantenimiento
 								</Text>
@@ -674,7 +657,7 @@ export default function FleetScreen() {
 								style={[styles.actionButton, styles.setInactiveAction]}
 								onPress={() => handleUpdateVehicleStatus(VehicleStatus.INACTIVE)}
 							>
-								<Pause size={22} color={lightTheme.colors.onBackground} />
+								<Pause size={22} color={theme.colors.onBackground} />
 								<Text style={[styles.actionText, styles.setInactiveText]}>
 									Inactivo
 								</Text>
@@ -684,7 +667,7 @@ export default function FleetScreen() {
 								style={[styles.actionButton, styles.setBrokenDownAction]}
 								onPress={() => handleUpdateVehicleStatus(VehicleStatus.BROKEN_DOWN)}
 							>
-								<X size={22} color={lightTheme.colors.statusBrokenDown} />
+								<X size={22} color={theme.colors.statusBrokenDown} />
 								<Text style={[styles.actionText, styles.setBrokenDownText]}>
 									Averiado
 								</Text>
@@ -707,14 +690,14 @@ export default function FleetScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	headerWrapper: {
-		backgroundColor: lightTheme.colors.background,
-		shadowColor: lightTheme.colors.shadow,
+		backgroundColor: theme.colors.background,
+		shadowColor: theme.colors.shadow,
 		shadowOffset: {
 			width: 0,
 			height: 6,
@@ -733,13 +716,13 @@ const styles = StyleSheet.create({
 		paddingTop: spacing.sm,
 		paddingBottom: spacing.xs,
 		gap: spacing.sm,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	searchContainer: {
 		flex: 1,
 		flexDirection: 'row',
 		alignItems: 'center',
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderRadius: roundness.sm,
 		paddingHorizontal: spacing.md,
 		paddingVertical: spacing.sm,
@@ -748,7 +731,7 @@ const styles = StyleSheet.create({
 	searchInput: {
 		flex: 1,
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		padding: 0,
 	},
 	clearButton: {
@@ -766,7 +749,7 @@ const styles = StyleSheet.create({
 	filtersHeaderText: {
 		fontSize: typography.bodySmall,
 		fontWeight: '400',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	filtersHeaderRight: {
 		flexDirection: 'row',
@@ -792,12 +775,12 @@ const styles = StyleSheet.create({
 	filterLabel: {
 		fontSize: typography.bodyMedium,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	clearFiltersText: {
 		fontSize: typography.bodySmall,
 		fontWeight: '600',
-		color: lightTheme.colors.primary,
+		color: theme.colors.primary,
 	},
 	statusChipsGrid: {
 		flexDirection: 'row',
@@ -828,32 +811,36 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 		gap: spacing.xs,
 	},
+	sortOptionsGrid: {
+		flexDirection: 'row',
+		flexWrap: 'wrap',
+		gap: spacing.xs,
+		justifyContent: 'space-between',
+	},
 	sortOptionChip: {
-		flex: 1,
 		flexDirection: 'row',
 		alignItems: 'center',
-		justifyContent: 'space-between',
-		paddingHorizontal: spacing.md,
+		justifyContent: 'center',
+		paddingHorizontal: spacing.sm,
 		paddingVertical: spacing.md,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderWidth: 1.5,
-		borderColor: lightTheme.colors.outline,
-		minWidth: 190,
+		borderColor: theme.colors.outline,
+		flexBasis: '32%',
 		flexGrow: 1,
-		flexShrink: 1,
-		maxWidth: 280,
+		minHeight: 44,
 	},
 	sortOptionChipActive: {
-		backgroundColor: lightTheme.colors.secondaryContainer,
-		borderColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.secondaryContainer,
+		borderColor: theme.colors.primary,
 	},
 	sortOptionText: {
 		width: '100%',
 		textAlign: 'center',
 		fontSize: typography.bodyMedium,
 		fontWeight: '500',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	sortOptionTextActive: {
 		fontWeight: '600',
@@ -875,7 +862,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: spacing.md,
 		paddingVertical: spacing.sm,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 	},
 	activeFilterCardPressed: {
 		opacity: 0.9,
@@ -883,7 +870,7 @@ const styles = StyleSheet.create({
 	activeFilterCardText: {
 		fontSize: 14,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	activeFilterCardIcon: {
 		marginLeft: spacing.sm,
@@ -896,7 +883,7 @@ const styles = StyleSheet.create({
 	},
 	resultsText: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		fontWeight: '500',
 	},
 	loadingContainer: {
@@ -907,7 +894,7 @@ const styles = StyleSheet.create({
 	},
 	loadingText: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	emptyContainer: {
 		flex: 1,
@@ -919,12 +906,12 @@ const styles = StyleSheet.create({
 	emptyTitle: {
 		fontSize: typography.titleMedium,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		textAlign: 'center',
 	},
 	emptySubtitle: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurface,
 		textAlign: 'center',
 	},
 	scrollView: {
@@ -971,10 +958,12 @@ const styles = StyleSheet.create({
 		fontSize: typography.titleMedium,
 		fontWeight: "600",
 		flex: 1,
+		color: theme.colors.onSurface,
 	},
 	vehiclePlate: {
 		fontSize: typography.bodyMedium,
 		opacity: 0.7,
+		color: theme.colors.onSurface,
 	},
 	vehicleFooter: {
 		width: "100%",
@@ -987,6 +976,7 @@ const styles = StyleSheet.create({
 	vehicleDate: {
 		fontSize: typography.bodySmall,
 		opacity: 0.7,
+		color: theme.colors.onSurfaceVariant,
 	},
 	modalContent: {
 		gap: spacing.sm,
@@ -996,39 +986,39 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		padding: spacing.md,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 		gap: spacing.md,
 	},
 	actionText: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	dangerAction: {
-		backgroundColor: lightTheme.colors.errorContainer,
+		backgroundColor: theme.colors.errorContainer,
 	},
 	dangerText: {
-		color: lightTheme.colors.error,
+		color: theme.colors.error,
 	},
 	successAction: {
-		backgroundColor: lightTheme.colors.statusActiveContainer,
+		backgroundColor: theme.colors.statusActiveContainer,
 	},
 	setMaintenanceAction: {
-		backgroundColor: lightTheme.colors.statusMaintenanceContainer,
+		backgroundColor: theme.colors.statusMaintenanceContainer,
 	},
 	setMaintenanceText: {
-		color: lightTheme.colors.statusMaintenance,
+		color: theme.colors.statusMaintenance,
 	},
 	setInactiveAction: {
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	setInactiveText: {
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 	},
 	setBrokenDownAction: {
-		backgroundColor: lightTheme.colors.statusBrokenDownContainer,
+		backgroundColor: theme.colors.statusBrokenDownContainer,
 	},
 	setBrokenDownText: {
-		color: lightTheme.colors.statusBrokenDown,
+		color: theme.colors.statusBrokenDown,
 	},
 });

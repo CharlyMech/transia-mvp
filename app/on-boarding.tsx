@@ -1,9 +1,10 @@
 import { ElevatedButton } from '@/components/ElevatedButton';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { OnboardingStorage } from '@/utils/onBoardingStorage';
 import { router } from 'expo-router';
 import { ArrowRight } from 'lucide-react-native';
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
 	Dimensions,
 	Image,
@@ -57,6 +58,8 @@ export default function OnboardingScreen() {
 	const scrollViewRef = useRef<ScrollView>(null);
 	const isScrollingProgrammatically = useRef(false);
 	const insets = useSafeAreaInsets();
+	const { theme, isDark } = useAppTheme();
+	const styles = useMemo(() => getStyles(theme), [theme]);
 
 	const handleNext = () => {
 		if (currentStep < ONBOARDING_STEPS.length - 1) {
@@ -115,8 +118,8 @@ export default function OnboardingScreen() {
 	return (
 		<View style={styles.container}>
 			<StatusBar
-				barStyle="dark-content"
-				backgroundColor={lightTheme.colors.background}
+				barStyle={isDark ? "light-content" : "dark-content"}
+				backgroundColor={theme.colors.background}
 				translucent={false}
 			/>
 
@@ -192,7 +195,7 @@ export default function OnboardingScreen() {
 				<View style={styles.buttonContainer}>
 					{isLastStep ? (
 						<ElevatedButton
-							backgroundColor={lightTheme.colors.primary}
+							backgroundColor={theme.colors.primary}
 							label="Empezar a usar la aplicación"
 							fontSize={typography.bodyLarge}
 							paddingX={spacing.xl}
@@ -204,12 +207,12 @@ export default function OnboardingScreen() {
 						/>
 					) : (
 						<ElevatedButton
-							backgroundColor={lightTheme.colors.primary}
+							backgroundColor={theme.colors.primary}
 							label="Siguiente"
 							icon={ArrowRight}
 							iconSize={20}
 							iconPosition="right"
-							iconColor={lightTheme.colors.onPrimary}
+							iconColor={theme.colors.onPrimary}
 							fontSize={typography.bodyLarge}
 							paddingX={spacing.xl}
 							paddingY={spacing.md}
@@ -225,10 +228,10 @@ export default function OnboardingScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	skipButton: {
 		position: 'absolute',
@@ -241,7 +244,7 @@ const styles = StyleSheet.create({
 	skipText: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.primary,
+		color: theme.colors.primary,
 	},
 	scrollView: {
 		flex: 1,
@@ -276,13 +279,13 @@ const styles = StyleSheet.create({
 	stepTitle: {
 		fontSize: typography.displaySmall,
 		fontWeight: '700',
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 		textAlign: 'center',
 	},
 	stepDescription: {
 		fontSize: typography.bodyLarge,
 		lineHeight: 28,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		textAlign: 'center',
 	},
 	bottomSection: {
@@ -300,11 +303,11 @@ const styles = StyleSheet.create({
 		width: 8,
 		height: 8,
 		borderRadius: roundness.full,
-		backgroundColor: lightTheme.colors.outline,
+		backgroundColor: theme.colors.outline,
 	},
 	activeDot: {
 		width: 24,
-		backgroundColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primary,
 	},
 	buttonContainer: {
 		width: '100%',

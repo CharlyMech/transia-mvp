@@ -1,5 +1,5 @@
-import { lightTheme } from '@/constants/theme';
-import React, { useEffect, useRef } from 'react';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -12,6 +12,7 @@ function SkeletonBox({
 	height?: number;
 	style?: any;
 }) {
+	const { theme } = useAppTheme();
 	const shimmerAnim = useRef(new Animated.Value(0)).current;
 
 	useEffect(() => {
@@ -50,7 +51,7 @@ function SkeletonBox({
 				{
 					width,
 					height,
-					backgroundColor: lightTheme.colors.surface,
+					backgroundColor: theme.colors.surface,
 					borderRadius: 12,
 					overflow: 'hidden',
 					position: 'relative',
@@ -65,7 +66,7 @@ function SkeletonBox({
 					left: 0,
 					right: 0,
 					bottom: 0,
-					backgroundColor: lightTheme.colors.surfaceVariant,
+					backgroundColor: theme.colors.surfaceVariant,
 					opacity,
 					transform: [{ translateX }],
 				}}
@@ -75,6 +76,9 @@ function SkeletonBox({
 }
 
 export function SkeletonHome() {
+	const { theme } = useAppTheme();
+	const styles = useMemo(() => getStyles(theme), [theme]);
+
 	return (
 		<SafeAreaView
 			style={styles.container}
@@ -120,10 +124,10 @@ export function SkeletonHome() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	contentContainer: {
 		padding: 16,

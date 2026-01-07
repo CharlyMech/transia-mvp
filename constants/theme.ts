@@ -19,43 +19,58 @@ export const lightTheme = {
 		tertiaryContainer: "#beeaf6",
 		onTertiaryContainer: "#214c57",
 
-		success: "#0F9D58",
-		onSuccess: "#ffffff",
-		successContainer: "#DFF6E4",
-		onSuccessContainer: "#003914",
+		// Semantic states
+		success: "#2E7D32",
+		onSuccess: "#FFFFFF",
+		successContainer: "#C8E6C9",
+		onSuccessContainer: "#1B5E20",
 
-		error: "#ba1a1a",
-		onError: "#ffffff",
-		errorContainer: "#ffdad6",
-		onErrorContainer: "#93000a",
+		warning: "#F57C00",
+		onWarning: "#FFFFFF",
+		warningContainer: "#FFE0B2",
+		onWarningContainer: "#E65100",
 
-		warning: "#ffb332",
-		onWarning: "#4d2c00",
-		warningContainer: "#ffe0b2",
-		onWarningContainer: "#663c00",
+		error: "#D32F2F",
+		onError: "#FFFFFF",
+		errorContainer: "#FFCDD2",
+		onErrorContainer: "#B71C1C",
+
 
 		// Status
-		statusActive: "#1E8E3E",
+		statusActive: "#2E7D32",
+		onStatusActive: "#FFFFFF",
 		statusActiveContainer: "#E6F4EA",
+		onStatusActiveContainer: "#1B5E20",
 
-		statusInactive: "#5F6368",
+		statusInactive: "#9E9E9E",
 		onStatusInactive: "#FFFFFF",
 		statusInactiveContainer: "#ECEFF1",
+		onStatusInactiveContainer: "#37474F",
 
-		statusOnService: "#4CAF50",
+		statusOnService: "#1E6BB8",
 		onStatusOnService: "#FFFFFF",
+		statusOnServiceContainer: "#E3F2FD",
+		onStatusOnServiceContainer: "#0D47A1",
 
-		statusMaintenance: "#F57C00",
-		statusMaintenanceContainer: "#FFE0B2",
+		statusMaintenance: "#8E24AA",
+		onStatusMaintenance: "#FFFFFF",
+		statusMaintenanceContainer: "#F3E5F5",
+		onStatusMaintenanceContainer: "#4A148C",
 
-		statusHolidays: "#1E88E5",
+		statusHolidays: "#1E6BB8",
+		onStatusHolidays: "#FFFFFF",
 		statusHolidaysContainer: "#E3F2FD",
+		onStatusHolidaysContainer: "#0D47A1",
 
-		statusBrokenDown: "#D32F2F",
+		statusBrokenDown: "#B3261E",
 		onStatusBrokenDown: "#FFFFFF",
 		statusBrokenDownContainer: "#FFE3E3",
-		statusSickLeave: "#D32F2F",
+		onStatusBrokenDownContainer: "#7F1D1D",
+
+		statusSickLeave: "#B3261E",
+		onStatusSickLeave: "#FFFFFF",
 		statusSickLeaveContainer: "#FFE3E3",
+		onStatusSickLeaveContainer: "#7F1D1D",
 
 		background: "#e0e0e0",
 		onBackground: "#181d18",
@@ -94,8 +109,8 @@ export const darkTheme = {
 	colors: {
 		...MD3DarkTheme.colors,
 
-		primary: "#96d5a7",
-		onPrimary: "#00391c",
+		primary: "#57a773",
+		onPrimary: "#ffffff",
 		primaryContainer: "#11512e",
 		onPrimaryContainer: "#b1f1c1",
 
@@ -109,54 +124,80 @@ export const darkTheme = {
 		tertiaryContainer: "#214c57",
 		onTertiaryContainer: "#beeaf6",
 
-		error: "#ba1a1a",
-		onError: "#ffffff",
-		errorContainer: "#ffdad6",
-		onErrorContainer: "#93000a",
+		// Semantic states
+		success: "#66BB6A",
+		onSuccess: "#FFFFFF",
+		successContainer: "#1B5E20",
+		onSuccessContainer: "#A5D6A7",
 
-		warning: "#ffb74d",
-		onWarning: "#4d2c00",
-		warningContainer: "#ffe0b2",
-		onWarningContainer: "#663c00",
+		warning: "#FFA726",
+		onWarning: "#FFFFFF",
+		warningContainer: "#E65100",
+		onWarningContainer: "#FFCC80",
+
+		error: "#EF5350",
+		onError: "#FFFFFF",
+		errorContainer: "#B71C1C",
+		onErrorContainer: "#EF9A9A",
+
 
 		// Status
-		statusActive: "#1E8E3E",
-		statusActiveContainer: "#E6F4EA",
+		statusActive: "#6FCF97",
+		onStatusActive: "#0B3D24",
+		statusActiveContainer: "#1E4F34",
+		onStatusActiveContainer: "#B7EFC5",
 
-		statusInactive: "#5F6368",
-		statusInactiveContainer: "#ECEFF1",
+		statusInactive: "#BDBDBD",
+		onStatusInactive: "#1A1A1A",
+		statusInactiveContainer: "#2A2A2A",
+		onStatusInactiveContainer: "#E0E0E0",
 
-		statusMaintenance: "#F57C00",
-		statusMaintenanceContainer: "#FFE0B2",
+		statusOnService: "#8AB4F8",
+		onStatusOnService: "#002F6C",
+		statusOnServiceContainer: "#1A3B5D",
+		onStatusOnServiceContainer: "#C3DAFF",
 
-		statusHolidays: "#1E88E5",
-		statusHolidaysContainer: "#E3F2FD",
+		statusMaintenance: "#D7A6E8",
+		onStatusMaintenance: "#3A1244",
+		statusMaintenanceContainer: "#4A235A",
+		onStatusMaintenanceContainer: "#F1D9FA",
 
-		statusBrokenDown: "#D32F2F",
-		statusBrokenDownContainer: "#FFE3E3",
-		statusSickLeave: "#D32F2F",
-		statusSickLeaveContainer: "#FFE3E3",
+		statusHolidays: "#8AB4F8",
+		onStatusHolidays: "#002F6C",
+		statusHolidaysContainer: "#1A3B5D",
+		onStatusHolidaysContainer: "#C3DAFF",
 
-		background: "#e0e0e0",
-		onBackground: "#181d18",
+		statusBrokenDown: "#F28B82",
+		onStatusBrokenDown: "#5F1410",
+		statusBrokenDownContainer: "#7A1A1A",
+		onStatusBrokenDownContainer: "#FFB4AB",
 
-		surface: "#f0f0f0",
-		onSurface: "#181d18",
+		statusSickLeave: "#F28B82",
+		onStatusSickLeave: "#5F1410",
+		statusSickLeaveContainer: "#7A1A1A",
+		onStatusSickLeaveContainer: "#FFB4AB",
 
-		surfaceVariant: "#101510",
-		onSurfaceVariant: "#c0c9bf",
 
-		outline: "#8b938a",
+		background: "#1e1e1e",
+		onBackground: "#E4EAE5",
 
-		surfaceDisabled: "rgba(225,225,225,0.12)",
-		onSurfaceDisabled: "rgba(225,225,225,0.38)",
+		surface: "#373737",
+		onSurface: "#E4EAE5",
 
-		inverseSurface: "#dfe4dd",
-		inverseOnSurface: "#2c322d",
-		inversePrimary: "#2d6a44",
+		surfaceVariant: "#232B25",
+		onSurfaceVariant: "#B9C4BC",
 
-		shadow: "#000000",
-		backdrop: "rgba(0,0,0,0.5)",
+		outline: "#505050",
+
+		surfaceDisabled: "rgba(228,234,229,0.12)",
+		onSurfaceDisabled: "rgba(228,234,229,0.38)",
+
+		inverseSurface: "#E4EAE5",
+		inverseOnSurface: "#1A211C",
+		inversePrimary: "#2D6A44",
+
+		shadow: "#545454",
+		backdrop: "rgba(0,0,0,0.55)",
 
 		elevation: {
 			level0: "transparent",
@@ -210,7 +251,7 @@ export const typography = {
 	labelSmall: 11,
 };
 
-// Elevaciones (sombras)
+// Shadow elevations
 export const elevation = (theme: typeof lightTheme | typeof darkTheme) => ({
 	small: {
 		shadowColor: theme.colors.shadow,

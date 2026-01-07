@@ -1,5 +1,6 @@
-import { lightTheme, spacing } from '@/constants/theme';
-import React from 'react';
+import { spacing } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SkeletonCard } from './SkeletonCard';
 
@@ -12,6 +13,9 @@ export function SkeletonList({
 	count = 8,
 	cardHeight = 100
 }: SkeletonListProps) {
+	const { theme } = useAppTheme();
+	const styles = useMemo(() => getStyles(theme), [theme]);
+
 	return (
 		<View style={styles.container}>
 			<View
@@ -28,10 +32,10 @@ export function SkeletonList({
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 		width: "100%",
 		padding: spacing.sm
 	},

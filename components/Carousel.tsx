@@ -1,4 +1,5 @@
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import React, { useRef, useState } from 'react';
 import {
@@ -34,12 +35,16 @@ export function Carousel({
 	height = 280,
 	gap = spacing.md,
 	showArrows = true,
-	arrowColor = lightTheme.colors.onSurface,
+	arrowColor,
 	arrowSize = 24,
 	showCounter = true,
 	containerStyle,
 	onItemPress,
 }: CarouselProps) {
+	const { theme } = useAppTheme();
+	const styles = createStyles(theme);
+	const effectiveArrowColor = arrowColor || theme.colors.onSurface;
+
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const scrollViewRef = useRef<ScrollView>(null);
 
@@ -123,7 +128,7 @@ export function Carousel({
 						style={[styles.arrowButton, styles.leftArrow]}
 						onPress={handlePrevious}
 					>
-						<ChevronLeft size={arrowSize} color={arrowColor} />
+						<ChevronLeft size={arrowSize} color={effectiveArrowColor} />
 					</Pressable>
 				)}
 
@@ -133,7 +138,7 @@ export function Carousel({
 						style={[styles.arrowButton, styles.rightArrow]}
 						onPress={handleNext}
 					>
-						<ChevronRight size={arrowSize} color={arrowColor} />
+						<ChevronRight size={arrowSize} color={effectiveArrowColor} />
 					</Pressable>
 				)}
 			</View>
@@ -141,7 +146,7 @@ export function Carousel({
 	);
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
 	container: {
 		width: '100%',
 	},
@@ -163,10 +168,10 @@ const styles = StyleSheet.create({
 		top: '50%',
 		transform: [{ translateY: -20 }],
 		zIndex: 10,
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderRadius: 20,
 		padding: spacing.sm,
-		shadowColor: lightTheme.colors.shadow,
+		shadowColor: theme.colors.shadow,
 		shadowOffset: { width: 0, height: 2 },
 		shadowOpacity: 0.25,
 		shadowRadius: 3.84,
@@ -182,14 +187,14 @@ const styles = StyleSheet.create({
 		position: 'absolute',
 		top: spacing.sm,
 		right: spacing.sm,
-		backgroundColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primary,
 		paddingHorizontal: spacing.sm,
 		paddingVertical: spacing.xs,
 		borderRadius: roundness.sm,
 		zIndex: 15,
 	},
 	counterText: {
-		color: lightTheme.colors.onPrimary,
+		color: theme.colors.onPrimary,
 		fontSize: typography.bodySmall,
 		fontWeight: '600',
 	},

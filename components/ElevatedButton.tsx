@@ -1,4 +1,5 @@
-import { lightTheme, roundness, spacing } from '@/constants/theme';
+import { roundness, spacing } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import React from 'react';
 import {
 	GestureResponderEvent,
@@ -49,13 +50,20 @@ export function ElevatedButton({
 	iconSize = 20,
 	iconColor,
 	iconPosition = 'left',
-	textColor = lightTheme.colors.onPrimary,
-	backgroundColor = lightTheme.colors.primary,
+	textColor,
+	backgroundColor,
 	shadow = 'small',
 	style,
 	textStyle,
 	disabled = false,
 }: ElevatedButtonProps) {
+	const { theme } = useAppTheme();
+	const defaultTextColor = theme.colors.onPrimary;
+	const defaultBackgroundColor = theme.colors.primary;
+
+	const finalTextColor = textColor || defaultTextColor;
+	const finalBackgroundColor = backgroundColor || defaultBackgroundColor;
+
 	const scale = useSharedValue(1);
 	const translateY = useSharedValue(0);
 
@@ -88,7 +96,7 @@ export function ElevatedButton({
 				return {};
 			case 'small':
 				return {
-					shadowColor: lightTheme.colors.shadow,
+					shadowColor: theme.colors.shadow,
 					shadowOffset: { width: 0, height: 2 },
 					shadowOpacity: 0.1,
 					shadowRadius: 4,
@@ -96,7 +104,7 @@ export function ElevatedButton({
 				};
 			case 'medium':
 				return {
-					shadowColor: lightTheme.colors.shadow,
+					shadowColor: theme.colors.shadow,
 					shadowOffset: { width: 0, height: 4 },
 					shadowOpacity: 0.15,
 					shadowRadius: 8,
@@ -104,7 +112,7 @@ export function ElevatedButton({
 				};
 			case 'large':
 				return {
-					shadowColor: lightTheme.colors.shadow,
+					shadowColor: theme.colors.shadow,
 					shadowOffset: { width: 0, height: 6 },
 					shadowOpacity: 0.2,
 					shadowRadius: 12,
@@ -116,7 +124,7 @@ export function ElevatedButton({
 	};
 
 	const buttonStyle: ViewStyle = {
-		backgroundColor,
+		backgroundColor: finalBackgroundColor,
 		borderRadius: rounded,
 		paddingHorizontal: paddingX,
 		paddingVertical: paddingY,
@@ -129,7 +137,7 @@ export function ElevatedButton({
 	};
 
 	const baseTextStyle: TextStyle = {
-		color: textColor,
+		color: finalTextColor,
 		fontSize,
 		fontWeight,
 	};
@@ -143,11 +151,11 @@ export function ElevatedButton({
 			style={[buttonStyle, animatedStyle, style]}
 		>
 			{Icon && iconPosition === 'left' && (
-				<Icon size={iconSize} color={iconColor || textColor} />
+				<Icon size={iconSize} color={iconColor || finalTextColor} />
 			)}
 			{label && <Text style={[baseTextStyle, textStyle]}>{label}</Text>}
 			{Icon && iconPosition === 'right' && (
-				<Icon size={iconSize} color={iconColor || textColor} />
+				<Icon size={iconSize} color={iconColor || finalTextColor} />
 			)}
 		</AnimatedPressable>
 	);

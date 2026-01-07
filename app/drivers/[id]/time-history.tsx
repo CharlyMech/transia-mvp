@@ -2,7 +2,8 @@ import { Accordion } from '@/components/Accordion';
 import { Card } from '@/components/Card';
 import { ElevatedButton } from '@/components/ElevatedButton';
 import { SkeletonDetail } from '@/components/skeletons';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useDriversStore } from '@/stores/useDriversStore';
 import { useTimeRegistrationsStore } from '@/stores/useTimeRegistrationStore';
@@ -29,11 +30,18 @@ interface GroupedRegistrations {
 	expectedMinutes: number;
 }
 
+interface YearGroup {
+	year: string;
+	months: GroupedRegistrations[];
+}
+
 export default function TimeHistoryScreen() {
 	const insets = useSafeAreaInsets();
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const user = useAuthStore((state) => state.user);
+	const { theme, isDark } = useAppTheme();
 
+	const styles = useMemo(() => getStyles(theme), [theme]);
 	const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set());
 
 	const currentDriver = useDriversStore((state) => state.currentDriver);
@@ -237,6 +245,24 @@ export default function TimeHistoryScreen() {
 		return allMonths.sort((a, b) => b.monthYear.localeCompare(a.monthYear));
 	}, [registrations, currentDriver]);
 
+	// Group months by year
+	const groupedByYear: YearGroup[] = useMemo(() => {
+		const yearMap: { [year: string]: GroupedRegistrations[] } = {};
+
+		groupedRegistrations.forEach((group) => {
+			const year = group.monthYear.split('-')[0];
+			if (!yearMap[year]) {
+				yearMap[year] = [];
+			}
+			yearMap[year].push(group);
+		});
+
+		// Convert to array and sort by year (most recent first)
+		return Object.entries(yearMap)
+			.map(([year, months]) => ({ year, months }))
+			.sort((a, b) => b.year.localeCompare(a.year));
+	}, [groupedRegistrations]);
+
 	const toggleMonth = (monthYear: string) => {
 		setExpandedMonths((prev) => {
 			const newSet = new Set(prev);
@@ -262,16 +288,16 @@ export default function TimeHistoryScreen() {
 		// Perfect range: ±15 minutes per day on average
 		const perfectRange = (expectedMinutes / 480) * 15;
 		if (diff <= perfectRange) {
-			return lightTheme.colors.success;
+			return theme.colors.success;
 		}
 
 		// Acceptable range: ±59 minutes per day on average
 		const acceptableRange = (expectedMinutes / 480) * 59;
 		if (diff <= acceptableRange) {
-			return lightTheme.colors.warning;
+			return theme.colors.warning;
 		}
 
-		return lightTheme.colors.error;
+		return theme.colors.error;
 	};
 
 	if (loadingDriver || loading) {
@@ -306,18 +332,18 @@ export default function TimeHistoryScreen() {
 	return (
 		<View style={styles.container}>
 			<StatusBar
-				barStyle="dark-content"
-				backgroundColor={lightTheme.colors.background}
+				barStyle={isDark ? "light-content" : "dark-content"}
+				backgroundColor={theme.colors.background}
 				translucent={false}
 			/>
 
 			{/* Floating Back Button - Positioned absolutely over content */}
 			<View style={[styles.floatingButtonContainer, { paddingTop: insets.top + spacing.sm }]}>
 				<ElevatedButton
-					backgroundColor={lightTheme.colors.primary}
+					backgroundColor={theme.colors.primary}
 					icon={ArrowLeft}
 					iconSize={22}
-					iconColor={lightTheme.colors.onPrimary}
+					iconColor={theme.colors.onPrimary}
 					paddingX={spacing.sm}
 					paddingY={spacing.sm}
 					rounded={roundness.full}
@@ -343,230 +369,255 @@ export default function TimeHistoryScreen() {
 						{currentDriver.name} {currentDriver.surnames || ''}
 					</Text>
 					<Text style={styles.driverSubtitle}>
-						Historial de registros horarios
+						Historial completo de registros horarios
 					</Text>
 				</View>
 
-				{/* Grouped Registrations with Accordion */}
-				{groupedRegistrations.map((group) => {
-					const isExpanded = expandedMonths.has(group.monthYear);
-					const varianceColor = getMonthVarianceColor(group.totalMinutes, group.expectedMinutes);
+				{/* Grouped Registrations by Year */}
+				{groupedByYear.map((yearGroup) => (
+					<View key={yearGroup.year} style={styles.yearGroup}>
+						{/* Year Title */}
+						<Text style={styles.yearTitle}>{yearGroup.year}</Text>
 
-					return (
-						<Accordion
-							key={group.monthYear}
-							title={group.displayName}
-							subtitle={`${group.registrations.length} ${group.registrations.length === 1 ? 'día' : 'días'}`}
-							isExpanded={isExpanded}
-							onToggle={() => toggleMonth(group.monthYear)}
-							headerStyle={styles.accordionHeader}
-							contentStyle={styles.accordionContent}
-							titleStyle={styles.monthTitle}
-							subtitleStyle={styles.monthSubtitle}
-							rightContent={
-								<View style={styles.monthStats}>
-									<Text style={[styles.monthTotal, { color: varianceColor }]}>
-										{formatMinutes(group.totalMinutes)}
-									</Text>
-									<Text style={styles.monthExpected}>
-										de {formatMinutes(group.expectedMinutes)}
-									</Text>
-								</View>
-							}
-						>
-							<View style={styles.separator} />
-							<Card
-								paddingX={spacing.md}
-								paddingY={spacing.md}
-								rounded={0}
-								shadow="none"
-								backgroundColor={lightTheme.colors.surface}
-							>
-								{group.registrations.length === 0 ? (
-									<View style={styles.emptyMonthState}>
-										<Text style={styles.emptyMonthText}>
-											No hay registros para este mes
-										</Text>
-									</View>
-								) : (
-									<>
-										{/* Table Header */}
-										<View style={[styles.tableRow, styles.tableHeader]}>
-											<Text style={[styles.cellDate, styles.headerText]}>Fecha</Text>
-											<Text style={[styles.cellTotal, styles.headerText]}>Total</Text>
-										</View>
+						{/* Months for this year */}
+						<View style={styles.monthsContainer}>
+							{yearGroup.months.map((group) => {
+								const isExpanded = expandedMonths.has(group.monthYear);
+								const varianceColor = getMonthVarianceColor(group.totalMinutes, group.expectedMinutes);
 
-										{/* Registrations */}
-										{group.registrations.map((reg) => {
-											const dateLabel = formatDateToDisplay(reg.date);
-											const totalMinutes = calculateMinutesWithAutoClose(reg);
-											const colorInfo = getTotalDayTimeColor(totalMinutes);
-
-											return (
-												<Pressable
-													key={reg.id ?? `${dateLabel}`}
-													style={({ pressed }) => [
-														styles.tableRow,
-														styles.tableRowClickable,
-														pressed && { backgroundColor: `${lightTheme.colors.outline}33` }
-													]}
-													onPress={() => {
-														router.push({
-															pathname: `/drivers/${id}/time-registration` as any,
-															params: { date: reg.date }
-														});
-													}}
-												>
-													<Text style={styles.cellDate}>{dateLabel}</Text>
-													<View style={{
-														backgroundColor: colorInfo.container,
-														borderRadius: roundness.xs,
-														paddingHorizontal: spacing.xs,
-														paddingVertical: spacing.xs,
-														alignItems: 'center',
-														minWidth: 120,
-														maxWidth: 120,
-													}}>
-														<Text style={[styles.cellTotal, { color: colorInfo.text }]}>{formatMinutes(totalMinutes)}</Text>
+								return (
+									<Accordion
+										key={group.monthYear}
+										title={group.displayName}
+										subtitle={`${group.registrations.length} ${group.registrations.length === 1 ? 'día' : 'días'}`}
+										isExpanded={isExpanded}
+										onToggle={() => toggleMonth(group.monthYear)}
+										headerStyle={styles.accordionHeader}
+										contentStyle={styles.accordionContent}
+										titleStyle={styles.monthTitle}
+										subtitleStyle={styles.monthSubtitle}
+										rightContent={
+											<View style={styles.monthStats}>
+												<Text style={[styles.monthTotal, { color: varianceColor }]}>
+													{formatMinutes(group.totalMinutes)}
+												</Text>
+												<Text style={styles.monthExpected}>
+													de {formatMinutes(group.expectedMinutes)}
+												</Text>
+											</View>
+										}
+									>
+										<View style={styles.separator} />
+										<Card
+											paddingX={spacing.md}
+											paddingY={spacing.md}
+											rounded={0}
+											shadow="none"
+											backgroundColor={theme.colors.surface}
+										>
+											{group.registrations.length === 0 ? (
+												<View style={styles.emptyMonthState}>
+													<Text style={styles.emptyMonthText}>
+														No hay registros para este mes
+													</Text>
+												</View>
+											) : (
+												<>
+													{/* Table Header */}
+													<View style={[styles.tableRow, styles.tableHeader]}>
+														<Text style={[styles.cellDate, styles.headerText]}>Fecha</Text>
+														<Text style={[styles.cellTotal, styles.headerText]}>Total</Text>
 													</View>
-													<ChevronRight size={16} color={lightTheme.colors.onSurface} />
-												</Pressable>
-											);
-										})}
-									</>
-								)}
-							</Card>
-						</Accordion>
-					);
-				})}
+
+													{/* Registrations */}
+													{group.registrations.map((reg) => {
+														const dateLabel = formatDateToDisplay(reg.date);
+														const totalMinutes = calculateMinutesWithAutoClose(reg);
+														const colorInfo = getTotalDayTimeColor(totalMinutes, theme);
+
+														return (
+															<Pressable
+																key={reg.id ?? `${dateLabel}`}
+																style={({ pressed }) => [
+																	styles.tableRow,
+																	styles.tableRowClickable,
+																	pressed && { backgroundColor: `${theme.colors.outline}33` }
+																]}
+																onPress={() => {
+																	router.push({
+																		pathname: `/drivers/${id}/time-registration` as any,
+																		params: { date: reg.date }
+																	});
+																}}
+															>
+																<Text style={styles.cellDate}>{dateLabel}</Text>
+																<View style={{
+																	backgroundColor: colorInfo.container,
+																	borderRadius: roundness.xs,
+																	paddingHorizontal: spacing.xs,
+																	paddingVertical: spacing.xs,
+																	alignItems: 'center',
+																	minWidth: 120,
+																	maxWidth: 120,
+																}}>
+																	<Text style={[styles.cellTotal, { color: colorInfo.text }]}>{formatMinutes(totalMinutes)}</Text>
+																</View>
+																<ChevronRight size={16} color={theme.colors.onSurface} />
+															</Pressable>
+														);
+													})}
+												</>
+											)}
+										</Card>
+									</Accordion>
+								);
+							})}
+						</View>
+					</View>
+				))}
 			</ScrollView>
 		</View>
 	);
 }
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: lightTheme.colors.background,
-	},
-	centered: {
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	floatingButtonContainer: {
-		position: 'absolute',
-		top: 0,
-		left: 0,
-		right: 0,
-		flexDirection: 'row',
-		justifyContent: 'flex-start',
-		alignItems: 'center',
-		paddingHorizontal: spacing.md,
-		zIndex: 1000,
-		backgroundColor: 'transparent',
-	},
-	scrollView: {
-		flex: 1,
-	},
-	scrollViewContent: {
-		padding: spacing.sm,
-		gap: spacing.sm,
-	},
-	driverInfo: {
-		marginBottom: spacing.sm,
-	},
-	driverName: {
-		fontSize: typography.headlineMedium,
-		fontWeight: '700',
-		color: lightTheme.colors.onBackground,
-		marginBottom: spacing.xs,
-	},
-	driverSubtitle: {
-		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurfaceVariant,
-	},
-	emptyMonthState: {
-		paddingVertical: spacing.lg,
-		alignItems: 'center',
-	},
-	emptyMonthText: {
-		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
-		fontStyle: 'italic',
-	},
-	accordionHeader: {
-		backgroundColor: lightTheme.colors.surface,
-		borderRadius: roundness.sm,
-	},
-	accordionContent: {
-		backgroundColor: lightTheme.colors.surface,
-		marginTop: 0,
-		borderBottomRightRadius: roundness.sm,
-		borderBottomLeftRadius: roundness.sm,
-	},
-	monthTitle: {
-		fontSize: typography.titleMedium,
-		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
-	},
-	monthSubtitle: {
-		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurfaceVariant,
-	},
-	monthStats: {
-		alignItems: 'flex-end',
-	},
-	monthTotal: {
-		fontSize: typography.titleMedium,
-		fontWeight: '600',
-	},
-	monthExpected: {
-		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurfaceVariant,
-	},
-	separator: {
-		marginHorizontal: spacing.md,
-		borderBottomWidth: 1,
-		borderBottomColor: lightTheme.colors.primary,
-	},
-	tableHeader: {
-		borderBottomWidth: 1,
-		borderBottomColor: lightTheme.colors.outline,
-		marginBottom: spacing.xs,
-	},
-	tableRow: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		paddingVertical: spacing.sm,
-		gap: spacing.sm,
-		borderBottomWidth: 1,
-		borderBottomColor: `${lightTheme.colors.outline}33`,
-	},
-	tableRowClickable: {
-		borderRadius: roundness.xs,
-		paddingHorizontal: spacing.xs,
-	},
-	cellDate: {
-		flex: 1,
-		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurface,
-	},
-	cellTotal: {
-		flex: 1,
-		fontSize: typography.bodyMedium,
-		fontWeight: '600',
-		textAlign: 'center',
-	},
-	headerText: {
-		fontWeight: '600',
-		color: lightTheme.colors.onSurfaceVariant,
-		fontSize: typography.labelMedium,
-		textTransform: 'uppercase',
-		letterSpacing: 0.5,
-	},
-	errorText: {
-		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.error,
-	},
-});
+function getStyles(theme: any) {
+	return StyleSheet.create({
+		container: {
+			flex: 1,
+			backgroundColor: theme.colors.background,
+		},
+		centered: {
+			justifyContent: 'center',
+			alignItems: 'center',
+		},
+		floatingButtonContainer: {
+			position: 'absolute',
+			top: 0,
+			left: 0,
+			right: 0,
+			flexDirection: 'row',
+			justifyContent: 'flex-start',
+			alignItems: 'center',
+			paddingHorizontal: spacing.md,
+			zIndex: 1000,
+			backgroundColor: 'transparent',
+		},
+		scrollView: {
+			flex: 1,
+		},
+		scrollViewContent: {
+			padding: spacing.sm,
+			gap: spacing.sm,
+		},
+		driverInfo: {
+			marginBottom: spacing.sm,
+		},
+		driverName: {
+			fontSize: typography.headlineMedium,
+			fontWeight: '700',
+			color: theme.colors.onBackground,
+			marginBottom: spacing.xs,
+		},
+		driverSubtitle: {
+			fontSize: typography.bodyLarge,
+			color: theme.colors.onSurfaceVariant,
+		},
+		yearGroup: {
+			marginBottom: spacing.md,
+		},
+		yearTitle: {
+			fontSize: typography.headlineSmall,
+			fontWeight: '700',
+			color: theme.colors.primary,
+			marginBottom: spacing.md,
+			marginLeft: spacing.xs,
+		},
+		monthsContainer: {
+			gap: spacing.sm,
+		},
+		emptyMonthState: {
+			paddingVertical: spacing.lg,
+			alignItems: 'center',
+		},
+		emptyMonthText: {
+			fontSize: typography.bodyMedium,
+			color: theme.colors.onSurfaceVariant,
+			fontStyle: 'italic',
+		},
+		accordionHeader: {
+			backgroundColor: theme.colors.surface,
+			borderRadius: roundness.sm,
+		},
+		accordionContent: {
+			backgroundColor: theme.colors.surface,
+			marginTop: 0,
+			borderBottomRightRadius: roundness.sm,
+			borderBottomLeftRadius: roundness.sm,
+		},
+		monthTitle: {
+			fontSize: typography.titleMedium,
+			fontWeight: '600',
+			color: theme.colors.onSurface,
+		},
+		monthSubtitle: {
+			fontSize: typography.bodySmall,
+			color: theme.colors.onSurfaceVariant,
+		},
+		monthStats: {
+			alignItems: 'flex-end',
+		},
+		monthTotal: {
+			fontSize: typography.titleMedium,
+			fontWeight: '600',
+		},
+		monthExpected: {
+			fontSize: typography.bodySmall,
+			color: theme.colors.onSurfaceVariant,
+		},
+		separator: {
+			marginHorizontal: spacing.md,
+			borderBottomWidth: 1,
+			borderBottomColor: theme.colors.primary,
+		},
+		tableHeader: {
+			borderBottomWidth: 1,
+			borderBottomColor: theme.colors.outline,
+			marginBottom: spacing.xs,
+		},
+		tableRow: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between',
+			paddingVertical: spacing.sm,
+			gap: spacing.sm,
+			borderBottomWidth: 1,
+			borderBottomColor: `${theme.colors.outline}33`,
+		},
+		tableRowClickable: {
+			borderRadius: roundness.xs,
+			paddingHorizontal: spacing.xs,
+		},
+		cellDate: {
+			flex: 1,
+			fontSize: typography.bodyMedium,
+			color: theme.colors.onSurface,
+		},
+		cellTotal: {
+			flex: 1,
+			fontSize: typography.bodyMedium,
+			fontWeight: '600',
+			textAlign: 'center',
+		},
+		headerText: {
+			fontWeight: '600',
+			color: theme.colors.onSurfaceVariant,
+			fontSize: typography.labelMedium,
+			textTransform: 'uppercase',
+			letterSpacing: 0.5,
+		},
+		errorText: {
+			fontSize: typography.bodyLarge,
+			color: theme.colors.error,
+		},
+	});
+}

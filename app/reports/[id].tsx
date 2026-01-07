@@ -4,7 +4,8 @@ import { ElevatedButton } from '@/components/ElevatedButton';
 import { InfoRow } from '@/components/InfoRow';
 import { LeafletMap } from '@/components/LeafletMap';
 import { SkeletonDetail } from '@/components/skeletons';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useDriversStore } from '@/stores/useDriversStore';
 import { useFleetStore } from '@/stores/useFleetStore';
 import { useReportsStore } from '@/stores/useReportsStore';
@@ -28,6 +29,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function ReportDetailScreen() {
+	const { theme, isDark } = useAppTheme();
 	const insets = useSafeAreaInsets();
 	const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -45,6 +47,8 @@ export default function ReportDetailScreen() {
 	const getNoteById = useNotesStore((state) => state.getNoteById);
 	const [currentNote, setCurrentNote] = useState<any>(null);
 	const [loadingNote, setLoadingNote] = useState(false);
+
+	const styles = useMemo(() => getStyles(theme), [theme]);
 
 	// Get full driver and vehicle info
 	const driver = useMemo(() =>
@@ -144,16 +148,16 @@ export default function ReportDetailScreen() {
 	return (
 		<View style={styles.container}>
 			<StatusBar
-				barStyle="dark-content"
-				backgroundColor={lightTheme.colors.background}
+				barStyle={isDark ? "light-content" : "dark-content"}
+				backgroundColor={theme.colors.background}
 				translucent={false}
 			/>
 			<View style={[styles.floatingButtonsContainer, { paddingTop: insets.top + spacing.sm }]}>
 				<ElevatedButton
-					backgroundColor={lightTheme.colors.primary}
+					backgroundColor={theme.colors.primary}
 					icon={ArrowLeft}
 					iconSize={22}
-					iconColor={lightTheme.colors.onPrimary}
+					iconColor={theme.colors.onPrimary}
 					paddingX={spacing.sm}
 					paddingY={spacing.sm}
 					rounded={roundness.full}
@@ -161,10 +165,10 @@ export default function ReportDetailScreen() {
 					onPress={() => router.back()}
 				/>
 				<ElevatedButton
-					backgroundColor={lightTheme.colors.primary}
+					backgroundColor={theme.colors.primary}
 					icon={SquarePen}
 					iconSize={22}
-					iconColor={lightTheme.colors.onPrimary}
+					iconColor={theme.colors.onPrimary}
 					paddingX={spacing.sm}
 					paddingY={spacing.sm}
 					rounded={roundness.full}
@@ -208,7 +212,7 @@ export default function ReportDetailScreen() {
 						paddingY={spacing.md}
 						rounded={roundness.sm}
 						shadow='none'
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={theme.colors.surface}
 					>
 						<View style={styles.cardContent}>
 							<InfoRow
@@ -255,9 +259,9 @@ export default function ReportDetailScreen() {
 								paddingY={spacing.md}
 								rounded={roundness.sm}
 								shadow='none'
-								backgroundColor={lightTheme.colors.surface}
+								backgroundColor={theme.colors.surface}
 							>
-								<ActivityIndicator size="small" color={lightTheme.colors.primary} />
+								<ActivityIndicator size="small" color={theme.colors.primary} />
 							</Card>
 						</>
 					) : currentNote ? (
@@ -268,7 +272,7 @@ export default function ReportDetailScreen() {
 								paddingY={spacing.md}
 								rounded={roundness.sm}
 								shadow='none'
-								backgroundColor={lightTheme.colors.surface}
+								backgroundColor={theme.colors.surface}
 							>
 								<Text style={styles.descriptionText}>
 									{currentNote.text}
@@ -293,7 +297,7 @@ export default function ReportDetailScreen() {
 								paddingY={spacing.md}
 								rounded={roundness.sm}
 								shadow='none'
-								backgroundColor={lightTheme.colors.surface}
+								backgroundColor={theme.colors.surface}
 							>
 								<Text style={styles.descriptionText}>
 									{currentReport.description}
@@ -318,7 +322,7 @@ export default function ReportDetailScreen() {
 								itemWidth={SCREEN_WIDTH - spacing.md * 2}
 								height={280}
 								showArrows={true}
-								arrowColor={lightTheme.colors.onSurface}
+								arrowColor={theme.colors.onSurface}
 								arrowSize={24}
 								showCounter={true}
 								onItemPress={(imageUri, index) => {
@@ -343,10 +347,10 @@ export default function ReportDetailScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	centered: {
 		justifyContent: 'center',
@@ -391,14 +395,14 @@ const styles = StyleSheet.create({
 		height: 24,
 		borderRadius: roundness.xs,
 		borderWidth: 2,
-		borderColor: lightTheme.colors.primary,
+		borderColor: theme.colors.primary,
 		backgroundColor: 'transparent',
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
 	checkboxChecked: {
-		backgroundColor: lightTheme.colors.primary,
-		borderColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primary,
+		borderColor: theme.colors.primary,
 	},
 	checkmark: {
 		color: '#fff',
@@ -407,13 +411,13 @@ const styles = StyleSheet.create({
 	},
 	checkboxLabel: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontWeight: '500',
 	},
 	cardTitle: {
 		fontSize: typography.titleMedium,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		marginBottom: spacing.xs,
 	},
 	cardContent: {
@@ -421,17 +425,17 @@ const styles = StyleSheet.create({
 	},
 	separator: {
 		height: 1,
-		backgroundColor: lightTheme.colors.outline,
+		backgroundColor: theme.colors.outline,
 		opacity: 0.5,
 	},
 	descriptionText: {
 		fontSize: typography.bodyLarge,
 		lineHeight: 24,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	noteDate: {
 		fontSize: typography.labelSmall,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		marginTop: spacing.sm,
 		fontStyle: 'italic',
 	},
@@ -441,6 +445,6 @@ const styles = StyleSheet.create({
 	},
 	errorText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.error,
+		color: theme.colors.error,
 	},
 });

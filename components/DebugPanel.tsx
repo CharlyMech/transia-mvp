@@ -1,4 +1,5 @@
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { StorageCleanupTools } from '@/utils/storageCleanUpTools';
 import {
 	AlertCircle,
@@ -30,6 +31,9 @@ interface DebugPanelProps {
 export const DebugPanel: React.FC<DebugPanelProps> = ({
 	onOperationComplete,
 }) => {
+	const { theme } = useAppTheme();
+	const styles = createStyles(theme);
+
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -158,13 +162,13 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
 			>
 				<View style={styles.toggleContent}>
 					<View style={styles.toggleLeft}>
-						<Database size={18} color={lightTheme.colors.error} />
+						<Database size={18} color={theme.colors.error} />
 						<Text style={styles.toggleTitle}>Herramientas de Debug</Text>
 					</View>
 					{isExpanded ? (
-						<ChevronUp size={20} color={lightTheme.colors.error} />
+						<ChevronUp size={20} color={theme.colors.error} />
 					) : (
-						<ChevronDown size={20} color={lightTheme.colors.error} />
+						<ChevronDown size={20} color={theme.colors.error} />
 					)}
 				</View>
 			</TouchableOpacity>
@@ -175,7 +179,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
 					<View style={styles.panelHeader}>
 						<AlertCircle
 							size={20}
-							color={lightTheme.colors.error}
+							color={theme.colors.error}
 						/>
 						<Text style={styles.panelTitle}>
 							Herramientas de Limpieza
@@ -308,7 +312,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
 						<View style={styles.loadingOverlay}>
 							<ActivityIndicator
 								size="small"
-								color={lightTheme.colors.primary}
+								color={theme.colors.primary}
 							/>
 							<Text style={styles.loadingText}>Procesando...</Text>
 						</View>
@@ -319,7 +323,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
 	);
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
 	container: {
 		marginBottom: spacing.md,
 	},
@@ -475,7 +479,7 @@ const styles = StyleSheet.create({
 	},
 	loadingText: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontWeight: '500',
 	},
 });

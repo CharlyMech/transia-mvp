@@ -1,12 +1,14 @@
 import { BottomNavBar } from '@/components/BottomNavbar';
-import { lightTheme } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 export default function TabLayout() {
+	const { theme, isDark } = useAppTheme();
+
 	return (
 		<>
-			<StatusBar style="dark" backgroundColor={lightTheme.colors.surface} />
+			<StatusBar style={isDark ? "light" : "dark"} backgroundColor={theme.colors.surface} />
 			<Tabs
 				screenOptions={{
 					headerShown: false,

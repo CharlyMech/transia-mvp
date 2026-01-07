@@ -1,14 +1,18 @@
 import GitHubProfileCard from "@/components/GitHubProfileCard";
-import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
+import { roundness, spacing, typography } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Image } from "expo-image";
-import React from "react";
+import React, { useMemo } from "react";
 import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AboutScreen() {
+	const { theme } = useAppTheme();
 	const user = useAuthStore((state) => state.user);
 	const isAdminOrManager = user?.role === "admin" || user?.role === "manager";
+
+	const styles = useMemo(() => getStyles(theme), [theme]);
 
 	const contactEmail = process.env.EXPO_PUBLIC_CONTACT_EMAIL || 'dev@charlymech.com';
 	const handleEmailPress = async () => {
@@ -108,10 +112,10 @@ export default function AboutScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background
+		backgroundColor: theme.colors.background
 	},
 	scrollContainer: {
 		padding: spacing.lg,
@@ -120,7 +124,7 @@ const styles = StyleSheet.create({
 	},
 	pageTitle: {
 		fontSize: typography.headlineMedium,
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 		fontWeight: "700",
 		marginBottom: spacing.sm,
 		textAlign: "center"
@@ -138,12 +142,12 @@ const styles = StyleSheet.create({
 	},
 	version: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		fontWeight: "600"
 	},
 	buildInfo: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		marginTop: 2
 	},
 	section: {
@@ -151,23 +155,23 @@ const styles = StyleSheet.create({
 	},
 	sectionTitle: {
 		fontSize: typography.titleMedium,
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 		fontWeight: "600",
 		marginBottom: spacing.sm
 	},
 	paragraph: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		lineHeight: 22,
 		marginBottom: spacing.sm
 	},
 	bold: {
 		fontWeight: "600",
-		color: lightTheme.colors.onBackground
+		color: theme.colors.onBackground
 	},
 	listItem: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		lineHeight: 22,
 		marginBottom: spacing.sm
 	},
@@ -176,13 +180,13 @@ const styles = StyleSheet.create({
 	},
 	listItemTitle: {
 		fontSize: typography.titleSmall,
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 		fontWeight: "600",
 		marginBottom: spacing.xs / 2
 	},
 	listItemContent: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		lineHeight: 22,
 		marginLeft: spacing.md
 	},
@@ -191,13 +195,13 @@ const styles = StyleSheet.create({
 	},
 	contactLink: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.primary,
+		color: theme.colors.primary,
 		fontWeight: "500"
 	},
 	contactInfo: {
 		textAlign: "center",
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.primary,
+		color: theme.colors.primary,
 		fontWeight: "500",
 		marginBottom: spacing.xs / 2
 	},
@@ -205,12 +209,12 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		paddingTop: spacing.lg,
 		borderTopWidth: 1,
-		borderTopColor: lightTheme.colors.outlineVariant,
+		borderTopColor: theme.colors.outlineVariant,
 		marginTop: spacing.lg
 	},
 	footerText: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		textAlign: "center",
 		marginBottom: 2
 	},

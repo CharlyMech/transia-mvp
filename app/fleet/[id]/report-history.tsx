@@ -4,7 +4,8 @@ import { ElevatedButton } from "@/components/ElevatedButton";
 import { InfoRow } from "@/components/InfoRow";
 import { SkeletonDetail } from "@/components/skeletons";
 import { ReportsTypes } from "@/constants/enums/ReportsTypes";
-import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
+import { roundness, spacing, typography } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import type { Report } from "@/models/report";
 import { reports } from "@/services/data";
 import { useFleetStore } from "@/stores/useFleetStore";
@@ -40,7 +41,9 @@ type StatusFilter = "all" | "pending" | "resolved";
 type SortOrder = "asc" | "desc";
 
 export default function VehicleReportsHistoryScreen() {
+	const { theme } = useAppTheme();
 	const { id } = useLocalSearchParams<{ id: string }>();
+	const styles = useMemo(() => getStyles(theme), [theme]);
 
 	// Get vehicle info from store - it's already loaded from previous screen
 	const vehicles = useFleetStore((state) => state.vehicles);
@@ -203,10 +206,10 @@ export default function VehicleReportsHistoryScreen() {
 			<View style={styles.headerWrapper}>
 				<View style={styles.headerTop}>
 					<ElevatedButton
-						backgroundColor={lightTheme.colors.primary}
+						backgroundColor={theme.colors.primary}
 						icon={ArrowLeft}
 						iconSize={22}
-						iconColor={lightTheme.colors.onPrimary}
+						iconColor={theme.colors.onPrimary}
 						paddingX={spacing.sm}
 						paddingY={spacing.sm}
 						rounded={roundness.full}
@@ -223,11 +226,11 @@ export default function VehicleReportsHistoryScreen() {
 				</View>
 
 				<View style={styles.searchContainer}>
-					<Search size={20} color={lightTheme.colors.onSurfaceVariant} />
+					<Search size={20} color={theme.colors.onSurfaceVariant} />
 					<TextInput
 						style={styles.searchInput}
 						placeholder="Buscar reportes..."
-						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						placeholderTextColor={theme.colors.onSurfaceVariant}
 						value={searchQuery}
 						onChangeText={setSearchQuery}
 						autoCapitalize="none"
@@ -235,13 +238,13 @@ export default function VehicleReportsHistoryScreen() {
 					/>
 					{searchQuery.length > 0 && (
 						<Pressable onPress={clearSearch} style={styles.clearButton}>
-							<X size={18} color={lightTheme.colors.onSurfaceVariant} />
+							<X size={18} color={theme.colors.onSurfaceVariant} />
 						</Pressable>
 					)}
 					{isSearching && (
 						<ActivityIndicator
 							size="small"
-							color={lightTheme.colors.primary}
+							color={theme.colors.primary}
 						/>
 					)}
 				</View>
@@ -257,7 +260,7 @@ export default function VehicleReportsHistoryScreen() {
 					<Text style={styles.filterToggleText}>Filtros y ordenación</Text>
 					<ChevronDown
 						size={20}
-						color={lightTheme.colors.onSurface}
+						color={theme.colors.onSurface}
 						style={{
 							transform: [{ rotate: isFiltersExpanded ? "180deg" : "0deg" }],
 						}}
@@ -306,8 +309,8 @@ export default function VehicleReportsHistoryScreen() {
 										size={18}
 										color={
 											statusFilter === "pending"
-												? lightTheme.colors.onSecondaryContainer
-												: lightTheme.colors.onSurface
+												? theme.colors.onSecondaryContainer
+												: theme.colors.onSurface
 										}
 									/>
 									<Text
@@ -331,8 +334,8 @@ export default function VehicleReportsHistoryScreen() {
 										size={18}
 										color={
 											statusFilter === "resolved"
-												? lightTheme.colors.onSecondaryContainer
-												: lightTheme.colors.onSurface
+												? theme.colors.onSecondaryContainer
+												: theme.colors.onSurface
 										}
 									/>
 									<Text
@@ -380,8 +383,8 @@ export default function VehicleReportsHistoryScreen() {
 										size={18}
 										color={
 											typeFilter === ReportsTypes.ACCIDENT
-												? lightTheme.colors.onSecondaryContainer
-												: lightTheme.colors.onSurface
+												? theme.colors.onSecondaryContainer
+												: theme.colors.onSurface
 										}
 									/>
 									<Text
@@ -406,8 +409,8 @@ export default function VehicleReportsHistoryScreen() {
 										size={18}
 										color={
 											typeFilter === ReportsTypes.MAINTENANCE
-												? lightTheme.colors.onSecondaryContainer
-												: lightTheme.colors.onSurface
+												? theme.colors.onSecondaryContainer
+												: theme.colors.onSurface
 										}
 									/>
 									<Text
@@ -431,8 +434,8 @@ export default function VehicleReportsHistoryScreen() {
 										size={18}
 										color={
 											typeFilter === ReportsTypes.CHECK
-												? lightTheme.colors.onSecondaryContainer
-												: lightTheme.colors.onSurface
+												? theme.colors.onSecondaryContainer
+												: theme.colors.onSurface
 										}
 									/>
 									<Text
@@ -456,8 +459,8 @@ export default function VehicleReportsHistoryScreen() {
 										size={18}
 										color={
 											typeFilter === ReportsTypes.ITV
-												? lightTheme.colors.onSecondaryContainer
-												: lightTheme.colors.onSurface
+												? theme.colors.onSecondaryContainer
+												: theme.colors.onSurface
 										}
 									/>
 									<Text
@@ -552,7 +555,7 @@ export default function VehicleReportsHistoryScreen() {
 						paddingY={spacing.md}
 						rounded={roundness.sm}
 						shadow="none"
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={theme.colors.surface}
 					>
 						<Text style={styles.emptyText}>
 							{searchQuery
@@ -637,14 +640,14 @@ export default function VehicleReportsHistoryScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	headerWrapper: {
-		backgroundColor: lightTheme.colors.background,
-		shadowColor: lightTheme.colors.shadow,
+		backgroundColor: theme.colors.background,
+		shadowColor: theme.colors.shadow,
 		shadowOffset: {
 			width: 0,
 			height: 6,
@@ -672,17 +675,17 @@ const styles = StyleSheet.create({
 	title: {
 		fontSize: typography.titleLarge,
 		fontWeight: "700",
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	subtitle: {
 		fontSize: typography.bodyMedium,
 		fontWeight: "500",
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	searchContainer: {
 		flexDirection: "row",
 		alignItems: "center",
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderRadius: roundness.sm,
 		paddingHorizontal: spacing.md,
 		paddingVertical: spacing.sm,
@@ -693,7 +696,7 @@ const styles = StyleSheet.create({
 	searchInput: {
 		flex: 1,
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		padding: 0,
 	},
 	clearButton: {
@@ -708,7 +711,7 @@ const styles = StyleSheet.create({
 		marginHorizontal: spacing.sm,
 		marginTop: spacing.xs,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 	},
 	filterToggleCardPressed: {
 		opacity: 0.9,
@@ -716,7 +719,7 @@ const styles = StyleSheet.create({
 	filterToggleText: {
 		fontSize: typography.bodyMedium,
 		fontWeight: "600",
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	filtersContainer: {
 		overflow: "hidden",
@@ -732,7 +735,7 @@ const styles = StyleSheet.create({
 	filterLabel: {
 		fontSize: typography.bodyMedium,
 		fontWeight: "600",
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	statusChipsGrid: {
 		flexDirection: "row",
@@ -750,22 +753,22 @@ const styles = StyleSheet.create({
 		minWidth: 140,
 		flexGrow: 1,
 		flexShrink: 1,
-		borderColor: lightTheme.colors.outline,
-		backgroundColor: lightTheme.colors.background,
+		borderColor: theme.colors.outline,
+		backgroundColor: theme.colors.background,
 	},
 	statusChipActive: {
-		backgroundColor: lightTheme.colors.secondaryContainer,
-		borderColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.secondaryContainer,
+		borderColor: theme.colors.primary,
 	},
 	statusChipText: {
 		fontSize: typography.bodyMedium,
 		fontWeight: "500",
 		flex: 1,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	statusChipTextActive: {
 		fontWeight: "600",
-		color: lightTheme.colors.onSecondaryContainer,
+		color: theme.colors.onSecondaryContainer,
 	},
 	resultsInfo: {
 		paddingHorizontal: spacing.md,
@@ -773,7 +776,7 @@ const styles = StyleSheet.create({
 	},
 	resultsText: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		fontWeight: "500",
 	},
 	scrollView: {
@@ -785,7 +788,7 @@ const styles = StyleSheet.create({
 	},
 	accordionContent: {
 		padding: spacing.md,
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderBottomLeftRadius: roundness.sm,
 		borderBottomRightRadius: roundness.sm,
 	},
@@ -794,18 +797,18 @@ const styles = StyleSheet.create({
 	},
 	separator: {
 		height: 1,
-		backgroundColor: lightTheme.colors.outline,
+		backgroundColor: theme.colors.outline,
 		opacity: 0.5,
 	},
 	emptyText: {
 		fontSize: typography.bodyMedium,
 		fontWeight: "500",
 		fontStyle: "italic",
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		textAlign: "center",
 	},
 	errorText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.error,
+		color: theme.colors.error,
 	},
 });

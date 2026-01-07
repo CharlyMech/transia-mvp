@@ -1,4 +1,5 @@
-import { lightTheme, roundness } from '@/constants/theme';
+import { roundness } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { LucideIcon } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
@@ -19,8 +20,10 @@ export function IconBadge({
 	color,
 	badgeSize = 12,
 	badgeColor,
-	badgeBackgroundColor = lightTheme.colors.surface,
+	badgeBackgroundColor,
 }: BadgeIconProps) {
+	const { theme } = useAppTheme();
+	const bgColor = badgeBackgroundColor || theme.colors.surface;
 	return (
 		<View style={[styles.container, { width: size, height: size }]}>
 			<Icon size={size} color={color} />
@@ -28,7 +31,7 @@ export function IconBadge({
 				style={[
 					styles.badge,
 					{
-						backgroundColor: badgeBackgroundColor,
+						backgroundColor: bgColor,
 						borderRadius: roundness.full,
 						padding: 2,
 					},

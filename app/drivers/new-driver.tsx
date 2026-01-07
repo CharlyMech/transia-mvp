@@ -3,14 +3,15 @@ import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { ElevatedButton } from '@/components/ElevatedButton';
 import { DriverForm } from '@/components/forms/DriverForm';
 import { UserRole } from '@/constants/enums/UserRole';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import type { Driver, DriverFormData } from '@/models/driver';
 import { useDriversStore } from '@/stores/useDriversStore';
 import * as Crypto from 'expo-crypto';
 import { router } from 'expo-router';
 import { ArrowLeft, CheckCircle2 } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { BackHandler, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -19,11 +20,14 @@ export default function NewDriverScreen() {
 	const [hasChanges, setHasChanges] = useState(false);
 	const [newDriverId, setNewDriverId] = useState<string | null>(null);
 
+	const { theme, isDark } = useAppTheme();
 	const confirmationModal = useActionsModal();
 	const successModal = useActionsModal();
 	const addDriver = useDriversStore((state) => state.addDriver);
 
 	const insets = useSafeAreaInsets();
+
+	const styles = useMemo(() => getStyles(theme), [theme]);
 
 	useEffect(() => {
 		const backHandler = BackHandler.addEventListener(
@@ -104,16 +108,16 @@ export default function NewDriverScreen() {
 	return (
 		<View style={styles.container}>
 			<StatusBar
-				barStyle="dark-content"
-				backgroundColor={lightTheme.colors.background}
+				barStyle={isDark ? "light-content" : "dark-content"}
+				backgroundColor={theme.colors.background}
 				translucent={false}
 			/>
 			<View style={[styles.floatingButtonsContainer, { paddingTop: insets.top + spacing.sm }]}>
 				<ElevatedButton
-					backgroundColor={lightTheme.colors.primary}
+					backgroundColor={theme.colors.primary}
 					icon={ArrowLeft}
 					iconSize={22}
-					iconColor={lightTheme.colors.onPrimary}
+					iconColor={theme.colors.onPrimary}
 					paddingX={spacing.sm}
 					paddingY={spacing.sm}
 					rounded={roundness.full}
@@ -157,7 +161,7 @@ export default function NewDriverScreen() {
 			>
 				<View style={styles.successContent}>
 					<View style={styles.iconContainer}>
-						<CheckCircle2 size={56} color={lightTheme.colors.primary} />
+						<CheckCircle2 size={56} color={theme.colors.primary} />
 					</View>
 
 					<Text style={styles.successTitle}>Éxito</Text>
@@ -184,87 +188,89 @@ export default function NewDriverScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: lightTheme.colors.background,
-	},
-	floatingButtonsContainer: {
-		position: 'absolute',
-		top: 0,
-		left: 0,
-		right: 0,
-		flexDirection: 'row',
-		justifyContent: 'flex-start',
-		alignItems: 'center',
-		paddingHorizontal: spacing.md,
-		zIndex: 1000,
-	},
-	centered: {
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	scrollView: {
-		flex: 1,
-	},
-	scrollViewContent: {
-		flexGrow: 1,
-	},
-	content: {
-		flex: 1,
-		paddingHorizontal: spacing.md,
-		paddingBottom: spacing.xl,
-		gap: spacing.md,
-	},
-	successContent: {
-		alignItems: 'center',
-		gap: spacing.md,
-	},
-	iconContainer: {
-		alignItems: 'center',
-		justifyContent: 'center',
-		marginBottom: spacing.sm,
-	},
-	successTitle: {
-		fontSize: typography.headlineSmall,
-		fontWeight: '700',
-		color: lightTheme.colors.onSurface,
-		textAlign: 'center',
-	},
-	successMessage: {
-		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurfaceVariant,
-		textAlign: 'center',
-		lineHeight: 22,
-	},
-	buttonsContainer: {
-		flexDirection: 'row',
-		gap: spacing.sm,
-		width: '100%',
-		marginTop: spacing.sm,
-	},
-	button: {
-		flex: 1,
-		paddingVertical: spacing.md,
-		paddingHorizontal: spacing.sm,
-		borderRadius: roundness.sm,
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
-	secondaryButton: {
-		backgroundColor: lightTheme.colors.background,
-	},
-	secondaryButtonText: {
-		fontSize: typography.bodyLarge,
-		fontWeight: '600',
-		color: lightTheme.colors.onBackground,
-	},
-	primaryButton: {
-		backgroundColor: lightTheme.colors.primary,
-	},
-	primaryButtonText: {
-		fontSize: typography.bodyLarge,
-		fontWeight: '600',
-		color: lightTheme.colors.onPrimary,
-	},
-});
+function getStyles(theme: any) {
+	return StyleSheet.create({
+		container: {
+			flex: 1,
+			backgroundColor: theme.colors.background,
+		},
+		floatingButtonsContainer: {
+			position: 'absolute',
+			top: 0,
+			left: 0,
+			right: 0,
+			flexDirection: 'row',
+			justifyContent: 'flex-start',
+			alignItems: 'center',
+			paddingHorizontal: spacing.md,
+			zIndex: 1000,
+		},
+		centered: {
+			justifyContent: 'center',
+			alignItems: 'center',
+		},
+		scrollView: {
+			flex: 1,
+		},
+		scrollViewContent: {
+			flexGrow: 1,
+		},
+		content: {
+			flex: 1,
+			paddingHorizontal: spacing.md,
+			paddingBottom: spacing.xl,
+			gap: spacing.md,
+		},
+		successContent: {
+			alignItems: 'center',
+			gap: spacing.md,
+		},
+		iconContainer: {
+			alignItems: 'center',
+			justifyContent: 'center',
+			marginBottom: spacing.sm,
+		},
+		successTitle: {
+			fontSize: typography.headlineSmall,
+			fontWeight: '700',
+			color: theme.colors.onSurface,
+			textAlign: 'center',
+		},
+		successMessage: {
+			fontSize: typography.bodyLarge,
+			color: theme.colors.onSurfaceVariant,
+			textAlign: 'center',
+			lineHeight: 22,
+		},
+		buttonsContainer: {
+			flexDirection: 'row',
+			gap: spacing.sm,
+			width: '100%',
+			marginTop: spacing.sm,
+		},
+		button: {
+			flex: 1,
+			paddingVertical: spacing.md,
+			paddingHorizontal: spacing.sm,
+			borderRadius: roundness.sm,
+			alignItems: 'center',
+			justifyContent: 'center',
+		},
+		secondaryButton: {
+			backgroundColor: theme.colors.background,
+		},
+		secondaryButtonText: {
+			fontSize: typography.bodyLarge,
+			fontWeight: '600',
+			color: theme.colors.onBackground,
+		},
+		primaryButton: {
+			backgroundColor: theme.colors.primary,
+		},
+		primaryButtonText: {
+			fontSize: typography.bodyLarge,
+			fontWeight: '600',
+			color: theme.colors.onPrimary,
+		},
+	});
+}

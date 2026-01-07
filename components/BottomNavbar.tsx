@@ -1,4 +1,5 @@
-import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
+import { roundness, spacing, typography } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { useReportsStore } from "@/stores/useReportsStore";
 import { usePathname, useRouter } from "expo-router";
 import {
@@ -33,6 +34,7 @@ const ROUTES: RouteCfg[] = [
 ];
 
 export function BottomNavBar() {
+	const { theme } = useAppTheme();
 	const router = useRouter();
 	const pathname = usePathname();
 	const insets = useSafeAreaInsets();
@@ -97,8 +99,8 @@ export function BottomNavBar() {
 			ROUTES.map((cfg, i) => {
 				const focused = activeIndex === i;
 				const color = focused
-					? lightTheme.colors.onPrimaryContainer
-					: lightTheme.colors.onSurfaceVariant;
+					? theme.colors.onPrimaryContainer
+					: theme.colors.onSurfaceVariant;
 				const IconComp = cfg.Icon;
 
 				return (
@@ -113,8 +115,8 @@ export function BottomNavBar() {
 							<View style={{ position: "relative" }}>
 								<IconComp size={22} color={color} />
 								{cfg.key === "reports" && pendingReports > 0 && (
-									<View style={styles.badge}>
-										<Text style={styles.badgeText}>
+									<View style={[styles.badge, { backgroundColor: theme.colors.error }]}>
+										<Text style={[styles.badgeText, { color: theme.colors.onError }]}>
 											{pendingReports > 9 ? "9+" : pendingReports}
 										</Text>
 									</View>
@@ -128,13 +130,13 @@ export function BottomNavBar() {
 				);
 			}),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[activeIndex, tabsLayout, pendingReports]
+		[activeIndex, tabsLayout, pendingReports, theme]
 	);
 
 	return (
-		<View style={[styles.container, { paddingBottom: insets.bottom }]}>
+		<View style={[styles.container, { paddingBottom: insets.bottom, backgroundColor: theme.colors.surface, borderTopColor: theme.colors.outline }]}>
 			<View style={styles.tabsRow}>
-				<Animated.View style={[styles.pill, pillStyle]} />
+				<Animated.View style={[styles.pill, pillStyle, { backgroundColor: theme.colors.secondaryContainer }]} />
 				{items}
 			</View>
 		</View>
@@ -143,9 +145,7 @@ export function BottomNavBar() {
 
 const styles = StyleSheet.create({
 	container: {
-		backgroundColor: lightTheme.colors.surface,
 		borderTopWidth: 1,
-		borderTopColor: lightTheme.colors.outline,
 		overflow: "hidden",
 		paddingHorizontal: spacing.sm,
 	},
@@ -160,7 +160,6 @@ const styles = StyleSheet.create({
 		top: 6,
 		bottom: 6,
 		left: 0,
-		backgroundColor: lightTheme.colors.secondaryContainer,
 		height: 54,
 		width: 64,
 		borderRadius: roundness.sm,
@@ -187,7 +186,6 @@ const styles = StyleSheet.create({
 		position: "absolute",
 		top: -6,
 		right: -10,
-		backgroundColor: lightTheme.colors.error,
 		borderRadius: 10,
 		minWidth: 18,
 		height: 18,
@@ -196,7 +194,6 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 4,
 	},
 	badgeText: {
-		color: lightTheme.colors.onError,
 		fontSize: typography.labelSmall,
 		fontWeight: "700",
 	},

@@ -1,8 +1,12 @@
-import { lightTheme } from "@/constants/theme";
 import { Stack } from "expo-router";
+import React, { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
+import { useAppTheme } from "@/hooks/useAppTheme";
 
 export default function ReportsStack() {
+	const { theme } = useAppTheme();
+	const styles = useMemo(() => getStyles(theme), [theme]);
+
 	return (
 		<View style={styles.container}>
 			<Stack
@@ -10,7 +14,7 @@ export default function ReportsStack() {
 					headerShown: false,
 					animation: 'none',
 					contentStyle: {
-						backgroundColor: lightTheme.colors.background,
+						backgroundColor: theme.colors.background,
 					},
 				}}
 			>
@@ -28,9 +32,9 @@ export default function ReportsStack() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 });

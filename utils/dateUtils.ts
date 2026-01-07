@@ -1,4 +1,4 @@
-import { lightTheme } from "@/constants/theme";
+import { lightTheme, darkTheme } from "@/constants/theme";
 import { TimeRange, TimeRegistration } from "@/models/timeRegistration";
 
 /**
@@ -195,31 +195,36 @@ export function calculateCurrentMinutes(
  * - Green (success): within ±15 minutes of expected (465-495 minutes)
  * - Orange (warning): within ±59 minutes of expected (421-464 or 496-539 minutes)
  * - Red (error): more than 60 minutes difference (<421 or >539 minutes)
+ * @param totalMinutes - Total minutes worked
+ * @param theme - Theme object (lightTheme or darkTheme) to use for colors
  */
-export function getTotalDayTimeColor(totalMinutes: number) {
+export function getTotalDayTimeColor(
+	totalMinutes: number,
+	theme: typeof lightTheme | typeof darkTheme = lightTheme
+) {
 	const expectedMinutes = 480; // 8 hours
 	const diff = Math.abs(totalMinutes - expectedMinutes);
 
 	// Perfect range: ±15 minutes (green)
 	if (diff <= 15) {
 		return {
-			container: lightTheme.colors.success,
-			text: lightTheme.colors.onSuccess,
+			container: theme.colors.success,
+			text: theme.colors.onSuccess,
 		};
 	}
 
 	// Acceptable range: ±59 minutes (orange/warning)
 	if (diff <= 59) {
 		return {
-			container: lightTheme.colors.warning,
-			text: lightTheme.colors.onWarning,
+			container: theme.colors.warning,
+			text: theme.colors.onWarning,
 		};
 	}
 
 	// Outside acceptable range: ±60+ minutes (red/error)
 	return {
-		container: lightTheme.colors.error,
-		text: lightTheme.colors.onError,
+		container: theme.colors.error,
+		text: theme.colors.onError,
 	};
 }
 

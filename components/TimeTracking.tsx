@@ -1,5 +1,6 @@
 import { IconBadge } from '@/components/IconBadge';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTimeRegistrationsStore } from '@/stores/useTimeRegistrationStore';
 import { calculateCurrentMinutes, getTotalDayTimeColor } from '@/utils/dateUtils';
@@ -14,6 +15,9 @@ interface TimeTrackingProps {
 }
 
 export function TimeTracking({ onPress }: TimeTrackingProps) {
+	const { theme } = useAppTheme();
+	const styles = createStyles(theme);
+
 	const user = useAuthStore((state) => state.user);
 	const todayRegistration = useTimeRegistrationsStore((state) => state.todayRegistration);
 	const fetchTodayRegistration = useTimeRegistrationsStore((state) => state.fetchTodayRegistration);
@@ -54,8 +58,8 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 		if (!todayRegistration) {
 			return {
 				label: 'Sin registro',
-				color: lightTheme.colors.onSurface,
-				backgroundColor: `${lightTheme.colors.outline}50`,
+				color: theme.colors.onSurface,
+				backgroundColor: `${theme.colors.outline}50`,
 			};
 		}
 
@@ -64,20 +68,20 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 		if (activeRange) {
 			return {
 				label: 'Jornada en curso',
-				color: lightTheme.colors.onPrimary,
-				backgroundColor: lightTheme.colors.primary,
+				color: theme.colors.onPrimary,
+				backgroundColor: theme.colors.primary,
 			};
 		}
 
 		if (todayRegistration.isActive) {
 			return {
 				label: 'Jornada pausada',
-				color: lightTheme.colors.onPrimary,
-				backgroundColor: `${lightTheme.colors.primary}80`, // 50% opacity
+				color: theme.colors.onPrimary,
+				backgroundColor: `${theme.colors.primary}80`, // 50% opacity
 			};
 		}
 
-		const endedColors = getTotalDayTimeColor(currentMinutes);
+		const endedColors = getTotalDayTimeColor(currentMinutes, theme);
 
 		return {
 			label: 'Jornada finalizada',
@@ -130,15 +134,15 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 	let circleColor: string;
 
 	if (!todayRegistration || currentMinutes === 0) {
-		circleColor = lightTheme.colors.outline;
+		circleColor = theme.colors.outline;
 	} else if (isActive) {
-		circleColor = lightTheme.colors.primary;
+		circleColor = theme.colors.primary;
 	} else if (isPaused) {
-		circleColor = `${lightTheme.colors.primary}80`;
+		circleColor = `${theme.colors.primary}80`;
 	} else if (isFinished) {
-		circleColor = getTotalDayTimeColor(currentMinutes).container;
+		circleColor = getTotalDayTimeColor(currentMinutes, theme).container;
 	} else {
-		circleColor = lightTheme.colors.outline;
+		circleColor = theme.colors.outline;
 	}
 
 	// Calculate progress for mini chart
@@ -156,7 +160,7 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 
 					{loadingRegistration ? (
 						<View style={styles.loadingContainer}>
-							<ActivityIndicator size="small" color={lightTheme.colors.primary} />
+							<ActivityIndicator size="small" color={theme.colors.primary} />
 						</View>
 					) : (
 						<>
@@ -167,7 +171,7 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 										cx={size / 2}
 										cy={size / 2}
 										r={radius}
-										stroke={`${lightTheme.colors.outline}50`}
+										stroke={`${theme.colors.outline}50`}
 										strokeWidth={strokeWidth}
 										fill="none"
 									/>
@@ -196,7 +200,7 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 
 							<View style={styles.content}>
 								<View style={styles.row}>
-									<IconBadge color={lightTheme.colors.primary} size={20} Icon={Clock} badgeSize={10} badgeColor={lightTheme.colors.primary} BadgeIcon={Info} />
+									<IconBadge color={theme.colors.primary} size={20} Icon={Clock} badgeSize={10} badgeColor={theme.colors.primary} BadgeIcon={Info} />
 									<Text style={styles.title}>Registro de hoy</Text>
 								</View>
 
@@ -215,7 +219,7 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 							</View>
 
 							<View style={styles.chevronIndicator}>
-								<ChevronRight size={24} strokeWidth={2.5} color={lightTheme.colors.primary} />
+								<ChevronRight size={24} strokeWidth={2.5} color={theme.colors.primary} />
 							</View>
 						</>
 					)
@@ -226,7 +230,7 @@ export function TimeTracking({ onPress }: TimeTrackingProps) {
 	);
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flexDirection: 'row',
 		gap: spacing.md,
@@ -250,7 +254,7 @@ const styles = StyleSheet.create({
 	title: {
 		fontSize: typography.titleMedium,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	loadingContainer: {
 		height: 100,
@@ -281,7 +285,7 @@ const styles = StyleSheet.create({
 	chartTime: {
 		fontSize: typography.titleSmall,
 		fontWeight: '700',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	details: {
 		flex: 1,
@@ -295,16 +299,16 @@ const styles = StyleSheet.create({
 	statusText: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	statusTextInactive: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	remainingText: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	statusBadge: {
 		paddingHorizontal: spacing.sm,

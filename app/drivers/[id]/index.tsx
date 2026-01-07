@@ -4,7 +4,8 @@ import { IconPlaceholder } from '@/components/IconPlaceholder';
 import { InfoRow } from '@/components/InfoRow';
 import { SkeletonDetail } from '@/components/skeletons';
 import { StatusLabel } from '@/components/StatusLabel';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useDriversStore } from '@/stores/useDriversStore';
 import { useTimeRegistrationsStore } from '@/stores/useTimeRegistrationStore';
@@ -12,7 +13,7 @@ import { autoCloseOldActiveRanges, calculateCurrentMinutes, formatDateToDisplay,
 import { getDriverStatusIcon } from '@/utils/driversUtils';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, ExternalLink, SquarePen, UserRound } from 'lucide-react-native';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import {
 	Animated,
 	Image,
@@ -32,8 +33,11 @@ export default function DriverProfileScreen() {
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const scrollY = useRef(new Animated.Value(0)).current;
 
+	const { theme, isDark } = useAppTheme();
 	const user = useAuthStore((state) => state.user);
 	const currentDriver = useDriversStore((state) => state.currentDriver);
+
+	const styles = useMemo(() => getStyles(theme), [theme]);
 	const loadingDriver = useDriversStore((state) => state.loadingDriver);
 	const driverError = useDriversStore((state) => state.driverError);
 	const fetchDriverById = useDriversStore((state) => state.fetchDriverById);
@@ -104,17 +108,17 @@ export default function DriverProfileScreen() {
 	return (
 		<View style={styles.container}>
 			<StatusBar
-				barStyle="dark-content"
-				backgroundColor={lightTheme.colors.background}
+				barStyle={isDark ? "light-content" : "dark-content"}
+				backgroundColor={theme.colors.background}
 				translucent={false}
 			/>
 
 			<View style={[styles.floatingButtonsContainer, { paddingTop: insets.top + spacing.sm }]}>
 				<ElevatedButton
-					backgroundColor={lightTheme.colors.primary}
+					backgroundColor={theme.colors.primary}
 					icon={ArrowLeft}
 					iconSize={22}
-					iconColor={lightTheme.colors.onPrimary}
+					iconColor={theme.colors.onPrimary}
 					paddingX={spacing.sm}
 					paddingY={spacing.sm}
 					rounded={roundness.full}
@@ -122,10 +126,10 @@ export default function DriverProfileScreen() {
 					onPress={() => router.back()}
 				/>
 				<ElevatedButton
-					backgroundColor={lightTheme.colors.primary}
+					backgroundColor={theme.colors.primary}
 					icon={SquarePen}
 					iconSize={22}
-					iconColor={lightTheme.colors.onPrimary}
+					iconColor={theme.colors.onPrimary}
 					paddingX={spacing.sm}
 					paddingY={spacing.sm}
 					rounded={roundness.full}
@@ -164,7 +168,7 @@ export default function DriverProfileScreen() {
 						paddingY={spacing.md}
 						rounded={roundness.sm}
 						shadow="medium"
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={theme.colors.surface}
 					>
 						{currentDriver.imageUrl ? (
 							<Image
@@ -208,7 +212,7 @@ export default function DriverProfileScreen() {
 						paddingY={spacing.md}
 						rounded={roundness.sm}
 						shadow="none"
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={theme.colors.surface}
 					>
 						<View style={styles.cardContent}>
 							{currentDriver.phone && (
@@ -246,7 +250,7 @@ export default function DriverProfileScreen() {
 						paddingY={spacing.md}
 						rounded={roundness.sm}
 						shadow="none"
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={theme.colors.surface}
 					>
 						<View style={styles.cardContent}>
 							<InfoRow
@@ -289,14 +293,14 @@ export default function DriverProfileScreen() {
 								style={[styles.cardTitleContainer, { marginBottom: spacing.md }]}
 							>
 								<Text style={styles.cardTitle}>Registro horario</Text>
-								<ExternalLink size={16} strokeWidth={2.5} color={lightTheme.colors.onSurface} />
+								<ExternalLink size={16} strokeWidth={2.5} color={theme.colors.onSurface} />
 							</View>
 							<Card
 								paddingX={spacing.md}
 								paddingY={spacing.md}
 								rounded={roundness.sm}
 								shadow="none"
-								backgroundColor={lightTheme.colors.surface}
+								backgroundColor={theme.colors.surface}
 							>
 								<View style={styles.cardContent}>
 									{(!registrations || registrations.length === 0) ? (
@@ -333,7 +337,7 @@ export default function DriverProfileScreen() {
 
 													const totalMinutes = calculateCurrentMinutes(ranges, new Date());
 
-													const totalColorObj = getTotalDayTimeColor(totalMinutes);
+													const totalColorObj = getTotalDayTimeColor(totalMinutes, theme);
 
 													return (
 														<View key={reg.id ?? `${dateLabel}`} style={styles.tableRow}>
@@ -371,14 +375,14 @@ export default function DriverProfileScreen() {
 								onPress={() => console.log('Accediendo al historial de asignaciones')}
 							>
 								<Text style={styles.cardTitle}>Asignaciones recientes</Text>
-								<ExternalLink size={16} strokeWidth={2.5} color={lightTheme.colors.onSurface} />
+								<ExternalLink size={16} strokeWidth={2.5} color={theme.colors.onSurface} />
 							</Pressable>
 							<Card
 								paddingX={spacing.md}
 								paddingY={spacing.md}
 								rounded={roundness.sm}
 								shadow="none"
-								backgroundColor={lightTheme.colors.surface}
+								backgroundColor={theme.colors.surface}
 							>
 								<View style={styles.cardContent}>
 									<Text style={styles.assignationText}>Sin asignaciones previas</Text>
@@ -398,14 +402,14 @@ export default function DriverProfileScreen() {
 								onPress={() => console.log('Accediendo al historial de incidencias y mantenimientos')}
 							>
 								<Text style={styles.cardTitle}>Incidencias relacionadas</Text>
-								<ExternalLink size={16} strokeWidth={2.5} color={lightTheme.colors.onSurface} />
+								<ExternalLink size={16} strokeWidth={2.5} color={theme.colors.onSurface} />
 							</Pressable>
 							<Card
 								paddingX={spacing.md}
 								paddingY={spacing.md}
 								rounded={roundness.sm}
 								shadow="none"
-								backgroundColor={lightTheme.colors.surface}
+								backgroundColor={theme.colors.surface}
 							>
 								<View style={styles.cardContent}>
 									<Text style={styles.assignationText}>Sin incidencias ni mantenimientos</Text>
@@ -419,11 +423,12 @@ export default function DriverProfileScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: lightTheme.colors.background,
-	},
+function getStyles(theme: any) {
+	return StyleSheet.create({
+		container: {
+			flex: 1,
+			backgroundColor: theme.colors.background,
+		},
 	centered: {
 		justifyContent: 'center',
 		alignItems: 'center',
@@ -469,7 +474,7 @@ const styles = StyleSheet.create({
 	name: {
 		fontSize: typography.headlineLarge,
 		fontWeight: '700',
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 	},
 	statusBadgeContainer: {
 		width: '100%',
@@ -483,7 +488,7 @@ const styles = StyleSheet.create({
 		fontSize: typography.bodyMedium,
 		fontWeight: '500',
 		fontStyle: 'italic',
-		color: `${lightTheme.colors.onSurface}80`,
+		color: `${theme.colors.onSurface}80`,
 		textAlign: 'left',
 		marginBottom: spacing.xs,
 	},
@@ -496,14 +501,14 @@ const styles = StyleSheet.create({
 	cardTitle: {
 		fontSize: typography.titleMedium,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		marginBottom: spacing.xs,
 	},
 	assignationText: {
 		fontSize: typography.bodyMedium,
 		fontWeight: '500',
 		fontStyle: 'italic',
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		textAlign: 'center',
 	},
 	cardContent: {
@@ -511,12 +516,12 @@ const styles = StyleSheet.create({
 	},
 	separator: {
 		height: 1,
-		backgroundColor: lightTheme.colors.outline,
+		backgroundColor: theme.colors.outline,
 		opacity: 0.5,
 	},
 	tableHeader: {
 		borderBottomWidth: 1,
-		borderBottomColor: lightTheme.colors.outline,
+		borderBottomColor: theme.colors.outline,
 		paddingBottom: spacing.xs,
 		marginBottom: spacing.xs,
 	},
@@ -528,20 +533,21 @@ const styles = StyleSheet.create({
 		gap: spacing.sm,
 		// si quieres líneas separadoras entre filas:
 		borderBottomWidth: 1,
-		borderBottomColor: `${lightTheme.colors.outline}33`, // ligera transparencia
+		borderBottomColor: `${theme.colors.outline}33`, // ligera transparencia
 	},
 	cell: {
 		flex: 1,
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		textAlign: 'left',
 	},
 	headerText: {
 		fontWeight: '600',
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	errorText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.error,
+		color: theme.colors.error,
 	},
-});
+	});
+}

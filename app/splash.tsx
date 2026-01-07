@@ -1,5 +1,6 @@
-import { lightTheme, spacing, typography } from '@/constants/theme';
-import React, { useEffect } from 'react';
+import { spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import React, { useEffect, useMemo } from 'react';
 import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,6 +10,9 @@ interface SplashScreenProps {
 }
 
 export default function SplashScreen({ onFinish, duration = 2000 }: SplashScreenProps) {
+	const { theme } = useAppTheme();
+	const styles = useMemo(() => getStyles(theme), [theme]);
+
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			onFinish();
@@ -36,7 +40,7 @@ export default function SplashScreen({ onFinish, duration = 2000 }: SplashScreen
 				<View style={styles.loaderContainer}>
 					<ActivityIndicator
 						size="large"
-						color={lightTheme.colors.primary}
+						color={theme.colors.primary}
 					/>
 				</View>
 			</View>
@@ -50,10 +54,10 @@ export default function SplashScreen({ onFinish, duration = 2000 }: SplashScreen
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	content: {
 		flex: 1,
@@ -76,11 +80,11 @@ const styles = StyleSheet.create({
 	appName: {
 		fontSize: typography.displayLarge,
 		fontWeight: '700',
-		color: lightTheme.colors.primary,
+		color: theme.colors.primary,
 	},
 	tagline: {
 		fontSize: typography.titleMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		textAlign: 'center',
 	},
 	loaderContainer: {
@@ -92,6 +96,6 @@ const styles = StyleSheet.create({
 	},
 	footerText: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 });

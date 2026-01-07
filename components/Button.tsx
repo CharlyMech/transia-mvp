@@ -1,4 +1,5 @@
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { LucideIcon } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
@@ -20,25 +21,27 @@ export function Button({
 	// width = "100%",
 	disabled = false,
 }: ButtonProps) {
+	const { theme } = useAppTheme();
+
 	const buttonStyles = [
 		styles.button,
-		variant === 'primary' && { backgroundColor: lightTheme.colors.primary },
-		variant === 'secondary' && { backgroundColor: lightTheme.colors.secondary },
+		variant === 'primary' && { backgroundColor: theme.colors.primary },
+		variant === 'secondary' && { backgroundColor: theme.colors.secondary },
 		variant === 'outline' && {
 			backgroundColor: 'transparent',
 			borderWidth: 1,
-			borderColor: lightTheme.colors.outline,
+			borderColor: theme.colors.outline,
 		},
-		disabled && { backgroundColor: lightTheme.colors.surfaceDisabled },
+		disabled && { backgroundColor: theme.colors.surfaceDisabled },
 	];
 
 	const textColor = disabled
-		? lightTheme.colors.onSurfaceDisabled
+		? theme.colors.onSurfaceDisabled
 		: variant === 'primary'
-			? lightTheme.colors.onPrimary
+			? theme.colors.onPrimary
 			: variant === 'secondary'
-				? lightTheme.colors.onSecondary
-				: lightTheme.colors.primary;
+				? theme.colors.onSecondary
+				: theme.colors.primary;
 
 	return (
 		<TouchableOpacity

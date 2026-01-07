@@ -1,9 +1,10 @@
 import { Card } from "@/components/Card";
-import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
+import { roundness, spacing, typography } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useAppTheme } from "@/hooks/useAppTheme";
 
 interface GitHubProfile {
 	login: string;
@@ -17,9 +18,12 @@ interface GitHubProfile {
 }
 
 export default function GitHubProfileCard() {
+	const { theme } = useAppTheme();
 	const [profile, setProfile] = useState<GitHubProfile | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(false);
+
+	const styles = useMemo(() => getStyles(theme), [theme]);
 
 	useEffect(() => {
 		fetchGitHubProfile();
@@ -54,9 +58,9 @@ export default function GitHubProfileCard() {
 
 	if (loading) {
 		return (
-			<Card backgroundColor={lightTheme.colors.surface} border borderColor={lightTheme.colors.outlineVariant}>
+			<Card backgroundColor={theme.colors.surface} border borderColor={theme.colors.outlineVariant}>
 				<View style={styles.loadingContainer}>
-					<ActivityIndicator size="small" color={lightTheme.colors.primary} />
+					<ActivityIndicator size="small" color={theme.colors.primary} />
 				</View>
 			</Card>
 		);
@@ -64,14 +68,14 @@ export default function GitHubProfileCard() {
 
 	if (error || !profile) {
 		return (
-			<Card backgroundColor={lightTheme.colors.errorContainer} border={false}>
+			<Card backgroundColor={theme.colors.errorContainer} border={false}>
 				<Text style={styles.errorText}>No se pudo cargar el perfil de GitHub</Text>
 			</Card>
 		);
 	}
 
 	return (
-		<Card backgroundColor={lightTheme.colors.surface} border borderColor={lightTheme.colors.outlineVariant}>
+		<Card backgroundColor={theme.colors.surface} border borderColor={theme.colors.outlineVariant}>
 			<View style={styles.header}>
 				<Image source={{ uri: profile.avatar_url }} style={styles.avatar} />
 				<View style={styles.headerInfo}>
@@ -95,12 +99,12 @@ export default function GitHubProfileCard() {
 
 			<View style={styles.links}>
 				<TouchableOpacity onPress={handleGitHubPress} style={styles.linkButton}>
-					<Ionicons name="logo-github" size={20} color={lightTheme.colors.primary} />
+					<Ionicons name="logo-github" size={20} color={theme.colors.primary} />
 					<Text style={styles.linkText}>Perfil de GitHub</Text>
 				</TouchableOpacity>
 				{profile.blog && (
 					<TouchableOpacity onPress={handleWebPress} style={styles.linkButton}>
-						<Ionicons name="globe-outline" size={20} color={lightTheme.colors.primary} />
+						<Ionicons name="globe-outline" size={20} color={theme.colors.primary} />
 						<Text style={styles.linkText}>Sitio web</Text>
 					</TouchableOpacity>
 				)}
@@ -109,13 +113,13 @@ export default function GitHubProfileCard() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	loadingContainer: {
 		paddingVertical: spacing.lg,
 		alignItems: "center",
 	},
 	errorText: {
-		color: lightTheme.colors.onErrorContainer,
+		color: theme.colors.onErrorContainer,
 		fontSize: typography.bodyMedium,
 		textAlign: "center",
 	},
@@ -136,16 +140,16 @@ const styles = StyleSheet.create({
 	name: {
 		fontSize: typography.titleMedium,
 		fontWeight: "600",
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		marginBottom: 2,
 	},
 	username: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	bio: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		lineHeight: 20,
 		marginBottom: spacing.sm,
 	},
@@ -156,7 +160,7 @@ const styles = StyleSheet.create({
 		marginBottom: spacing.sm,
 		borderTopWidth: 1,
 		borderBottomWidth: 1,
-		borderColor: lightTheme.colors.outlineVariant,
+		borderColor: theme.colors.outlineVariant,
 	},
 	stat: {
 		alignItems: "center",
@@ -164,11 +168,11 @@ const styles = StyleSheet.create({
 	statValue: {
 		fontSize: typography.titleLarge,
 		fontWeight: "600",
-		color: lightTheme.colors.primary,
+		color: theme.colors.primary,
 	},
 	statLabel: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		marginTop: 2,
 	},
 	links: {
@@ -186,7 +190,7 @@ const styles = StyleSheet.create({
 	},
 	linkText: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.primary,
+		color: theme.colors.primary,
 		fontWeight: "500",
 	},
 });

@@ -1,5 +1,6 @@
 import { Card } from '@/components/Card';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React from 'react';
 import {
@@ -34,6 +35,9 @@ export function IOSDatePickerModal({
 	title = 'Seleccionar Fecha',
 	...props
 }: IOSDatePickerModalProps) {
+	const { theme } = useAppTheme();
+	const styles = createStyles(theme);
+
 	return (
 		<Modal
 			visible={visible}
@@ -50,7 +54,7 @@ export function IOSDatePickerModal({
 					>
 						<Card
 							shadow="medium"
-							backgroundColor={lightTheme.colors.surface}
+							backgroundColor={theme.colors.surface}
 							paddingX={0}
 							paddingY={0}
 							rounded={roundness.md}
@@ -73,7 +77,7 @@ export function IOSDatePickerModal({
 								onChange={onChange}
 								maximumDate={maximumDate}
 								minimumDate={minimumDate}
-								textColor={lightTheme.colors.onSurface}
+								textColor={theme.colors.onSurface}
 								style={styles.picker}
 							/>
 						</Card>
@@ -84,10 +88,10 @@ export function IOSDatePickerModal({
 	);
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
 	overlay: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.backdrop,
+		backgroundColor: theme.colors.backdrop,
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
@@ -108,24 +112,24 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		padding: spacing.md,
 		borderBottomWidth: 1,
-		borderBottomColor: lightTheme.colors.outline,
+		borderBottomColor: theme.colors.outline,
 	},
 	title: {
 		fontSize: typography.titleMedium,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	cancelText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	confirmText: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.primary,
+		color: theme.colors.primary,
 	},
 	picker: {
 		height: 200,
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 	},
 });

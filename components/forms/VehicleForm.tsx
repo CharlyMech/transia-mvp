@@ -4,7 +4,8 @@ import { IconPlaceholder } from '@/components/IconPlaceholder';
 import { IOSDatePickerModal } from '@/components/IOSDatePickerModal';
 import { VehicleStatus } from '@/constants/enums/VehicleStatus';
 import { VehicleTypes } from '@/constants/enums/VehicleTypes';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useImagePicker } from '@/hooks/useImagePicker';
 import type { VehicleFormData } from '@/models';
 import { VehicleFormSchema } from '@/models';
@@ -41,6 +42,7 @@ export function VehicleForm({
 	submitLabel = 'Guardar',
 	loading = false
 }: VehicleFormProps) {
+	const { theme } = useAppTheme();
 	const { pickImage, takePhoto, loading: imageLoading } = useImagePicker();
 
 	const initialFormData: FormDataWithImage = {
@@ -169,6 +171,8 @@ export function VehicleForm({
 		}
 	};
 
+	const styles = createStyles(theme);
+
 	return (
 		<View style={styles.container}>
 			<View style={styles.imageSection}>
@@ -179,7 +183,7 @@ export function VehicleForm({
 				>
 					{imageLoading ? (
 						<View style={styles.imageContainer}>
-							<ActivityIndicator size="large" color={lightTheme.colors.primary} />
+							<ActivityIndicator size="large" color={theme.colors.primary} />
 						</View>
 					) : formData.imageUrl ? (
 						<Image
@@ -192,11 +196,11 @@ export function VehicleForm({
 							paddingY={0}
 							rounded={roundness.sm}
 							shadow='none'
-							backgroundColor={`${lightTheme.colors.primary}CC`}
+							backgroundColor={`${theme.colors.primary}CC`}
 							style={styles.vehicleImage}
 						>
 							<IconPlaceholder
-								color={lightTheme.colors.onPrimary}
+								color={theme.colors.onPrimary}
 								icon={ImagePlus}
 								size={150}
 							/>
@@ -217,7 +221,7 @@ export function VehicleForm({
 						style={styles.imageOption}
 						onPress={() => handleImageSelect('camera')}
 					>
-						<Camera size={24} color={lightTheme.colors.onSurface} />
+						<Camera size={24} color={theme.colors.onSurface} />
 						<Text style={styles.imageOptionText}>Tomar foto</Text>
 					</TouchableOpacity>
 
@@ -225,7 +229,7 @@ export function VehicleForm({
 						style={styles.imageOption}
 						onPress={() => handleImageSelect('gallery')}
 					>
-						<ImageIcon size={24} color={lightTheme.colors.onSurface} />
+						<ImageIcon size={24} color={theme.colors.onSurface} />
 						<Text style={styles.imageOptionText}>Elegir de galería</Text>
 					</TouchableOpacity>
 				</View>
@@ -241,7 +245,7 @@ export function VehicleForm({
 						value={formData.vehicleBrand}
 						onChangeText={(value) => handleChange('vehicleBrand', value)}
 						placeholder="Ej: Mercedes-Benz"
-						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						placeholderTextColor={theme.colors.onSurfaceVariant}
 						autoCapitalize="words"
 					/>
 					{errors.vehicleBrand && <Text style={styles.errorText}>{errors.vehicleBrand}</Text>}
@@ -254,7 +258,7 @@ export function VehicleForm({
 						value={formData.vehicleModel}
 						onChangeText={(value) => handleChange('vehicleModel', value)}
 						placeholder="Ej: Actros 1845"
-						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						placeholderTextColor={theme.colors.onSurfaceVariant}
 						autoCapitalize="words"
 					/>
 					{errors.vehicleModel && <Text style={styles.errorText}>{errors.vehicleModel}</Text>}
@@ -269,7 +273,7 @@ export function VehicleForm({
 						<Text style={styles.dateText}>
 							{formData.vehicleType}
 						</Text>
-						<ChevronDown size={20} color={lightTheme.colors.onSurfaceVariant} />
+						<ChevronDown size={20} color={theme.colors.onSurfaceVariant} />
 					</TouchableOpacity>
 					{errors.vehicleType && <Text style={styles.errorText}>{errors.vehicleType}</Text>}
 				</View>
@@ -281,7 +285,7 @@ export function VehicleForm({
 						value={formData.year.toString()}
 						onChangeText={(value) => handleChange('year', value)}
 						placeholder="Ej: 2020"
-						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						placeholderTextColor={theme.colors.onSurfaceVariant}
 						keyboardType="numeric"
 						maxLength={4}
 					/>
@@ -295,7 +299,7 @@ export function VehicleForm({
 						value={formData.plateNumber}
 						onChangeText={(value) => handleChange('plateNumber', value)}
 						placeholder="Ej: 1234ABC"
-						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						placeholderTextColor={theme.colors.onSurfaceVariant}
 						autoCapitalize="characters"
 						maxLength={10}
 					/>
@@ -350,7 +354,7 @@ export function VehicleForm({
 								? formatDateToDisplay(formData.purchaseDate)
 								: 'Selecciona una fecha'}
 						</Text>
-						<Calendar size={20} color={lightTheme.colors.onSurfaceVariant} />
+						<Calendar size={20} color={theme.colors.onSurfaceVariant} />
 					</TouchableOpacity>
 					{errors.purchaseDate && <Text style={styles.errorText}>{errors.purchaseDate}</Text>}
 				</View>
@@ -379,8 +383,8 @@ export function VehicleForm({
 					onChange={handlePurchaseDateChange}
 					maximumDate={new Date()}
 					minimumDate={new Date(1900, 0, 1)}
-					accentColor={lightTheme.colors.primary}
-					textColor={lightTheme.colors.onSurface}
+					accentColor={theme.colors.primary}
+					textColor={theme.colors.onSurface}
 				/>
 			)}
 
@@ -390,7 +394,7 @@ export function VehicleForm({
 				disabled={loading}
 			>
 				{loading ? (
-					<ActivityIndicator color={lightTheme.colors.onPrimary} />
+					<ActivityIndicator color={theme.colors.onPrimary} />
 				) : (
 					<Text style={styles.submitButtonText}>{submitLabel}</Text>
 				)}
@@ -401,16 +405,16 @@ export function VehicleForm({
 	);
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	content: {
 		padding: spacing.md,
 	},
 	imageSection: {
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		justifyContent: 'center',
 		alignItems: 'center',
 		marginBottom: spacing.xl,
@@ -418,7 +422,7 @@ const styles = StyleSheet.create({
 		padding: spacing.md,
 		borderRadius: roundness.sm,
 		borderWidth: 2,
-		borderColor: lightTheme.colors.primary,
+		borderColor: theme.colors.primary,
 		borderStyle: 'dashed',
 	},
 	imageContainer: {
@@ -427,7 +431,7 @@ const styles = StyleSheet.create({
 		borderRadius: roundness.sm,
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 	},
 	vehicleImage: {
 		width: 150,
@@ -437,7 +441,7 @@ const styles = StyleSheet.create({
 	imageHint: {
 		marginTop: spacing.sm,
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	imageOptionsContent: {
 		gap: spacing.sm,
@@ -448,11 +452,11 @@ const styles = StyleSheet.create({
 		padding: spacing.md,
 		gap: spacing.md,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	imageOptionText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontWeight: '500',
 	},
 	section: {
@@ -461,7 +465,7 @@ const styles = StyleSheet.create({
 	sectionTitle: {
 		fontSize: typography.titleMedium,
 		fontWeight: '600',
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 		marginBottom: spacing.md,
 	},
 	inputContainer: {
@@ -470,20 +474,20 @@ const styles = StyleSheet.create({
 	label: {
 		fontSize: typography.bodyMedium,
 		fontWeight: '500',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		marginBottom: spacing.xs,
 	},
 	input: {
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderRadius: roundness.sm,
 		padding: spacing.md,
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		borderWidth: 1,
 		borderColor: 'transparent',
 	},
 	inputError: {
-		borderColor: lightTheme.colors.error,
+		borderColor: theme.colors.error,
 	},
 	dateInput: {
 		flexDirection: 'row',
@@ -492,14 +496,14 @@ const styles = StyleSheet.create({
 	},
 	dateText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	placeholderText: {
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	errorText: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.error,
+		color: theme.colors.error,
 		marginTop: spacing.xs,
 	},
 	vehicleTypePickerContent: {
@@ -512,14 +516,14 @@ const styles = StyleSheet.create({
 		width: '100%',
 		padding: spacing.md,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	vehicleTypeOptionActive: {
-		backgroundColor: lightTheme.colors.primaryContainer,
+		backgroundColor: theme.colors.primaryContainer,
 	},
 	vehicleTypeOptionText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontWeight: '500',
 	},
 	vehicleTypeOptionTextActive: {
@@ -531,23 +535,23 @@ const styles = StyleSheet.create({
 	yearOption: {
 		padding: spacing.md,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 		marginBottom: spacing.xs,
 		borderWidth: 1,
-		borderColor: lightTheme.colors.outline,
+		borderColor: theme.colors.outline,
 	},
 	yearOptionActive: {
-		backgroundColor: lightTheme.colors.primaryContainer,
-		borderColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primaryContainer,
+		borderColor: theme.colors.primary,
 	},
 	yearOptionText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontWeight: '500',
 		textAlign: 'center',
 	},
 	yearOptionTextActive: {
-		color: lightTheme.colors.onPrimaryContainer,
+		color: theme.colors.onPrimaryContainer,
 		fontWeight: '600',
 	},
 	statusContainer: {
@@ -559,25 +563,25 @@ const styles = StyleSheet.create({
 		paddingVertical: spacing.sm,
 		paddingHorizontal: spacing.md,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderWidth: 2,
-		borderColor: lightTheme.colors.outline,
+		borderColor: theme.colors.outline,
 	},
 	statusOptionActive: {
-		backgroundColor: lightTheme.colors.primaryContainer,
-		borderColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primaryContainer,
+		borderColor: theme.colors.primary,
 	},
 	statusOptionText: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontWeight: '500',
 	},
 	statusOptionTextActive: {
-		color: lightTheme.colors.onPrimaryContainer,
+		color: theme.colors.onPrimaryContainer,
 		fontWeight: '600',
 	},
 	submitButton: {
-		backgroundColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primary,
 		borderRadius: roundness.sm,
 		padding: spacing.md,
 		alignItems: 'center',
@@ -589,7 +593,7 @@ const styles = StyleSheet.create({
 	submitButtonText: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onPrimary,
+		color: theme.colors.onPrimary,
 	},
 	bottomSpacer: {
 		height: spacing.xl,

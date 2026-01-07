@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { Check, CheckCheck, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, ExternalLink, EyeOff, FileClock, FileWarning, MapPin, MapPinOff, Plus, Search, Trash2, TriangleAlert, X } from 'lucide-react-native';
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Animated, Easing, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -11,8 +11,9 @@ import { SkeletonList } from '@/components/skeletons';
 
 import { ElevatedButton } from '@/components/ElevatedButton';
 import { StatusLabel } from '@/components/StatusLabel';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
 import { useActionsModal } from '@/hooks/useActionsModal';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useDriversStore } from '@/stores/useDriversStore';
 import { useFleetStore } from '@/stores/useFleetStore';
 import { useReportsStore } from '@/stores/useReportsStore';
@@ -23,6 +24,7 @@ type SortOrder = 'asc' | 'desc';
 
 
 export default function ReportsScreen() {
+	const { theme } = useAppTheme();
 	const reports = useReportsStore((state) => state.reports);
 	const loading = useReportsStore((state) => state.loading);
 	const selectedReport = useReportsStore((state) => state.selectedReport);
@@ -265,16 +267,18 @@ export default function ReportsScreen() {
 	// Check if any filters are active
 	const hasActiveFilters = searchQuery || filterTitles.size > 0 || filterActive !== null || filterHasLocation !== null;
 
+	const styles = useMemo(() => getStyles(theme), [theme]);
+
 	return (
 		<SafeAreaView style={styles.container} edges={['top']}>
 			<View style={styles.headerWrapper}>
 				<View style={styles.headerContainer}>
 					<View style={styles.searchContainer}>
-						<Search size={20} color={lightTheme.colors.onSurfaceVariant} />
+						<Search size={20} color={theme.colors.onSurfaceVariant} />
 						<TextInput
 							style={styles.searchInput}
 							placeholder="Buscar reportes..."
-							placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+							placeholderTextColor={theme.colors.onSurfaceVariant}
 							value={searchQuery}
 							onChangeText={setSearchQuery}
 							autoCapitalize="none"
@@ -282,18 +286,18 @@ export default function ReportsScreen() {
 						/>
 						{searchQuery.length > 0 && (
 							<Pressable onPress={clearSearch} style={styles.clearButton}>
-								<X size={18} color={lightTheme.colors.onSurfaceVariant} />
+								<X size={18} color={theme.colors.onSurfaceVariant} />
 							</Pressable>
 						)}
 						{isSearching && (
-							<ActivityIndicator size="small" color={lightTheme.colors.primary} />
+							<ActivityIndicator size="small" color={theme.colors.primary} />
 						)}
 					</View>
 					<ElevatedButton
-						backgroundColor={lightTheme.colors.primary}
+						backgroundColor={theme.colors.primary}
 						icon={Plus}
 						iconSize={22}
-						iconColor={lightTheme.colors.onPrimary}
+						iconColor={theme.colors.onPrimary}
 						label="Nuevo"
 						fontSize={typography.bodyMedium}
 						paddingX={spacing.sm}
@@ -312,9 +316,9 @@ export default function ReportsScreen() {
 					<Text style={styles.filtersHeaderText}>Filtros y ordenación</Text>
 					<View style={styles.filtersHeaderRight}>
 						{isFiltersExpanded ? (
-							<ChevronUp size={20} color={lightTheme.colors.onSurface} />
+							<ChevronUp size={20} color={theme.colors.onSurface} />
 						) : (
-							<ChevronDown size={20} color={lightTheme.colors.onSurface} />
+							<ChevronDown size={20} color={theme.colors.onSurface} />
 						)}
 					</View>
 				</TouchableOpacity>
@@ -350,15 +354,15 @@ export default function ReportsScreen() {
 											style={[
 												styles.statusChip,
 												{
-													backgroundColor: isSelected ? lightTheme.colors.secondaryContainer : lightTheme.colors.surface,
-													borderColor: isSelected ? lightTheme.colors.primary : lightTheme.colors.outline,
+													backgroundColor: isSelected ? theme.colors.secondaryContainer : theme.colors.surface,
+													borderColor: isSelected ? theme.colors.primary : theme.colors.outline,
 												},
 											]}
 											onPress={() => toggleTitleFilter(title)}
 										>
 											<TypeIcon
 												size={16}
-												color={lightTheme.colors.onSurface}
+												color={theme.colors.onSurface}
 											/>
 											<Text
 												style={[
@@ -380,13 +384,13 @@ export default function ReportsScreen() {
 									style={[
 										styles.statusChip,
 										{
-											backgroundColor: filterActive === true ? lightTheme.colors.secondaryContainer : lightTheme.colors.surface,
-											borderColor: filterActive === true ? lightTheme.colors.primary : lightTheme.colors.outline,
+											backgroundColor: filterActive === true ? theme.colors.secondaryContainer : theme.colors.surface,
+											borderColor: filterActive === true ? theme.colors.primary : theme.colors.outline,
 										},
 									]}
 									onPress={() => setFilterActive(filterActive === true ? null : true)}
 								>
-									<FileClock size={16} color={lightTheme.colors.onSurface} />
+									<FileClock size={16} color={theme.colors.onSurface} />
 									<Text
 										style={[
 											styles.statusChipText,
@@ -399,13 +403,13 @@ export default function ReportsScreen() {
 									style={[
 										styles.statusChip,
 										{
-											backgroundColor: filterActive === false ? lightTheme.colors.secondaryContainer : lightTheme.colors.surface,
-											borderColor: filterActive === false ? lightTheme.colors.primary : lightTheme.colors.outline,
+											backgroundColor: filterActive === false ? theme.colors.secondaryContainer : theme.colors.surface,
+											borderColor: filterActive === false ? theme.colors.primary : theme.colors.outline,
 										},
 									]}
 									onPress={() => setFilterActive(filterActive === false ? null : false)}
 								>
-									<CheckCheck size={16} color={lightTheme.colors.onSurface} />
+									<CheckCheck size={16} color={theme.colors.onSurface} />
 									<Text
 										style={[
 											styles.statusChipText,
@@ -424,13 +428,13 @@ export default function ReportsScreen() {
 									style={[
 										styles.statusChip,
 										{
-											backgroundColor: filterHasLocation === true ? lightTheme.colors.secondaryContainer : lightTheme.colors.surface,
-											borderColor: filterHasLocation === true ? lightTheme.colors.primary : lightTheme.colors.outline,
+											backgroundColor: filterHasLocation === true ? theme.colors.secondaryContainer : theme.colors.surface,
+											borderColor: filterHasLocation === true ? theme.colors.primary : theme.colors.outline,
 										},
 									]}
 									onPress={() => setFilterHasLocation(filterHasLocation === true ? null : true)}
 								>
-									<MapPin size={16} color={lightTheme.colors.onSurface} />
+									<MapPin size={16} color={theme.colors.onSurface} />
 									<Text
 										style={[
 											styles.statusChipText,
@@ -443,13 +447,13 @@ export default function ReportsScreen() {
 									style={[
 										styles.statusChip,
 										{
-											backgroundColor: filterHasLocation === false ? lightTheme.colors.secondaryContainer : lightTheme.colors.surface,
-											borderColor: filterHasLocation === false ? lightTheme.colors.primary : lightTheme.colors.outline,
+											backgroundColor: filterHasLocation === false ? theme.colors.secondaryContainer : theme.colors.surface,
+											borderColor: filterHasLocation === false ? theme.colors.primary : theme.colors.outline,
 										},
 									]}
 									onPress={() => setFilterHasLocation(filterHasLocation === false ? null : false)}
 								>
-									<MapPinOff size={16} color={lightTheme.colors.onSurface} />
+									<MapPinOff size={16} color={theme.colors.onSurface} />
 									<Text
 										style={[
 											styles.statusChipText,
@@ -479,9 +483,9 @@ export default function ReportsScreen() {
 
 									<View style={styles.activeFilterCardIcon}>
 										{sortOrder === 'asc' ? (
-											<ChevronsUp size={18} color={lightTheme.colors.primary} />
+											<ChevronsUp size={18} color={theme.colors.primary} />
 										) : (
-											<ChevronsDown size={18} color={lightTheme.colors.primary} />
+											<ChevronsDown size={18} color={theme.colors.primary} />
 										)}
 									</View>
 								</Pressable>
@@ -526,12 +530,12 @@ export default function ReportsScreen() {
 				<SkeletonList count={8} cardHeight={100} />
 			) : isSearching ? (
 				<View style={styles.loadingContainer}>
-					<ActivityIndicator size="large" color={lightTheme.colors.primary} />
+					<ActivityIndicator size="large" color={theme.colors.primary} />
 					<Text style={styles.loadingText}>Buscando...</Text>
 				</View>
 			) : filteredReports.length === 0 ? (
 				<View style={styles.emptyContainer}>
-					<FileWarning size={64} color={lightTheme.colors.onSurfaceVariant} />
+					<FileWarning size={64} color={theme.colors.onSurfaceVariant} />
 					<Text style={styles.emptyTitle}>
 						{hasActiveFilters
 							? 'No se encontraron reportes'
@@ -564,7 +568,7 @@ export default function ReportsScreen() {
 							paddingX={spacing.sm}
 							paddingY={spacing.sm}
 							shadow='none'
-							backgroundColor={lightTheme.colors.surface}
+							backgroundColor={theme.colors.surface}
 							style={styles.reportCard}
 						>
 							<View style={styles.cardContent}>
@@ -635,7 +639,7 @@ export default function ReportsScreen() {
 								style={styles.actionButton}
 								onPress={handleViewReport}
 							>
-								<ExternalLink size={22} color={lightTheme.colors.onSurface} />
+								<ExternalLink size={22} color={theme.colors.onSurface} />
 								<Text style={styles.actionText}>Ver incidencia</Text>
 							</TouchableOpacity>
 
@@ -645,12 +649,12 @@ export default function ReportsScreen() {
 							>
 								{selectedReport.read ? (
 									<>
-										<EyeOff size={22} color={lightTheme.colors.onSurface} />
+										<EyeOff size={22} color={theme.colors.onSurface} />
 										<Text style={styles.actionText}>Marcar como no leído</Text>
 									</>
 								) : (
 									<>
-										<Check size={22} color={lightTheme.colors.tertiary} />
+										<Check size={22} color={theme.colors.tertiary} />
 										<Text style={styles.actionText}>Marcar como leído</Text>
 									</>
 								)}
@@ -662,12 +666,12 @@ export default function ReportsScreen() {
 							>
 								{selectedReport.active ? (
 									<>
-										<CheckCheck size={22} color={lightTheme.colors.onSurface} />
+										<CheckCheck size={22} color={theme.colors.onSurface} />
 										<Text style={styles.actionText}>Marcar como resuelta</Text>
 									</>
 								) : (
 									<>
-										<TriangleAlert size={22} color={lightTheme.colors.tertiary} />
+										<TriangleAlert size={22} color={theme.colors.tertiary} />
 										<Text style={styles.actionText}>Marcar como pendiente</Text>
 									</>
 								)}
@@ -677,7 +681,7 @@ export default function ReportsScreen() {
 								style={[styles.actionButton, styles.dangerAction]}
 								onPress={handleRequestDelete}
 							>
-								<Trash2 size={22} color={lightTheme.colors.error} />
+								<Trash2 size={22} color={theme.colors.onError} />
 								<Text style={[styles.actionText, styles.dangerText]}>
 									Eliminar
 								</Text>
@@ -700,14 +704,14 @@ export default function ReportsScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	headerWrapper: {
-		backgroundColor: lightTheme.colors.background,
-		shadowColor: lightTheme.colors.shadow,
+		backgroundColor: theme.colors.background,
+		shadowColor: theme.colors.shadow,
 		shadowOffset: {
 			width: 0,
 			height: 6,
@@ -726,13 +730,13 @@ const styles = StyleSheet.create({
 		paddingTop: spacing.sm,
 		paddingBottom: spacing.xs,
 		gap: spacing.sm,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	searchContainer: {
 		flex: 1,
 		flexDirection: 'row',
 		alignItems: 'center',
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderRadius: roundness.sm,
 		paddingHorizontal: spacing.md,
 		paddingVertical: spacing.sm,
@@ -741,7 +745,7 @@ const styles = StyleSheet.create({
 	searchInput: {
 		flex: 1,
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		padding: 0,
 	},
 	clearButton: {
@@ -759,7 +763,7 @@ const styles = StyleSheet.create({
 	filtersHeaderText: {
 		fontSize: typography.bodySmall,
 		fontWeight: '400',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	filtersHeaderRight: {
 		flexDirection: 'row',
@@ -785,12 +789,12 @@ const styles = StyleSheet.create({
 	filterLabel: {
 		fontSize: typography.bodyMedium,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	clearFiltersText: {
 		fontSize: typography.bodySmall,
 		fontWeight: '600',
-		color: lightTheme.colors.primary,
+		color: theme.colors.primary,
 	},
 	statusChipsGrid: {
 		flexDirection: 'row',
@@ -811,7 +815,7 @@ const styles = StyleSheet.create({
 		flexBasis: 0,
 	},
 	statusChipText: {
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontSize: typography.bodyMedium,
 		fontWeight: '500',
 		flex: 1,
@@ -830,24 +834,24 @@ const styles = StyleSheet.create({
 		paddingHorizontal: spacing.md,
 		paddingVertical: spacing.md,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderWidth: 1.5,
-		borderColor: lightTheme.colors.outline,
+		borderColor: theme.colors.outline,
 		minWidth: 190,
 		flexGrow: 1,
 		flexShrink: 1,
 		maxWidth: 280,
 	},
 	sortOptionChipActive: {
-		backgroundColor: lightTheme.colors.secondaryContainer,
-		borderColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.secondaryContainer,
+		borderColor: theme.colors.primary,
 	},
 	sortOptionText: {
 		width: '100%',
 		textAlign: 'center',
 		fontSize: typography.bodyMedium,
 		fontWeight: '500',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	sortOptionTextActive: {
 		fontWeight: '600',
@@ -869,7 +873,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: spacing.md,
 		paddingVertical: spacing.sm,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 	},
 	activeFilterCardPressed: {
 		opacity: 0.9,
@@ -877,7 +881,7 @@ const styles = StyleSheet.create({
 	activeFilterCardText: {
 		fontSize: 14,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	activeFilterCardIcon: {
 		marginLeft: spacing.sm,
@@ -890,7 +894,7 @@ const styles = StyleSheet.create({
 	},
 	resultsText: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		fontWeight: '500',
 	},
 	loadingContainer: {
@@ -901,7 +905,7 @@ const styles = StyleSheet.create({
 	},
 	loadingText: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	emptyContainer: {
 		flex: 1,
@@ -913,12 +917,12 @@ const styles = StyleSheet.create({
 	emptyTitle: {
 		fontSize: typography.titleMedium,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		textAlign: 'center',
 	},
 	emptySubtitle: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		textAlign: 'center',
 	},
 	scrollView: {
@@ -947,17 +951,20 @@ const styles = StyleSheet.create({
 	},
 	reportTitle: {
 		fontSize: typography.titleMedium,
-		fontWeight: "600"
+		fontWeight: "600",
+		color: theme.colors.onSurface,
 	},
 	reportVehicle: {
 		fontSize: typography.bodyMedium,
 		fontWeight: "400",
-		opacity: 0.7
+		opacity: 0.7,
+		color: theme.colors.onSurface,
 	},
 	reportDriver: {
 		fontSize: typography.bodyMedium,
 		fontWeight: "400",
-		opacity: 0.7
+		opacity: 0.7,
+		color: theme.colors.onSurface
 	},
 	reportFooter: {
 		width: "100%",
@@ -970,7 +977,8 @@ const styles = StyleSheet.create({
 	reportDate: {
 		fontSize: typography.bodySmall,
 		fontWeight: "400",
-		opacity: 0.7
+		opacity: 0.7,
+		color: theme.colors.onSurface,
 	},
 	modalContent: {
 		gap: spacing.sm,
@@ -980,18 +988,18 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		padding: spacing.md,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 		gap: spacing.md,
 	},
 	actionText: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	dangerAction: {
-		backgroundColor: lightTheme.colors.errorContainer,
+		backgroundColor: theme.colors.errorContainer,
 	},
 	dangerText: {
-		color: lightTheme.colors.error,
+		color: theme.colors.onError,
 	},
 });

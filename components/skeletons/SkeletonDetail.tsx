@@ -1,5 +1,6 @@
-import { lightTheme, roundness, spacing } from '@/constants/theme';
-import React from 'react';
+import { roundness, spacing } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import React, { useMemo } from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SkeletonCard } from './SkeletonCard';
@@ -8,6 +9,9 @@ const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 44;
 const HEADER_HEIGHT = 250;
 
 export function SkeletonDetail() {
+	const { theme } = useAppTheme();
+	const styles = useMemo(() => getStyles(theme), [theme]);
+
 	return (
 		<SafeAreaView style={styles.container} edges={['top']}>
 			<View style={styles.topSpacer} />
@@ -43,10 +47,13 @@ export function SkeletonDetail() {
 }
 
 export function SkeletonHeaderDetail() {
+	const { theme, isDark } = useAppTheme();
+	const styles = useMemo(() => getStyles(theme), [theme]);
+
 	return (
 		<View style={styles.headerContainer}>
 			<StatusBar
-				barStyle="dark-content"
+				barStyle={isDark ? "light-content" : "dark-content"}
 				backgroundColor="transparent"
 				translucent={true}
 			/>
@@ -57,8 +64,8 @@ export function SkeletonHeaderDetail() {
 					<View style={styles.imageWrapper}>
 						<SkeletonCard
 							height={180}
-							backgroundColor={`${lightTheme.colors.onPrimary}80`}
-							shimmerColor={`${lightTheme.colors.onPrimary}B0`}
+							backgroundColor={`${theme.colors.onPrimary}80`}
+							shimmerColor={`${theme.colors.onPrimary}B0`}
 							borderRadius={roundness.md}
 						/>
 					</View>
@@ -101,15 +108,15 @@ export function SkeletonHeaderDetail() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	topSpacer: {
 		width: '100%',
 		height: 30,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	content: {
 		flex: 1,
@@ -129,7 +136,7 @@ const styles = StyleSheet.create({
 
 	headerContainer: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	header: {
 		position: 'absolute',
@@ -138,7 +145,7 @@ const styles = StyleSheet.create({
 		right: 0,
 		height: HEADER_HEIGHT + STATUS_BAR_HEIGHT,
 		zIndex: 1000,
-		backgroundColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primary,
 		justifyContent: 'center',
 		alignItems: 'center',
 		paddingTop: STATUS_BAR_HEIGHT,
@@ -150,7 +157,7 @@ const styles = StyleSheet.create({
 		right: 0,
 		height: STATUS_BAR_HEIGHT + 55,
 		zIndex: 1001,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 		opacity: 0,
 	},
 	imageContainer: {
@@ -166,14 +173,14 @@ const styles = StyleSheet.create({
 	},
 	scrollContent: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	headerSpacer: {
 		backgroundColor: 'transparent',
 	},
 	contentWithPadding: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 		borderTopLeftRadius: spacing.md,
 		borderTopRightRadius: spacing.md,
 		paddingHorizontal: spacing.md,

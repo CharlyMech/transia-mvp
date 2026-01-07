@@ -1,4 +1,5 @@
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -13,6 +14,9 @@ type AndroidTimePickerProps = {
 };
 
 export function AndroidTimePicker({ visible, value, onChange, onConfirm, onCancel }: AndroidTimePickerProps) {
+	const { theme } = useAppTheme();
+	const styles = createStyles(theme);
+
 	const [workingDate, setWorkingDate] = useState<Date>(new Date(value));
 
 	useEffect(() => {
@@ -61,12 +65,12 @@ export function AndroidTimePicker({ visible, value, onChange, onConfirm, onCance
 					<ElevatedButton
 						style={styles.smallBtn}
 						shadow="none"
-						backgroundColor={lightTheme.colors.background}
+						backgroundColor={theme.colors.background}
 						paddingX={spacing.xs}
 						paddingY={spacing.xs}
 						rounded={roundness.sm}
 						icon={ChevronUp}
-						iconColor={lightTheme.colors.onSurface}
+						iconColor={theme.colors.onSurface}
 						iconSize={24}
 						onPress={() => incHour(1)}
 					/>
@@ -78,12 +82,12 @@ export function AndroidTimePicker({ visible, value, onChange, onConfirm, onCance
 					<ElevatedButton
 						style={styles.smallBtn}
 						shadow="none"
-						backgroundColor={lightTheme.colors.background}
+						backgroundColor={theme.colors.background}
 						paddingX={spacing.xs}
 						paddingY={spacing.xs}
 						rounded={roundness.sm}
 						icon={ChevronDown}
-						iconColor={lightTheme.colors.onSurface}
+						iconColor={theme.colors.onSurface}
 						iconSize={24}
 						onPress={() => incHour(-1)}
 					/>
@@ -95,12 +99,12 @@ export function AndroidTimePicker({ visible, value, onChange, onConfirm, onCance
 					<ElevatedButton
 						style={styles.smallBtn}
 						shadow="none"
-						backgroundColor={lightTheme.colors.background}
+						backgroundColor={theme.colors.background}
 						paddingX={spacing.xs}
 						paddingY={spacing.xs}
 						rounded={roundness.sm}
 						icon={ChevronUp}
-						iconColor={lightTheme.colors.onSurface}
+						iconColor={theme.colors.onSurface}
 						iconSize={24}
 						onPress={() => incMinute(1)}
 					/>
@@ -112,12 +116,12 @@ export function AndroidTimePicker({ visible, value, onChange, onConfirm, onCance
 					<ElevatedButton
 						style={styles.smallBtn}
 						shadow="none"
-						backgroundColor={lightTheme.colors.background}
+						backgroundColor={theme.colors.background}
 						paddingX={spacing.xs}
 						paddingY={spacing.xs}
 						rounded={roundness.sm}
 						icon={ChevronDown}
-						iconColor={lightTheme.colors.onSurface}
+						iconColor={theme.colors.onSurface}
 						iconSize={24}
 						onPress={() => incMinute(-1)}
 					/>
@@ -127,7 +131,7 @@ export function AndroidTimePicker({ visible, value, onChange, onConfirm, onCance
 	);
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
 	wrapper: {
 		backgroundColor: 'transparent',
 	},
@@ -146,7 +150,7 @@ const styles = StyleSheet.create({
 	},
 	smallBtnText: {
 		fontSize: 16,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontWeight: '700',
 	},
 	valueBox: {
@@ -158,17 +162,17 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		borderRadius: roundness.sm,
 		borderWidth: 1,
-		borderColor: lightTheme.colors.outline,
-		backgroundColor: lightTheme.colors.surface,
+		borderColor: theme.colors.outline,
+		backgroundColor: theme.colors.surface,
 	},
 	valueText: {
 		fontSize: typography.headlineSmall,
 		fontWeight: '700',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	colon: {
 		fontSize: typography.headlineSmall,
 		fontWeight: '700',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 });

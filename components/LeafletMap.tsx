@@ -1,5 +1,6 @@
 import { Card } from "@/components/Card";
-import { lightTheme, roundness, spacing, typography } from "@/constants/theme";
+import { roundness, spacing, typography } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { Location } from "@/models/report";
 import { Ionicons } from "@expo/vector-icons";
 import * as ExpoLocation from "expo-location";
@@ -29,6 +30,9 @@ export function LeafletMap({
 	editable = false,
 	onLocationChange
 }: LeafletMapProps) {
+	const { theme } = useAppTheme();
+	const styles = createStyles(theme);
+
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [zoom, setZoom] = useState<number>(17);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -153,6 +157,7 @@ export function LeafletMap({
 	const MapContent = ({ isFullScreen = false }: { isFullScreen?: boolean }) => (
 		<View style={[
 			isFullScreen ? styles.fullScreenContainer : { height },
+			!isFullScreen && styles.compactMapContainer,
 			!isFullScreen && containerStyle
 		]}>
 			<WebView
@@ -182,7 +187,7 @@ export function LeafletMap({
 			{/* Marker */}
 			<View style={styles.centerMarkerContainer} pointerEvents="none">
 				<View style={styles.centerMarker}>
-					<MapPin size={32} color={lightTheme.colors.error} fill={lightTheme.colors.error} />
+					<MapPin size={32} color={theme.colors.error} fill={theme.colors.error} />
 				</View>
 			</View>
 
@@ -194,11 +199,11 @@ export function LeafletMap({
 							paddingY={spacing.sm}
 							rounded={roundness.sm}
 							shadow="small"
-							backgroundColor={lightTheme.colors.surface}
+							backgroundColor={theme.colors.surface}
 							style={styles.addressContainer}
 						>
 							<View style={styles.addressContent}>
-								<MapPin size={16} color={lightTheme.colors.onSurface} />
+								<MapPin size={16} color={theme.colors.onSurface} />
 								<Text style={styles.addressText} numberOfLines={2}>
 									{location.address}
 								</Text>
@@ -213,7 +218,7 @@ export function LeafletMap({
 						onPress={() => setIsExpanded(true)}
 						activeOpacity={0.7}
 					>
-						<Expand size={20} color={lightTheme.colors.onPrimary} />
+						<Expand size={20} color={theme.colors.onPrimary} />
 					</TouchableOpacity>
 				)}
 			</View>
@@ -247,7 +252,7 @@ export function LeafletMap({
 								style={styles.closeButton}
 								activeOpacity={0.7}
 							>
-								<Ionicons name="close" size={28} color={lightTheme.colors.onSurface} />
+								<Ionicons name="close" size={28} color={theme.colors.onSurface} />
 							</TouchableOpacity>
 						</View>
 						<MapContent isFullScreen />
@@ -260,10 +265,14 @@ export function LeafletMap({
 	return <MapContent isFullScreen />;
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
 	fullScreenContainer: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
+	},
+	compactMapContainer: {
+		borderRadius: roundness.sm,
+		overflow: 'hidden',
 	},
 	webview: {
 		flex: 1,
@@ -310,17 +319,17 @@ const styles = StyleSheet.create({
 	addressText: {
 		flex: 1,
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		lineHeight: 20,
 	},
 	expandButton: {
-		backgroundColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primary,
 		width: 36,
 		height: 36,
 		borderRadius: roundness.full,
 		justifyContent: "center",
 		alignItems: "center",
-		shadowColor: lightTheme.colors.shadow,
+		shadowColor: theme.colors.shadow,
 		shadowOffset: { width: 0, height: 2 },
 		shadowOpacity: 0.25,
 		shadowRadius: roundness.sm,
@@ -331,7 +340,7 @@ const styles = StyleSheet.create({
 		bottom: spacing.md,
 		left: spacing.md,
 		right: spacing.md,
-		backgroundColor: lightTheme.colors.primaryContainer,
+		backgroundColor: theme.colors.primaryContainer,
 		padding: spacing.sm,
 		borderRadius: roundness.sm,
 		alignItems: "center",
@@ -339,12 +348,12 @@ const styles = StyleSheet.create({
 	},
 	editHintText: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onPrimaryContainer,
+		color: theme.colors.onPrimaryContainer,
 		fontWeight: "500",
 	},
 	modalContainer: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	modalHeader: {
 		flexDirection: "row",
@@ -352,14 +361,14 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		padding: spacing.md,
 		paddingTop: 60,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 		borderBottomWidth: 1,
-		borderBottomColor: lightTheme.colors.outline,
+		borderBottomColor: theme.colors.outline,
 	},
 	modalTitle: {
 		fontSize: typography.titleMedium,
 		fontWeight: "600",
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	closeButton: {
 		padding: 4,

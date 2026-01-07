@@ -3,7 +3,8 @@ import { Card } from '@/components/Card';
 import { IconPlaceholder } from '@/components/IconPlaceholder';
 import { IOSDatePickerModal } from '@/components/IOSDatePickerModal';
 import { DriverStatus } from '@/constants/enums/DriverStatus';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useImagePicker } from '@/hooks/useImagePicker';
 import type { DriverFormData } from '@/models/driver';
 import { DriverFormSchema } from '@/models/driver';
@@ -40,6 +41,7 @@ export function DriverForm({
 	submitLabel = 'Guardar',
 	loading = false
 }: DriverFormProps) {
+	const { theme } = useAppTheme();
 	const { pickImage, takePhoto, loading: imageLoading } = useImagePicker();
 
 	const initialFormData: FormDataWithImage = {
@@ -127,6 +129,8 @@ export function DriverForm({
 		setShowDatePicker(false);
 	};
 
+	const styles = createStyles(theme);
+
 	const handleImageSelect = async (type: 'camera' | 'gallery') => {
 		setShowImageOptions(false);
 		const uri = type === 'camera' ? await takePhoto() : await pickImage();
@@ -166,7 +170,7 @@ export function DriverForm({
 				>
 					{imageLoading ? (
 						<View style={styles.imageContainer}>
-							<ActivityIndicator size="large" color={lightTheme.colors.primary} />
+							<ActivityIndicator size="large" color={theme.colors.primary} />
 						</View>
 					) : formData.imageUrl ? (
 						<Image
@@ -179,11 +183,11 @@ export function DriverForm({
 							paddingY={0}
 							rounded={roundness.sm}
 							shadow='none'
-							backgroundColor={`${lightTheme.colors.primary}CC`}
+							backgroundColor={`${theme.colors.primary}CC`}
 							style={styles.driverImage}
 						>
 							<IconPlaceholder
-								color={lightTheme.colors.onPrimary}
+								color={theme.colors.onPrimary}
 								icon={ImagePlus}
 								size={150}
 							/>
@@ -203,7 +207,7 @@ export function DriverForm({
 						style={styles.imageOption}
 						onPress={() => handleImageSelect('camera')}
 					>
-						<Camera size={24} color={lightTheme.colors.onSurface} />
+						<Camera size={24} color={theme.colors.onSurface} />
 						<Text style={styles.imageOptionText}>Tomar foto</Text>
 					</TouchableOpacity>
 
@@ -211,7 +215,7 @@ export function DriverForm({
 						style={styles.imageOption}
 						onPress={() => handleImageSelect('gallery')}
 					>
-						<ImageIcon size={24} color={lightTheme.colors.onSurface} />
+						<ImageIcon size={24} color={theme.colors.onSurface} />
 						<Text style={styles.imageOptionText}>Elegir de galería</Text>
 					</TouchableOpacity>
 				</View>
@@ -229,7 +233,7 @@ export function DriverForm({
 						value={formData.name}
 						onChangeText={(value) => handleChange('name', value)}
 						placeholder="Ej: Juan"
-						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						placeholderTextColor={theme.colors.onSurfaceVariant}
 						autoCapitalize="words"
 					/>
 					{errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
@@ -243,7 +247,7 @@ export function DriverForm({
 						value={formData.surnames}
 						onChangeText={(value) => handleChange('surnames', value)}
 						placeholder="Ej: García López"
-						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						placeholderTextColor={theme.colors.onSurfaceVariant}
 						autoCapitalize="words"
 					/>
 					{errors.surnames && <Text style={styles.errorText}>{errors.surnames}</Text>}
@@ -257,7 +261,7 @@ export function DriverForm({
 						value={formData.personId}
 						onChangeText={(value) => handleChange('personId', value)}
 						placeholder="Ej: 12345678A"
-						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						placeholderTextColor={theme.colors.onSurfaceVariant}
 						autoCapitalize="characters"
 						maxLength={9}
 					/>
@@ -282,7 +286,7 @@ export function DriverForm({
 								? formatDateToDisplay(formData.birthDate)
 								: 'Selecciona una fecha'}
 						</Text>
-						<Calendar size={20} color={lightTheme.colors.onSurfaceVariant} />
+						<Calendar size={20} color={theme.colors.onSurfaceVariant} />
 					</TouchableOpacity>
 					{errors.birthDate && <Text style={styles.errorText}>{errors.birthDate}</Text>}
 				</View>
@@ -327,7 +331,7 @@ export function DriverForm({
 						value={formData.phone}
 						onChangeText={(value) => handleChange('phone', value)}
 						placeholder="Ej: 612345678"
-						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						placeholderTextColor={theme.colors.onSurfaceVariant}
 						keyboardType="phone-pad"
 						maxLength={9}
 					/>
@@ -342,7 +346,7 @@ export function DriverForm({
 						value={formData.email}
 						onChangeText={(value) => handleChange('email', value)}
 						placeholder="Ej: conductor@ejemplo.com"
-						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						placeholderTextColor={theme.colors.onSurfaceVariant}
 						keyboardType="email-address"
 						autoCapitalize="none"
 					/>
@@ -357,7 +361,7 @@ export function DriverForm({
 						value={formData.completeAddress}
 						onChangeText={(value) => handleChange('completeAddress', value)}
 						placeholder="Ej: Calle Principal 123"
-						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						placeholderTextColor={theme.colors.onSurfaceVariant}
 						autoCapitalize="words"
 					/>
 					{errors.completeAddress && <Text style={styles.errorText}>{errors.completeAddress}</Text>}
@@ -376,7 +380,7 @@ export function DriverForm({
 						value={formData.licenseNumber}
 						onChangeText={(value) => handleChange('licenseNumber', value)}
 						placeholder="Ej: 12345678AB"
-						placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+						placeholderTextColor={theme.colors.onSurfaceVariant}
 						autoCapitalize="characters"
 					/>
 					{errors.licenseNumber && <Text style={styles.errorText}>{errors.licenseNumber}</Text>}
@@ -389,7 +393,7 @@ export function DriverForm({
 				disabled={loading}
 			>
 				{loading ? (
-					<ActivityIndicator color={lightTheme.colors.onPrimary} />
+					<ActivityIndicator color={theme.colors.onPrimary} />
 				) : (
 					<Text style={styles.submitButtonText}>{submitLabel}</Text>
 				)}
@@ -400,16 +404,16 @@ export function DriverForm({
 	);
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	content: {
 		padding: spacing.md,
 	},
 	imageSection: {
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		justifyContent: 'center',
 		alignItems: 'center',
 		marginBottom: spacing.xl,
@@ -417,7 +421,7 @@ const styles = StyleSheet.create({
 		padding: spacing.md,
 		borderRadius: roundness.sm,
 		borderWidth: 2,
-		borderColor: lightTheme.colors.primary,
+		borderColor: theme.colors.primary,
 		borderStyle: 'dashed',
 	},
 	imageContainer: {
@@ -426,7 +430,7 @@ const styles = StyleSheet.create({
 		borderRadius: roundness.sm,
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 	},
 	driverImage: {
 		width: 150,
@@ -436,7 +440,7 @@ const styles = StyleSheet.create({
 	imageHint: {
 		marginTop: spacing.sm,
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	imageOptionsContent: {
 		gap: spacing.sm,
@@ -447,16 +451,16 @@ const styles = StyleSheet.create({
 		padding: spacing.md,
 		gap: spacing.md,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	imageOptionDivider: {
 		height: 1,
-		backgroundColor: lightTheme.colors.outline,
+		backgroundColor: theme.colors.outline,
 		opacity: 0.3,
 	},
 	imageOptionText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontWeight: '500',
 	},
 	section: {
@@ -465,7 +469,7 @@ const styles = StyleSheet.create({
 	sectionTitle: {
 		fontSize: typography.titleMedium,
 		fontWeight: '600',
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 		marginBottom: spacing.md,
 	},
 	inputContainer: {
@@ -474,20 +478,20 @@ const styles = StyleSheet.create({
 	label: {
 		fontSize: typography.bodyMedium,
 		fontWeight: '500',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		marginBottom: spacing.xs,
 	},
 	input: {
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderRadius: roundness.sm,
 		padding: spacing.md,
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		borderWidth: 1,
 		borderColor: 'transparent',
 	},
 	inputError: {
-		borderColor: lightTheme.colors.error,
+		borderColor: theme.colors.error,
 	},
 	dateInput: {
 		flexDirection: 'row',
@@ -496,14 +500,14 @@ const styles = StyleSheet.create({
 	},
 	dateText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	placeholderText: {
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	errorText: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.error,
+		color: theme.colors.error,
 		marginTop: spacing.xs,
 	},
 	statusContainer: {
@@ -515,25 +519,25 @@ const styles = StyleSheet.create({
 		paddingVertical: spacing.sm,
 		paddingHorizontal: spacing.md,
 		borderRadius: roundness.sm,
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderWidth: 2,
-		borderColor: lightTheme.colors.outline,
+		borderColor: theme.colors.outline,
 	},
 	statusOptionActive: {
-		backgroundColor: lightTheme.colors.primaryContainer,
-		borderColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primaryContainer,
+		borderColor: theme.colors.primary,
 	},
 	statusOptionText: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontWeight: '500',
 	},
 	statusOptionTextActive: {
-		color: lightTheme.colors.onPrimaryContainer,
+		color: theme.colors.onPrimaryContainer,
 		fontWeight: '600',
 	},
 	submitButton: {
-		backgroundColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primary,
 		borderRadius: roundness.sm,
 		padding: spacing.md,
 		alignItems: 'center',
@@ -545,7 +549,7 @@ const styles = StyleSheet.create({
 	submitButtonText: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onPrimary,
+		color: theme.colors.onPrimary,
 	},
 	bottomSpacer: {
 		height: spacing.xl,

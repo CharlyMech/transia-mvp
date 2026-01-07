@@ -1,14 +1,19 @@
 import { Card } from '@/components/Card';
 import { SkeletonHome } from '@/components/skeletons';
 import { TimeTracking } from '@/components/TimeTracking';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useDriversStore } from '@/stores/useDriversStore';
 import { useFleetStore } from '@/stores/useFleetStore';
 import { useReportsStore } from '@/stores/useReportsStore';
+import React, { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
+	const { theme } = useAppTheme();
+	const styles = useMemo(() => getStyles(theme), [theme]);
+
 	const reportsLoading = useReportsStore((state) => state.loading);
 	const driversLoading = useDriversStore((state) => state.loading);
 	const fleetLoading = useFleetStore((state) => state.loading);
@@ -43,7 +48,7 @@ export default function HomeScreen() {
 					</View>
 
 					<Card
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={theme.colors.surface}
 						paddingX={spacing.sm}
 						paddingY={spacing.sm}
 						shadow="none"
@@ -83,10 +88,10 @@ export default function HomeScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	safeArea: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	scrollView: {
 		flex: 1,
@@ -96,7 +101,7 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 		padding: spacing.md,
 		gap: spacing.lg,
 	},
@@ -106,11 +111,11 @@ const styles = StyleSheet.create({
 	title: {
 		fontSize: typography.displaySmall,
 		fontWeight: '700',
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 	},
 	subtitle: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	statsSection: {
 		gap: spacing.md,
@@ -118,7 +123,7 @@ const styles = StyleSheet.create({
 	sectionTitle: {
 		fontSize: typography.titleLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 	},
 	statsContainer: {
 		flexDirection: 'row',
@@ -128,10 +133,10 @@ const styles = StyleSheet.create({
 	statCard: {
 		flex: 1,
 		minWidth: 100,
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		padding: spacing.md,
 		borderRadius: roundness.md,
-		shadowColor: lightTheme.colors.shadow,
+		shadowColor: theme.colors.shadow,
 		shadowOffset: { width: 0, height: 1 },
 		shadowOpacity: 0.05,
 		shadowRadius: 2,
@@ -141,10 +146,10 @@ const styles = StyleSheet.create({
 	statValue: {
 		fontSize: typography.headlineMedium,
 		fontWeight: '700',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 	},
 	statLabel: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 });

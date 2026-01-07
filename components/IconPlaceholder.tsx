@@ -1,4 +1,5 @@
-import { lightTheme, roundness } from '@/constants/theme';
+import { roundness } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { LucideIcon } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -14,10 +15,12 @@ interface IconPlaceholderProps {
 export function IconPlaceholder({
 	icon: Icon,
 	size,
-	color = lightTheme.colors.secondary,
+	color,
 	rounded = roundness.md,
 	borderWidth = 0
 }: IconPlaceholderProps) {
+	const { theme } = useAppTheme();
+	const iconColor = color || theme.colors.secondary;
 	return (
 		<View
 			style={[
@@ -27,13 +30,13 @@ export function IconPlaceholder({
 					height: size,
 					borderRadius: rounded,
 					borderWidth,
-					borderColor: color
+					borderColor: iconColor
 				},
 			]}
 		>
 			<Icon
 				size={size * 0.7}
-				color={color}
+				color={iconColor}
 				strokeWidth={1.5}
 			/>
 		</View>

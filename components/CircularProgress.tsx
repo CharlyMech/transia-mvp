@@ -1,4 +1,5 @@
-import { lightTheme, spacing } from "@/constants/theme";
+import { spacing } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import Svg, { Circle, Text as SvgText } from 'react-native-svg';
@@ -20,18 +21,23 @@ export function CircularProgress({
 	size = 160,
 	strokeWidth = 20,
 	circleColor,
-	backgroundCircleColor = `${lightTheme.colors.outline}30`,
-	textColor = lightTheme.colors.onSurface,
-	remainingTextColor = lightTheme.colors.onSurfaceVariant,
+	backgroundCircleColor,
+	textColor,
+	remainingTextColor,
 }: CircularProgressProps) {
+	const { theme } = useAppTheme();
+
 	const baseRadius = (size - strokeWidth) / 2;
 	const circumference = baseRadius * 2 * Math.PI;
 
 	// Calculate progress (can exceed 100%)
 	const progress = currentMinutes / targetMinutes;
 
-	// Use provided color or default
-	const mainColor = circleColor || lightTheme.colors.primary;
+	// Use provided colors or defaults from theme
+	const mainColor = circleColor || theme.colors.primary;
+	const bgCircleColor = backgroundCircleColor || `${theme.colors.outline}30`;
+	const mainTextColor = textColor || theme.colors.onSurface;
+	const secondaryTextColor = remainingTextColor || theme.colors.onSurfaceVariant;
 
 	const hours = Math.floor(currentMinutes / 60);
 	const minutes = currentMinutes % 60;
@@ -139,7 +145,7 @@ export function CircularProgress({
 					cx={size / 2}
 					cy={size / 2}
 					r={baseRadius}
-					stroke={backgroundCircleColor}
+					stroke={bgCircleColor}
 					strokeWidth={strokeWidth}
 					fill="none"
 				/>
@@ -154,7 +160,7 @@ export function CircularProgress({
 					textAnchor="middle"
 					fontSize="32"
 					fontWeight="700"
-					fill={textColor}
+					fill={mainTextColor}
 				>
 					{formattedTime}
 				</SvgText>
@@ -165,7 +171,7 @@ export function CircularProgress({
 					y={size / 2 + 20}
 					textAnchor="middle"
 					fontSize="14"
-					fill={remainingTextColor}
+					fill={secondaryTextColor}
 				>
 					{remainingText}
 				</SvgText>

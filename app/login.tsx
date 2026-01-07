@@ -1,11 +1,12 @@
 import { Card } from '@/components/Card';
 import { DebugPanel } from '@/components/DebugPanel';
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { LoginCredentialsSchema } from '@/models/auth';
 import { DEBUG_PANEL_ENABLED } from '@/services/env';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { AlertTriangle, Eye, EyeOff } from 'lucide-react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
 	ActivityIndicator,
 	Image,
@@ -24,6 +25,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LoginScreen() {
+	const { theme } = useAppTheme();
 	const [identifier, setIdentifier] = useState('');
 	const [password, setPassword] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
@@ -38,6 +40,8 @@ export default function LoginScreen() {
 	const isLoading = useAuthStore((state) => state.isLoading);
 	const error = useAuthStore((state) => state.error);
 	const clearError = useAuthStore((state) => state.clearError);
+
+	const styles = useMemo(() => getStyles(theme), [theme]);
 
 	// Clear error when user starts typing
 	useEffect(() => {
@@ -164,13 +168,13 @@ export default function LoginScreen() {
 									paddingY={spacing.md}
 									rounded={roundness.sm}
 									shadow="none"
-									backgroundColor={lightTheme.colors.errorContainer}
+									backgroundColor={theme.colors.errorContainer}
 									style={styles.errorCard}
 								>
 									<View style={styles.errorContent}>
 										<AlertTriangle
 											size={20}
-											color={lightTheme.colors.error}
+											color={theme.colors.error}
 										/>
 										<Text style={styles.errorText}>{error}</Text>
 									</View>
@@ -197,7 +201,7 @@ export default function LoginScreen() {
 										value={identifier}
 										onChangeText={setIdentifier}
 										placeholder="Ej: 612345678 o correo@ejemplo.com"
-										placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+										placeholderTextColor={theme.colors.onSurfaceVariant}
 										autoCapitalize="none"
 										autoCorrect={false}
 										editable={!isLoading}
@@ -236,7 +240,7 @@ export default function LoginScreen() {
 										value={password}
 										onChangeText={setPassword}
 										placeholder="Ingresa tu contraseña"
-										placeholderTextColor={lightTheme.colors.onSurfaceVariant}
+										placeholderTextColor={theme.colors.onSurfaceVariant}
 										secureTextEntry={!showPassword}
 										autoCapitalize="none"
 										autoCorrect={false}
@@ -257,12 +261,12 @@ export default function LoginScreen() {
 										{showPassword ? (
 											<EyeOff
 												size={20}
-												color={lightTheme.colors.onSurfaceVariant}
+												color={theme.colors.onSurfaceVariant}
 											/>
 										) : (
 											<Eye
 												size={20}
-												color={lightTheme.colors.onSurfaceVariant}
+												color={theme.colors.onSurfaceVariant}
 											/>
 										)}
 									</Pressable>
@@ -284,7 +288,7 @@ export default function LoginScreen() {
 								{isLoading ? (
 									<ActivityIndicator
 										size="small"
-										color={lightTheme.colors.onPrimary}
+										color={theme.colors.onPrimary}
 									/>
 								) : (
 									<Text style={styles.loginButtonText}>Iniciar Sesión</Text>
@@ -318,7 +322,7 @@ export default function LoginScreen() {
 					<View style={styles.loadingContent}>
 						<ActivityIndicator
 							size="large"
-							color={lightTheme.colors.primary}
+							color={theme.colors.primary}
 						/>
 						<Text style={styles.loadingText}>Iniciando sesión...</Text>
 					</View>
@@ -328,10 +332,10 @@ export default function LoginScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.background,
+		backgroundColor: theme.colors.background,
 	},
 	keyboardView: {
 		flex: 1,
@@ -362,12 +366,12 @@ const styles = StyleSheet.create({
 	title: {
 		fontSize: typography.displayMedium,
 		fontWeight: '700',
-		color: lightTheme.colors.primary,
+		color: theme.colors.primary,
 		marginBottom: spacing.xs,
 	},
 	subtitle: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		opacity: 0.8,
 	},
 	formSection: {
@@ -377,7 +381,7 @@ const styles = StyleSheet.create({
 	welcomeText: {
 		fontSize: typography.titleMedium,
 		fontWeight: '600',
-		color: lightTheme.colors.onBackground,
+		color: theme.colors.onBackground,
 		marginBottom: spacing.lg,
 	},
 	errorCard: {
@@ -391,7 +395,7 @@ const styles = StyleSheet.create({
 	errorText: {
 		flex: 1,
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.error,
+		color: theme.colors.error,
 		fontWeight: '500',
 	},
 	inputContainer: {
@@ -400,7 +404,7 @@ const styles = StyleSheet.create({
 	label: {
 		fontSize: typography.bodyMedium,
 		fontWeight: '500',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		marginBottom: spacing.xs,
 	},
 	inputWrapper: {
@@ -410,11 +414,11 @@ const styles = StyleSheet.create({
 	},
 	input: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderRadius: roundness.sm,
 		padding: spacing.md,
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		borderWidth: 1,
 		borderColor: 'transparent',
 	},
@@ -424,15 +428,15 @@ const styles = StyleSheet.create({
 		padding: spacing.xs,
 	},
 	inputError: {
-		borderColor: lightTheme.colors.error,
+		borderColor: theme.colors.error,
 	},
 	fieldErrorText: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.error,
+		color: theme.colors.error,
 		marginTop: spacing.xs,
 	},
 	loginButton: {
-		backgroundColor: lightTheme.colors.primary,
+		backgroundColor: theme.colors.primary,
 		borderRadius: roundness.sm,
 		padding: spacing.md,
 		alignItems: 'center',
@@ -446,7 +450,7 @@ const styles = StyleSheet.create({
 	loginButtonText: {
 		fontSize: typography.bodyLarge,
 		fontWeight: '600',
-		color: lightTheme.colors.onPrimary,
+		color: theme.colors.onPrimary,
 	},
 	helperContainer: {
 		alignItems: 'center',
@@ -455,12 +459,12 @@ const styles = StyleSheet.create({
 	},
 	helperText: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		textAlign: 'center',
 	},
 	helperTextBold: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.primary,
+		color: theme.colors.primary,
 		fontWeight: '600',
 		textAlign: 'center',
 	},
@@ -477,22 +481,22 @@ const styles = StyleSheet.create({
 	},
 	footerText: {
 		fontSize: typography.bodySmall,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 		fontWeight: '500',
 	},
 	footerTextSmall: {
 		fontSize: typography.labelSmall,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	loadingOverlay: {
 		...StyleSheet.absoluteFillObject,
-		backgroundColor: lightTheme.colors.backdrop,
+		backgroundColor: theme.colors.backdrop,
 		justifyContent: 'center',
 		alignItems: 'center',
 		zIndex: 1000,
 	},
 	loadingContent: {
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderRadius: roundness.sm,
 		padding: spacing.xl,
 		alignItems: 'center',
@@ -501,7 +505,7 @@ const styles = StyleSheet.create({
 	},
 	loadingText: {
 		fontSize: typography.bodyLarge,
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		fontWeight: '500',
 	},
 });

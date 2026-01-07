@@ -1,6 +1,8 @@
 import { Card } from "@/components/Card";
-import { lightTheme, spacing, typography } from "@/constants/theme";
+import { spacing, typography } from "@/constants/theme";
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { X } from "lucide-react-native";
+import React, { useMemo } from 'react';
 import {
 	Modal,
 	ModalProps,
@@ -19,6 +21,9 @@ type SimpleModalProps = Omit<ModalProps, 'visible'> & {
 };
 
 export function ActionsModal({ visible, onClose, title, animationType = 'fade', children, ...props }: SimpleModalProps) {
+	const { theme } = useAppTheme();
+	const styles = useMemo(() => getStyles(theme), [theme]);
+
 	return (
 		<Modal
 			visible={visible}
@@ -32,7 +37,7 @@ export function ActionsModal({ visible, onClose, title, animationType = 'fade', 
 				<Pressable style={styles.content} onPress={(e) => e.stopPropagation()}>
 					<Card
 						shadow="medium"
-						backgroundColor={lightTheme.colors.surface}
+						backgroundColor={theme.colors.surface}
 						paddingX={0}
 						paddingY={0}
 					>
@@ -43,7 +48,7 @@ export function ActionsModal({ visible, onClose, title, animationType = 'fade', 
 								</View>
 							)}
 							<Pressable style={styles.closeButton} onPress={onClose}>
-								<X size={28} color={lightTheme.colors.onSurface} />
+								<X size={28} color={theme.colors.onSurface} />
 							</Pressable>
 						</View>
 
@@ -58,10 +63,10 @@ export function ActionsModal({ visible, onClose, title, animationType = 'fade', 
 	);
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
 	overlay: {
 		flex: 1,
-		backgroundColor: lightTheme.colors.backdrop,
+		backgroundColor: theme.colors.backdrop,
 		justifyContent: "center",
 		alignItems: "center",
 	},
@@ -84,6 +89,7 @@ const styles = StyleSheet.create({
 	title: {
 		fontSize: typography.headlineSmall,
 		fontWeight: "600",
+		color: theme.colors.onSurface,
 	},
 	childrenContainer: {
 		padding: spacing.lg,

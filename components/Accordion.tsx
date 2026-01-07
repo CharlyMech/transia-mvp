@@ -1,4 +1,5 @@
-import { lightTheme, roundness, spacing, typography } from '@/constants/theme';
+import { roundness, spacing, typography } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { ChevronDown } from 'lucide-react-native';
 import React, { PropsWithChildren } from 'react';
 import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
@@ -35,6 +36,9 @@ export function Accordion({
 	onToggle,
 	duration = 300,
 }: PropsWithChildren<AccordionProps>) {
+	const { theme } = useAppTheme();
+	const styles = createStyles(theme);
+
 	const isControlled = controlledIsExpanded !== undefined;
 	const [internalIsExpanded, setInternalIsExpanded] = React.useState(false);
 
@@ -91,7 +95,7 @@ export function Accordion({
 					<View style={styles.headerRight}>
 						{rightContent}
 						<Animated.View style={chevronAnimatedStyle}>
-							<ChevronDown size={24} color={lightTheme.colors.onSurface} />
+							<ChevronDown size={24} color={theme.colors.onSurface} />
 						</Animated.View>
 					</View>
 				</Pressable>
@@ -111,12 +115,12 @@ export function Accordion({
 	);
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
 	container: {
 		overflow: 'hidden',
 	},
 	header: {
-		backgroundColor: lightTheme.colors.surface,
+		backgroundColor: theme.colors.surface,
 		borderRadius: roundness.sm,
 	},
 	headerPressable: {
@@ -135,12 +139,12 @@ const styles = StyleSheet.create({
 	title: {
 		fontSize: typography.titleMedium,
 		fontWeight: '600',
-		color: lightTheme.colors.onSurface,
+		color: theme.colors.onSurface,
 		marginBottom: spacing.xs,
 	},
 	subtitle: {
 		fontSize: typography.bodyMedium,
-		color: lightTheme.colors.onSurfaceVariant,
+		color: theme.colors.onSurfaceVariant,
 	},
 	headerRight: {
 		flexDirection: 'row',
