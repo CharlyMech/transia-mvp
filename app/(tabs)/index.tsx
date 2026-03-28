@@ -1,18 +1,20 @@
-import { Card } from '@/components/Card';
 import { SkeletonHome } from '@/components/skeletons';
-import { TimeTracking } from '@/components/TimeTracking';
 import { roundness, spacing, typography } from '@/constants/theme';
 import { useAppTheme } from '@/hooks/useAppTheme';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useDriversStore } from '@/stores/useDriversStore';
 import { useFleetStore } from '@/stores/useFleetStore';
 import { useReportsStore } from '@/stores/useReportsStore';
+import { Bell } from 'lucide-react-native';
 import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
 	const { theme } = useAppTheme();
 	const styles = useMemo(() => getStyles(theme), [theme]);
+
+	const user = useAuthStore((state) => state.user);
 
 	const reportsLoading = useReportsStore((state) => state.loading);
 	const driversLoading = useDriversStore((state) => state.loading);
@@ -35,13 +37,39 @@ export default function HomeScreen() {
 	const activeVehicles = vehicles.length;
 
 	return (
-		<SafeAreaView style={styles.safeArea}>
+		<SafeAreaView style={styles.safeArea} edges={['top']}>
 			<ScrollView
 				style={styles.scrollView}
 				contentContainerStyle={styles.scrollContent}
 				showsVerticalScrollIndicator={false}
 			>
-				<View style={styles.container}>
+				<View style={styles.header}>
+					<View style={styles.headerContent}>
+						<Text style={styles.subtitle}>Bienvenido a Transia</Text>
+						<Text style={styles.title}>{user?.name} {user?.surnames}</Text>
+					</View>
+					<TouchableOpacity
+						style={styles.notificationButton}
+						onPress={() => {
+							// TODO: Navigate to notifications screen
+							console.log('Navigate to notifications');
+						}}
+					>
+						<Bell
+							size={24}
+							color={theme.colors.onPrimary}
+							strokeWidth={2}
+						/>
+						{unreadReports > 0 && (
+							<View style={styles.notificationBadge}>
+								<Text style={styles.notificationBadgeText}>
+									{unreadReports > 99 ? '99+' : unreadReports}
+								</Text>
+							</View>
+						)}
+					</TouchableOpacity>
+				</View>
+				{/* <View style={styles.container}>
 					<View style={styles.headerSection}>
 						<Text style={styles.title}>Dashboard</Text>
 						<Text style={styles.subtitle}>Bienvenido a Transia</Text>
@@ -56,7 +84,6 @@ export default function HomeScreen() {
 						<TimeTracking />
 					</Card>
 
-					{/* TEMPORARY CONTENT */}
 					<View style={styles.statsSection}>
 						<Text style={styles.sectionTitle}>Resumen</Text>
 
@@ -82,7 +109,7 @@ export default function HomeScreen() {
 							</View>
 						</View>
 					</View>
-				</View>
+				</View> */}
 			</ScrollView>
 		</SafeAreaView>
 	);
@@ -98,6 +125,20 @@ const getStyles = (theme: any) => StyleSheet.create({
 	},
 	scrollContent: {
 		flexGrow: 1,
+		paddingHorizontal: spacing.md,
+		paddingTop: spacing.md,
+		paddingBottom: spacing.xl,
+	},
+	header: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+	},
+	headerContent: {
+		flexDirection: 'column',
+		gap: spacing.xs,
+		flexShrink: 1,
+		marginRight: spacing.sm,
 	},
 	container: {
 		flex: 1,
@@ -109,7 +150,7 @@ const getStyles = (theme: any) => StyleSheet.create({
 		gap: spacing.xs,
 	},
 	title: {
-		fontSize: typography.displaySmall,
+		fontSize: typography.headlineMedium,
 		fontWeight: '700',
 		color: theme.colors.onBackground,
 	},
@@ -151,5 +192,32 @@ const getStyles = (theme: any) => StyleSheet.create({
 	statLabel: {
 		fontSize: typography.bodyMedium,
 		color: theme.colors.onSurfaceVariant,
+	},
+	notificationButton: {
+		position: 'relative',
+		width: 48,
+		height: 48,
+		justifyContent: 'center',
+		alignItems: 'center',
+		backgroundColor: theme.colors.primary,
+		borderRadius: roundness.sm
+	},
+	notificationBadge: {
+		position: 'absolute',
+		top: 6,
+		right: 6,
+		backgroundColor: theme.colors.error,
+		borderRadius: 10,
+		minWidth: 18,
+		height: 18,
+		justifyContent: 'center',
+		alignItems: 'center',
+		paddingHorizontal: 4,
+	},
+	notificationBadgeText: {
+		color: theme.colors.onPrimary,
+		fontSize: 10,
+		fontWeight: '700',
+		lineHeight: 12,
 	},
 });
